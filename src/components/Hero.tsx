@@ -10,6 +10,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
   
   // Auto-rotation for carousel
   useEffect(() => {
@@ -25,25 +26,49 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
     setCurrentSlide(index);
   };
 
+  // Track image loading
+  const handleImageLoad = (id: string) => {
+    setImagesLoaded(prev => ({ ...prev, [id]: true }));
+  };
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Carousel */}
       <div className="absolute inset-0 w-full h-full">
-        {featuredArtworks.map((artwork, index) => (
-          <div
-            key={artwork.id}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
-              currentSlide === index ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{
-              backgroundImage: `url(${artwork.image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-mirakiBlue-900/90 via-mirakiBlue-900/50 to-transparent" />
-          </div>
-        ))}
+        {featuredArtworks.map((artwork, index) => {
+          // Create a hidden image element to preload and check loading status
+          return (
+            <div
+              key={artwork.id}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
+                currentSlide === index ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img 
+                src={artwork.image}
+                alt=""
+                className="hidden"
+                onLoad={() => handleImageLoad(artwork.id)}
+                onError={() => handleImageLoad(artwork.id)} // Mark as loaded even on error
+              />
+              <div 
+                className="absolute inset-0 w-full h-full"
+                style={{
+                  backgroundImage: `url(${artwork.image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  opacity: imagesLoaded[artwork.id] ? 1 : 0,
+                  transition: 'opacity 0.5s ease-in-out'
+                }}
+              >
+                {!imagesLoaded[artwork.id] && (
+                  <div className="absolute inset-0 bg-mirakiBlue-900 animate-pulse"></div>
+                )}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-mirakiBlue-900/90 via-mirakiBlue-900/50 to-transparent" />
+            </div>
+          );
+        })}
       </div>
       
       {/* Content */}

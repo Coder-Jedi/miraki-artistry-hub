@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ExternalLink, ImageOff } from 'lucide-react';
 import { Artwork } from '@/types';
 
 interface ArtworkModalProps {
@@ -19,6 +19,7 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
 }) => {
   const [modalClass, setModalClass] = useState('opacity-0 scale-95');
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -43,6 +44,9 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
     if (isOpen) {
       setModalClass('opacity-100 scale-100');
       document.body.style.overflow = 'hidden';
+      // Reset states when modal opens with new artwork
+      setImageLoaded(false);
+      setImageError(false);
     } else {
       setModalClass('opacity-0 scale-95');
       document.body.style.overflow = '';
@@ -51,9 +55,15 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isOpen]);
+  }, [isOpen, artwork]);
   
   if (!artwork) return null;
+
+  const handleImageError = () => {
+    console.error(`Failed to load image in modal: ${artwork.image}`);
+    setImageError(true);
+    setImageLoaded(true); // We still consider it "loaded" to remove loading indicator
+  };
 
   return (
     <div
@@ -103,12 +113,21 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
         {/* Image */}
         <div className="relative md:w-[55%] h-[300px] md:h-auto overflow-hidden bg-mirakiBlue-950 dark:bg-mirakiBlue-950">
           <div className={`image-loading absolute inset-0 ${imageLoaded ? 'opacity-0' : 'opacity-100'}`} />
-          <img
-            src={artwork.image}
-            alt={artwork.title}
-            className={`w-full h-full object-cover ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onLoad={() => setImageLoaded(true)}
-          />
+          
+          {imageError ? (
+            <div className="w-full h-full flex flex-col items-center justify-center">
+              <ImageOff size={48} className="text-mirakiGray-400 mb-2" />
+              <p className="text-mirakiGray-400">Image unavailable</p>
+            </div>
+          ) : (
+            <img
+              src={artwork.image}
+              alt={artwork.title}
+              className={`w-full h-full object-cover ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setImageLoaded(true)}
+              onError={handleImageError}
+            />
+          )}
         </div>
         
         {/* Content */}

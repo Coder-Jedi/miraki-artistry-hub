@@ -10,6 +10,13 @@ interface ArtworkCardProps {
 
 const ArtworkCard: React.FC<ArtworkCardProps> = ({ artwork, onClick }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    console.error(`Failed to load image: ${artwork.image}`);
+    setImageError(true);
+    setImageLoaded(true); // We still consider it "loaded" to remove loading indicator
+  };
 
   return (
     <div 
@@ -18,14 +25,21 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({ artwork, onClick }) => {
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <div className={`image-loading absolute inset-0 ${imageLoaded ? 'opacity-0' : 'opacity-100'}`} />
-        <img
-          src={artwork.image}
-          alt={artwork.title}
-          className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={() => setImageLoaded(true)}
-        />
+        {imageError ? (
+          <div className="w-full h-full flex items-center justify-center bg-mirakiGray-100 dark:bg-mirakiBlue-950">
+            <p className="text-mirakiBlue-500 dark:text-mirakiGray-400">Image not available</p>
+          </div>
+        ) : (
+          <img
+            src={artwork.image}
+            alt={artwork.title}
+            className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            onLoad={() => setImageLoaded(true)}
+            onError={handleImageError}
+          />
+        )}
         <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <span className="inline-block px-2 py-1 text-xs font-medium bg-mirakiGold rounded text-mirakiBlue-900">
             {artwork.category}

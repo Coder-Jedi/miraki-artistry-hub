@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Map, User } from 'lucide-react';
+import { ArrowLeft, Map, User, ImageOff } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { artworksData } from '@/data/artworks';
 import { Artwork } from '@/types';
@@ -13,11 +13,14 @@ const ArtworkDetails: React.FC = () => {
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
   const [relatedArtworks, setRelatedArtworks] = useState<Artwork[]>([]);
+  const [mainImageError, setMainImageError] = useState(false);
 
   useEffect(() => {
     // Simulate API call
     const fetchArtwork = () => {
       setLoading(true);
+      setMainImageError(false); // Reset on new artwork load
+      
       setTimeout(() => {
         const foundArtwork = artworksData.find(art => art.id === id);
         setArtwork(foundArtwork || null);
@@ -39,6 +42,11 @@ const ArtworkDetails: React.FC = () => {
 
     fetchArtwork();
   }, [id]);
+
+  const handleMainImageError = () => {
+    console.error(`Failed to load main artwork image: ${artwork?.image}`);
+    setMainImageError(true);
+  };
 
   if (loading) {
     return (
@@ -93,11 +101,19 @@ const ArtworkDetails: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             {/* Artwork Image */}
             <div className="bg-white dark:bg-mirakiBlue-800 rounded-lg overflow-hidden shadow-md">
-              <img 
-                src={artwork.image} 
-                alt={artwork.title} 
-                className="w-full h-auto object-cover aspect-[4/3]"
-              />
+              {mainImageError ? (
+                <div className="w-full aspect-[4/3] flex flex-col items-center justify-center bg-mirakiGray-100 dark:bg-mirakiBlue-900">
+                  <ImageOff size={64} className="text-mirakiGray-400 mb-3" />
+                  <p className="text-mirakiBlue-500 dark:text-mirakiGray-400">Image not available</p>
+                </div>
+              ) : (
+                <img 
+                  src={artwork.image} 
+                  alt={artwork.title} 
+                  className="w-full h-auto object-cover aspect-[4/3]"
+                  onError={handleMainImageError}
+                />
+              )}
             </div>
             
             {/* Artwork Details */}
