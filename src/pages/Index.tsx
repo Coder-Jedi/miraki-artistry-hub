@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import Layout from '@/components/Layout';
 import Hero from '@/components/Hero';
 import FilterBar from '@/components/FilterBar';
