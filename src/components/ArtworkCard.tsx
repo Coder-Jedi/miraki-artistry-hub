@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Artwork } from '@/types';
+import { ImageOff } from 'lucide-react';
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -18,20 +19,28 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({ artwork, onClick }) => {
     setImageLoaded(true); // We still consider it "loaded" to remove loading indicator
   };
 
+  // Make sure we use the full URL for images
+  const imageUrl = artwork.image.startsWith('http') 
+    ? artwork.image 
+    : `${window.location.origin}${artwork.image}`;
+
   return (
     <div 
       className="group cursor-pointer hover-lift rounded-lg overflow-hidden bg-white dark:bg-mirakiBlue-800 border border-mirakiGray-200 dark:border-mirakiBlue-700"
       onClick={() => onClick(artwork)}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <div className={`image-loading absolute inset-0 ${imageLoaded ? 'opacity-0' : 'opacity-100'}`} />
+        <div className={`absolute inset-0 bg-mirakiGray-100 dark:bg-mirakiBlue-950 animate-pulse ${imageLoaded ? 'hidden' : 'block'}`} />
         {imageError ? (
           <div className="w-full h-full flex items-center justify-center bg-mirakiGray-100 dark:bg-mirakiBlue-950">
-            <p className="text-mirakiBlue-500 dark:text-mirakiGray-400">Image not available</p>
+            <div className="flex flex-col items-center text-center p-4">
+              <ImageOff size={32} className="text-mirakiGray-400 mb-2" />
+              <p className="text-mirakiBlue-500 dark:text-mirakiGray-400">Image not available</p>
+            </div>
           </div>
         ) : (
           <img
-            src={artwork.image}
+            src={imageUrl}
             alt={artwork.title}
             className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'

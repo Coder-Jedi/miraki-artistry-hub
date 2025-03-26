@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ImageOff } from 'lucide-react';
 import { Artwork } from '@/types';
 
 interface HeroProps {
@@ -11,6 +11,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
+  const [imagesError, setImagesError] = useState<Record<string, boolean>>({});
   
   // Auto-rotation for carousel
   useEffect(() => {
@@ -28,7 +29,15 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
 
   // Track image loading
   const handleImageLoad = (id: string) => {
+    console.log(`Hero image loaded successfully: ${id}`);
     setImagesLoaded(prev => ({ ...prev, [id]: true }));
+  };
+
+  // Track image error
+  const handleImageError = (id: string, url: string) => {
+    console.error(`Failed to load Hero image: ${id}, URL: ${url}`);
+    setImagesError(prev => ({ ...prev, [id]: true }));
+    setImagesLoaded(prev => ({ ...prev, [id]: true })); // Mark as loaded to remove loading state
   };
 
   return (
@@ -36,7 +45,11 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
       {/* Background Carousel */}
       <div className="absolute inset-0 w-full h-full">
         {featuredArtworks.map((artwork, index) => {
-          // Create a hidden image element to preload and check loading status
+          // Get full URL for the image
+          const imageUrl = artwork.image.startsWith('http') 
+            ? artwork.image 
+            : `${window.location.origin}${artwork.image}`;
+          
           return (
             <div
               key={artwork.id}
@@ -44,27 +57,38 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
                 currentSlide === index ? 'opacity-100' : 'opacity-0'
               }`}
             >
+              {/* Hidden image for preloading */}
               <img 
-                src={artwork.image}
+                src={imageUrl}
                 alt=""
                 className="hidden"
                 onLoad={() => handleImageLoad(artwork.id)}
-                onError={() => handleImageLoad(artwork.id)} // Mark as loaded even on error
+                onError={() => handleImageError(artwork.id, imageUrl)}
               />
-              <div 
-                className="absolute inset-0 w-full h-full"
-                style={{
-                  backgroundImage: `url(${artwork.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  opacity: imagesLoaded[artwork.id] ? 1 : 0,
-                  transition: 'opacity 0.5s ease-in-out'
-                }}
-              >
-                {!imagesLoaded[artwork.id] && (
-                  <div className="absolute inset-0 bg-mirakiBlue-900 animate-pulse"></div>
-                )}
-              </div>
+              
+              {imagesError[artwork.id] ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-mirakiBlue-900">
+                  <div className="flex flex-col items-center text-center p-4">
+                    <ImageOff size={64} className="text-mirakiGray-400 mb-4" />
+                    <p className="text-mirakiGray-300 text-xl">Image not available</p>
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  className="absolute inset-0 w-full h-full"
+                  style={{
+                    backgroundImage: `url(${imageUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    opacity: imagesLoaded[artwork.id] ? 1 : 0,
+                    transition: 'opacity 0.5s ease-in-out'
+                  }}
+                >
+                  {!imagesLoaded[artwork.id] && (
+                    <div className="absolute inset-0 bg-mirakiBlue-900 animate-pulse"></div>
+                  )}
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-mirakiBlue-900/90 via-mirakiBlue-900/50 to-transparent" />
             </div>
           );

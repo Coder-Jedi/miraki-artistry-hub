@@ -58,9 +58,14 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
   }, [isOpen, artwork]);
   
   if (!artwork) return null;
+  
+  // Make sure we use the full URL for images
+  const imageUrl = artwork.image.startsWith('http') 
+    ? artwork.image 
+    : `${window.location.origin}${artwork.image}`;
 
   const handleImageError = () => {
-    console.error(`Failed to load image in modal: ${artwork.image}`);
+    console.error(`Failed to load image in modal: ${imageUrl}`);
     setImageError(true);
     setImageLoaded(true); // We still consider it "loaded" to remove loading indicator
   };
@@ -112,7 +117,7 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
         
         {/* Image */}
         <div className="relative md:w-[55%] h-[300px] md:h-auto overflow-hidden bg-mirakiBlue-950 dark:bg-mirakiBlue-950">
-          <div className={`image-loading absolute inset-0 ${imageLoaded ? 'opacity-0' : 'opacity-100'}`} />
+          <div className={`absolute inset-0 bg-mirakiBlue-950 animate-pulse ${imageLoaded ? 'hidden' : 'block'}`} />
           
           {imageError ? (
             <div className="w-full h-full flex flex-col items-center justify-center">
@@ -121,7 +126,7 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
             </div>
           ) : (
             <img
-              src={artwork.image}
+              src={imageUrl}
               alt={artwork.title}
               className={`w-full h-full object-cover ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}

@@ -14,12 +14,14 @@ const ArtworkDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [relatedArtworks, setRelatedArtworks] = useState<Artwork[]>([]);
   const [mainImageError, setMainImageError] = useState(false);
+  const [relatedImagesError, setRelatedImagesError] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Simulate API call
     const fetchArtwork = () => {
       setLoading(true);
       setMainImageError(false); // Reset on new artwork load
+      setRelatedImagesError({});
       
       setTimeout(() => {
         const foundArtwork = artworksData.find(art => art.id === id);
@@ -43,9 +45,27 @@ const ArtworkDetails: React.FC = () => {
     fetchArtwork();
   }, [id]);
 
+  // Get full URL for main artwork image
+  const getFullImageUrl = (imagePath: string) => {
+    return imagePath.startsWith('http') 
+      ? imagePath 
+      : `${window.location.origin}${imagePath}`;
+  };
+
   const handleMainImageError = () => {
-    console.error(`Failed to load main artwork image: ${artwork?.image}`);
+    if (!artwork) return;
+    const imageUrl = getFullImageUrl(artwork.image);
+    console.error(`Failed to load main artwork image: ${imageUrl}`);
     setMainImageError(true);
+  };
+
+  const handleRelatedImageError = (artworkId: string) => {
+    const relatedArtwork = relatedArtworks.find(art => art.id === artworkId);
+    if (!relatedArtwork) return;
+    
+    const imageUrl = getFullImageUrl(relatedArtwork.image);
+    console.error(`Failed to load related artwork image: ${imageUrl}`);
+    setRelatedImagesError(prev => ({ ...prev, [artworkId]: true }));
   };
 
   if (loading) {
@@ -83,6 +103,8 @@ const ArtworkDetails: React.FC = () => {
     );
   }
 
+  const mainImageUrl = getFullImageUrl(artwork.image);
+
   return (
     <Layout>
       <div className="container-fluid pt-24 pb-16">
@@ -108,7 +130,7 @@ const ArtworkDetails: React.FC = () => {
                 </div>
               ) : (
                 <img 
-                  src={artwork.image} 
+                  src={mainImageUrl} 
                   alt={artwork.title} 
                   className="w-full h-auto object-cover aspect-[4/3]"
                   onError={handleMainImageError}
@@ -160,27 +182,39 @@ const ArtworkDetails: React.FC = () => {
             <div className="mt-16">
               <h2 className="section-heading mb-8">You May Also Like</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {relatedArtworks.map(related => (
-                  <Link to={`/artwork/${related.id}`} key={related.id}>
-                    <Card className="overflow-hidden hover-lift">
-                      <div className="aspect-[4/3] overflow-hidden">
-                        <img 
-                          src={related.image} 
-                          alt={related.title}
-                          className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-display text-lg font-medium text-mirakiBlue-900 dark:text-white">
-                          {related.title}
-                        </h3>
-                        <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 text-sm mt-1">
-                          by {related.artist}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                {relatedArtworks.map(related => {
+                  const relatedImageUrl = getFullImageUrl(related.image);
+                  
+                  return (
+                    <Link to={`/artwork/${related.id}`} key={related.id}>
+                      <Card className="overflow-hidden hover-lift">
+                        <div className="aspect-[4/3] overflow-hidden">
+                          {relatedImagesError[related.id] ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-mirakiGray-100 dark:bg-mirakiBlue-900">
+                              <ImageOff size={32} className="text-mirakiGray-400 mb-2" />
+                              <p className="text-mirakiBlue-500 dark:text-mirakiGray-400 text-sm">Image not available</p>
+                            </div>
+                          ) : (
+                            <img 
+                              src={relatedImageUrl} 
+                              alt={related.title}
+                              className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                              onError={() => handleRelatedImageError(related.id)}
+                            />
+                          )}
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-display text-lg font-medium text-mirakiBlue-900 dark:text-white">
+                            {related.title}
+                          </h3>
+                          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 text-sm mt-1">
+                            by {related.artist}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
