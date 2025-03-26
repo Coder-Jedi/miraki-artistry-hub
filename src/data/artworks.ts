@@ -19,7 +19,7 @@ export const artworksData: Artwork[] = [
     artist: 'Eliza Chen',
     description: 'A contemplative piece exploring the contrast between urban architecture and natural elements. This painting invites viewers to find moments of calm within the chaos of city life.',
     category: 'Painting',
-    image: '/artwork1.jpg',
+    image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
     location: {
       lat: 34.0522,
@@ -34,7 +34,7 @@ export const artworksData: Artwork[] = [
     artist: 'Marcus Rivera',
     description: 'A mixed media piece combining photography, paint, and found objects to create a tapestry of memory and experience. Each element represents a fragment of the artist\'s personal journey.',
     category: 'Mixed Media',
-    image: '/artwork2.jpg',
+    image: 'https://images.unsplash.com/photo-1569172122301-bc5008bc09c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
     location: {
       lat: 34.0511,
@@ -49,7 +49,7 @@ export const artworksData: Artwork[] = [
     artist: 'Sonia Patel',
     description: 'This delicate sculpture plays with light and shadow, creating an ethereal experience that changes throughout the day as natural light moves across its surface.',
     category: 'Sculpture',
-    image: '/artwork3.jpg',
+    image: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
     location: {
       lat: 34.0505,
@@ -64,7 +64,7 @@ export const artworksData: Artwork[] = [
     artist: 'Leo Kim',
     description: 'A vibrant digital artwork exploring the intersection of technology and imagination. Created using AI and traditional digital painting techniques.',
     category: 'Digital',
-    image: '/artwork4.jpg',
+    image: 'https://images.unsplash.com/photo-1549490349-8643362247b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 34.0530,
@@ -79,7 +79,7 @@ export const artworksData: Artwork[] = [
     artist: 'Camila Rodriguez',
     description: 'A series of photographs capturing fleeting moments of human connection in urban environments. The artist spent six months documenting spontaneous interactions between strangers.',
     category: 'Photography',
-    image: '/artwork5.jpg',
+    image: 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
     location: {
       lat: 34.0495,
@@ -94,7 +94,7 @@ export const artworksData: Artwork[] = [
     artist: 'Aiden Taylor',
     description: 'Hand-thrown ceramic vessels inspired by ancient pottery techniques but reimagined with contemporary forms and glazes. Each piece tells a story of cultural heritage.',
     category: 'Ceramics',
-    image: '/artwork6.jpg',
+    image: 'https://images.unsplash.com/photo-1558879787-48100a7f6a68?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 34.0535,
@@ -109,7 +109,7 @@ export const artworksData: Artwork[] = [
     artist: 'Harper Wilson',
     description: 'Detailed illustrations of imaginary plants and flowers that blend scientific precision with fantastical elements. Created using traditional ink and watercolor techniques.',
     category: 'Illustration',
-    image: '/artwork7.jpg',
+    image: 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 34.0518,
@@ -124,7 +124,7 @@ export const artworksData: Artwork[] = [
     artist: 'Gabriel Okafor',
     description: 'A series of sculptural works that incorporate text and typography into concrete forms, exploring the materiality of language and the weight of words.',
     category: 'Sculpture',
-    image: '/artwork8.jpg',
+    image: 'https://images.unsplash.com/photo-1531913764164-f85c52e6e654?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 34.0500,
@@ -139,7 +139,7 @@ export const artworksData: Artwork[] = [
     artist: 'Isabella Chen',
     description: 'An immersive painting that uses color theory and abstract forms to create a visual representation of a musical composition. The artist worked with a composer to create this synesthetic experience.',
     category: 'Painting',
-    image: '/artwork9.jpg',
+    image: 'https://images.unsplash.com/photo-1578926375605-eaf7559b1458?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
     location: {
       lat: 34.0527,
@@ -154,7 +154,7 @@ export const artworksData: Artwork[] = [
     artist: 'Noah Park',
     description: 'A digital collage series examining the artifacts of internet culture and digital communication. The work preserves ephemeral online moments as archaeological specimens.',
     category: 'Digital',
-    image: '/artwork10.jpg',
+    image: 'https://images.unsplash.com/photo-1568819317551-31051b37f69f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 34.0508,
@@ -169,7 +169,7 @@ export const artworksData: Artwork[] = [
     artist: 'Maya Johnson',
     description: 'Street photography that focuses on repetitive patterns and textures found in urban environments. The artist reveals the hidden geometry of everyday spaces.',
     category: 'Photography',
-    image: '/artwork11.jpg',
+    image: 'https://images.unsplash.com/photo-1596548438137-d51ea5c83ca5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 34.0515,
@@ -184,7 +184,7 @@ export const artworksData: Artwork[] = [
     artist: 'David Nguyen',
     description: 'Mixed media textile work that incorporates fabric, found objects, and embroidery to create touchable narratives about family history and migration.',
     category: 'Mixed Media',
-    image: '/artwork12.jpg',
+    image: 'https://images.unsplash.com/photo-1576087710799-a7e1df193f18?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 34.0532,
