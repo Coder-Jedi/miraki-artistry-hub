@@ -1,9 +1,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Artwork, ArtworkCategory, FilterOptions } from '@/types';
 import { artworksData, getFeaturedArtworks } from '@/data/artworks';
 
 const useArtworks = () => {
+  const navigate = useNavigate();
   const [artworks, setArtworks] = useState<Artwork[]>(artworksData);
   const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>(artworksData);
   const [filters, setFilters] = useState<FilterOptions>({
@@ -49,8 +51,14 @@ const useArtworks = () => {
 
   // Open modal with selected artwork
   const openArtworkModal = (artwork: Artwork) => {
+    // For home page, use modal
     setSelectedArtwork(artwork);
     setModalOpen(true);
+  };
+
+  // Navigate to artwork details page
+  const viewArtworkDetails = (artwork: Artwork) => {
+    navigate(`/artwork/${artwork.id}`);
   };
 
   // Close modal
@@ -92,6 +100,7 @@ const useArtworks = () => {
     selectedArtwork,
     modalOpen,
     openArtworkModal,
+    viewArtworkDetails,
     closeArtworkModal,
     navigateArtwork,
   };

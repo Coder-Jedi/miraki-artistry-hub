@@ -43,7 +43,7 @@ const Navigation: React.FC = () => {
           <Link to="/#explore" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors duration-300">
             Explore
           </Link>
-          <Link to="/#artists" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors duration-300">
+          <Link to="/artists" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors duration-300">
             Artists
           </Link>
           <button className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors duration-300 flex items-center">
@@ -84,7 +84,7 @@ const Navigation: React.FC = () => {
               Explore
             </Link>
             <Link 
-              to="/#artists" 
+              to="/artists" 
               className="text-mirakiBlue-900 dark:text-white py-2 text-lg"
               onClick={() => setMobileMenuOpen(false)}
             >

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Artwork } from '@/types';
 
@@ -47,7 +48,7 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
       
       {/* Content */}
       <div className="container relative z-10 h-full flex flex-col justify-center pt-24">
-        <div className="max-w-3xl animate-fade-in opacity-0" style={{ animationDelay: '0.3s' }}>
+        <div className="max-w-3xl animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
             Discover Exceptional Art From Local Artists
           </h1>
@@ -62,21 +63,31 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
               Explore Artworks
               <ArrowRight size={18} className="ml-2" />
             </a>
-            <button className="px-6 py-3 border border-white/30 hover:bg-white/10 text-white font-medium rounded-md transition-colors duration-300">
+            <Link 
+              to="/artists" 
+              className="px-6 py-3 border border-white/30 hover:bg-white/10 text-white font-medium rounded-md transition-colors duration-300"
+            >
               Meet the Artists
-            </button>
+            </Link>
           </div>
         </div>
 
         {/* Current Artwork Info */}
         <div className="absolute bottom-12 left-0 right-0 container">
-          <div className="bg-white/10 backdrop-blur-md p-4 md:p-6 rounded-lg max-w-md animate-slide-in opacity-0" style={{ animationDelay: '0.6s' }}>
+          <div className="bg-white/10 backdrop-blur-md p-4 md:p-6 rounded-lg max-w-md animate-slide-in opacity-0" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
             <h3 className="font-display text-xl text-white">
               {featuredArtworks[currentSlide]?.title}
             </h3>
             <p className="text-mirakiGray-200 mt-2">
               by {featuredArtworks[currentSlide]?.artist}
             </p>
+            <Link 
+              to={`/artwork/${featuredArtworks[currentSlide]?.id}`}
+              className="mt-4 inline-flex items-center text-mirakiGold hover:text-mirakiGold-600 transition-colors"
+            >
+              View Details
+              <ArrowRight size={16} className="ml-1" />
+            </Link>
           </div>
         </div>
 

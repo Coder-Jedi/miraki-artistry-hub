@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { Artwork } from '@/types';
 
 interface ArtworkModalProps {
@@ -135,6 +136,22 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
               </p>
             </div>
           )}
+          
+          <div className="mt-6 flex justify-between items-center">
+            <Link 
+              to={`/artists?name=${encodeURIComponent(artwork.artist)}`}
+              className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white"
+            >
+              View Artist Profile
+            </Link>
+            <Link 
+              to={`/artwork/${artwork.id}`}
+              className="inline-flex items-center text-mirakiGold hover:text-mirakiGold-600 font-medium"
+            >
+              Full Details
+              <ExternalLink size={16} className="ml-1" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
