@@ -1,14 +1,11 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import * as maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { Artwork } from '@/types';
 import { Button } from '@/components/ui/button';
 import { MapIcon, Filter, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-// We'll use a default token but encourage users to use their own
-const MAPBOX_TOKEN = '';
 
 interface MapSectionProps {
   artworks: Artwork[];
@@ -17,23 +14,15 @@ interface MapSectionProps {
 
 const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markers = useRef<mapboxgl.Marker[]>([]);
+  const map = useRef<maplibregl.Map | null>(null);
+  const markers = useRef<maplibregl.Marker[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [userToken, setUserToken] = useState(() => {
-    // Try to load from localStorage first
-    return localStorage.getItem('mapbox_token') || MAPBOX_TOKEN;
-  });
-  const [showTokenInput, setShowTokenInput] = useState(!userToken);
   const [showNames, setShowNames] = useState(true);
   const { toast } = useToast();
 
   const initializeMap = () => {
-    if (!mapContainer.current || !userToken) {
-      setShowTokenInput(true);
-      return;
-    }
+    if (!mapContainer.current) return;
     
     try {
       // Remove existing markers
@@ -43,17 +32,34 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
       // Initialize map
       if (map.current) map.current.remove();
       
-      mapboxgl.accessToken = userToken;
-      
-      map.current = new mapboxgl.Map({
+      map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: {
+          version: 8,
+          sources: {
+            'osm': {
+              type: 'raster',
+              tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+          },
+          layers: [
+            {
+              id: 'osm-tiles',
+              type: 'raster',
+              source: 'osm',
+              minzoom: 0,
+              maxzoom: 19
+            }
+          ]
+        },
         center: [-118.2437, 34.0522], // Los Angeles coordinates (from the art data)
         zoom: 10,
       });
 
-      // Properly initialize NavigationControl without type arguments
-      map.current.addControl(new mapboxgl.NavigationControl());
+      // Add navigation controls
+      map.current.addControl(new maplibregl.NavigationControl());
       
       map.current.on('load', () => {
         setMapLoaded(true);
@@ -63,19 +69,15 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
           description: "The map is now ready to use",
           duration: 3000,
         });
-        // Save token to localStorage if valid
-        if (userToken) {
-          localStorage.setItem('mapbox_token', userToken);
-        }
         addArtworkMarkers();
       });
       
       map.current.on('error', (e) => {
-        console.error('Mapbox error:', e);
+        console.error('MapLibre error:', e);
         setMapError(true);
         toast({
           title: "Map Error",
-          description: "There was an issue with your Mapbox token. Please try a different one.",
+          description: "There was an issue loading the map. Please try refreshing the page.",
           variant: "destructive",
         });
       });
@@ -84,7 +86,7 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
       setMapError(true);
       toast({
         title: "Map Error",
-        description: "Failed to initialize the map. Please check your Mapbox token.",
+        description: "Failed to initialize the map. Please try refreshing the page.",
         variant: "destructive",
       });
     }
@@ -138,7 +140,7 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
       markerEl.appendChild(nameLabel);
       
       // Create and add the marker
-      const marker = new mapboxgl.Marker(markerEl)
+      const marker = new maplibregl.Marker(markerEl)
         .setLngLat([location.lng, location.lat])
         .addTo(map.current);
       
@@ -157,7 +159,7 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
         </div>
       `;
       
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
+      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHTML);
       
       // Show popup on marker click
       markerEl.addEventListener('click', () => {
@@ -170,18 +172,14 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
 
   // Initialize map on component mount
   useEffect(() => {
-    if (userToken) {
-      initializeMap();
-    } else {
-      setShowTokenInput(true);
-    }
+    initializeMap();
     
     return () => {
       if (map.current) {
         map.current.remove();
       }
     };
-  }, [userToken]);
+  }, []);
   
   // Update markers when artworks change or map loads
   useEffect(() => {
@@ -190,56 +188,26 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
     }
   }, [artworks, mapLoaded, showNames]);
 
-  const handleTokenSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!userToken || userToken.trim() === '') {
-      toast({
-        title: "Token Required",
-        description: "Please enter a valid Mapbox token",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    initializeMap();
-    setShowTokenInput(false);
-  };
-
   const toggleNameVisibility = () => {
     setShowNames(!showNames);
   };
 
-  if (mapError || !userToken) {
+  if (mapError) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 bg-mirakiGray-100 dark:bg-mirakiBlue-900 rounded-xl">
         <MapIcon size={48} className="text-mirakiGray-400 mb-4" />
         <h3 className="text-xl font-medium text-mirakiBlue-800 dark:text-mirakiGray-200 mb-2">
-          {mapError ? "Map could not be loaded" : "Enter your Mapbox token"}
+          Map could not be loaded
         </h3>
         <p className="text-mirakiBlue-600 dark:text-mirakiGray-400 text-center mb-6">
-          {mapError 
-            ? "There was an error loading the map. Please check your Mapbox token."
-            : "To display the artists map, you need to enter your Mapbox access token."}
+          There was an error loading the map. Please try refreshing the page.
         </p>
         <Button 
-          onClick={() => setShowTokenInput(true)}
+          onClick={() => initializeMap()}
           className="bg-mirakiBlue-700 hover:bg-mirakiBlue-800 text-white dark:bg-mirakiGold dark:hover:bg-mirakiGold-600 dark:text-mirakiBlue-900"
         >
-          {mapError ? "Update Mapbox Token" : "Enter Mapbox Token"}
+          Retry Loading Map
         </Button>
-        <p className="mt-6 text-sm text-mirakiBlue-600 dark:text-mirakiGray-400 max-w-md text-center">
-          To get a free Mapbox token, create an account at{' '}
-          <a 
-            href="https://account.mapbox.com/auth/signup/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-mirakiBlue-700 dark:text-mirakiGold underline"
-          >
-            mapbox.com
-          </a>
-          {' '}and copy your default public token.
-        </p>
       </div>
     );
   }
@@ -259,59 +227,8 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
         </Button>
       </div>
       
-      {/* Mapbox token input */}
-      {showTokenInput && (
-        <div className="absolute inset-0 z-20 bg-white/90 dark:bg-mirakiBlue-900/90 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white dark:bg-mirakiBlue-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium text-mirakiBlue-900 dark:text-white mb-4">Enter your Mapbox Token</h3>
-            <form onSubmit={handleTokenSubmit}>
-              <input
-                type="text"
-                value={userToken}
-                onChange={(e) => setUserToken(e.target.value)}
-                className="w-full px-4 py-2 border border-mirakiGray-300 dark:border-mirakiBlue-600 rounded mb-4 bg-white dark:bg-mirakiBlue-700 text-mirakiBlue-900 dark:text-white"
-                placeholder="pk.eyJ1Ijoi..."
-              />
-              <div className="flex justify-end gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => setShowTokenInput(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">Update Token</Button>
-              </div>
-            </form>
-            <p className="mt-4 text-sm text-mirakiBlue-600 dark:text-mirakiGray-300">
-              You can get a Mapbox token by signing up at{' '}
-              <a 
-                href="https://account.mapbox.com/auth/signup/"
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-mirakiBlue-700 dark:text-mirakiGold underline"
-              >
-                mapbox.com
-              </a>
-            </p>
-          </div>
-        </div>
-      )}
-      
       {/* Map container */}
       <div ref={mapContainer} className="h-full w-full bg-mirakiGray-200 dark:bg-mirakiBlue-900" />
-      
-      {/* Watermark/token info (small and discreet) */}
-      <div className="absolute bottom-2 right-2 z-10">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="text-xs text-mirakiBlue-600/70 dark:text-mirakiGray-400/70 hover:text-mirakiBlue-700 dark:hover:text-mirakiGray-300"
-          onClick={() => setShowTokenInput(true)}
-        >
-          Update Token
-        </Button>
-      </div>
     </div>
   );
 };
