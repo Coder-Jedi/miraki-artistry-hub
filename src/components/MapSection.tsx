@@ -4,11 +4,11 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Artwork } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Map as MapIcon, Filter } from 'lucide-react';
+import { MapIcon, Filter, MapPin } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-// This is a placeholder - users should provide their own token
-// In production, this should be moved to environment variables
-const MAPBOX_TOKEN = 'pk.eyJ1IjoicGxhY2Vob2xkZXIiLCJhIjoiY2xqbXBxaHFhMDRkcjNsbzliemNveXNsbCJ9.ZX6nHPj_5gQ83-BJ1L1qeA';
+// We'll use a default token but encourage users to use their own
+const MAPBOX_TOKEN = '';
 
 interface MapSectionProps {
   artworks: Artwork[];
@@ -21,12 +21,19 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
   const markers = useRef<mapboxgl.Marker[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
-  const [userToken, setUserToken] = useState(MAPBOX_TOKEN);
-  const [showTokenInput, setShowTokenInput] = useState(false);
+  const [userToken, setUserToken] = useState(() => {
+    // Try to load from localStorage first
+    return localStorage.getItem('mapbox_token') || MAPBOX_TOKEN;
+  });
+  const [showTokenInput, setShowTokenInput] = useState(!userToken);
   const [showNames, setShowNames] = useState(true);
+  const { toast } = useToast();
 
   const initializeMap = () => {
-    if (!mapContainer.current || !userToken) return;
+    if (!mapContainer.current || !userToken) {
+      setShowTokenInput(true);
+      return;
+    }
     
     try {
       // Remove existing markers
@@ -45,21 +52,41 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
         zoom: 10,
       });
 
-      // Fixed: Properly initialize NavigationControl without type arguments
+      // Properly initialize NavigationControl without type arguments
       map.current.addControl(new mapboxgl.NavigationControl());
       
       map.current.on('load', () => {
         setMapLoaded(true);
+        setMapError(false);
+        toast({
+          title: "Map loaded successfully",
+          description: "The map is now ready to use",
+          duration: 3000,
+        });
+        // Save token to localStorage if valid
+        if (userToken) {
+          localStorage.setItem('mapbox_token', userToken);
+        }
         addArtworkMarkers();
       });
       
       map.current.on('error', (e) => {
         console.error('Mapbox error:', e);
         setMapError(true);
+        toast({
+          title: "Map Error",
+          description: "There was an issue with your Mapbox token. Please try a different one.",
+          variant: "destructive",
+        });
       });
     } catch (error) {
       console.error('Error initializing map:', error);
       setMapError(true);
+      toast({
+        title: "Map Error",
+        description: "Failed to initialize the map. Please check your Mapbox token.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -143,7 +170,11 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
 
   // Initialize map on component mount
   useEffect(() => {
-    initializeMap();
+    if (userToken) {
+      initializeMap();
+    } else {
+      setShowTokenInput(true);
+    }
     
     return () => {
       if (map.current) {
@@ -161,6 +192,16 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
 
   const handleTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!userToken || userToken.trim() === '') {
+      toast({
+        title: "Token Required",
+        description: "Please enter a valid Mapbox token",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     initializeMap();
     setShowTokenInput(false);
   };
@@ -169,20 +210,36 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
     setShowNames(!showNames);
   };
 
-  if (mapError) {
+  if (mapError || !userToken) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 bg-mirakiGray-100 dark:bg-mirakiBlue-900 rounded-xl">
         <MapIcon size={48} className="text-mirakiGray-400 mb-4" />
-        <h3 className="text-xl font-medium text-mirakiBlue-800 dark:text-mirakiGray-200 mb-2">Map could not be loaded</h3>
+        <h3 className="text-xl font-medium text-mirakiBlue-800 dark:text-mirakiGray-200 mb-2">
+          {mapError ? "Map could not be loaded" : "Enter your Mapbox token"}
+        </h3>
         <p className="text-mirakiBlue-600 dark:text-mirakiGray-400 text-center mb-6">
-          There was an error loading the map. Please check your Mapbox token.
+          {mapError 
+            ? "There was an error loading the map. Please check your Mapbox token."
+            : "To display the artists map, you need to enter your Mapbox access token."}
         </p>
         <Button 
           onClick={() => setShowTokenInput(true)}
           className="bg-mirakiBlue-700 hover:bg-mirakiBlue-800 text-white dark:bg-mirakiGold dark:hover:bg-mirakiGold-600 dark:text-mirakiBlue-900"
         >
-          Update Mapbox Token
+          {mapError ? "Update Mapbox Token" : "Enter Mapbox Token"}
         </Button>
+        <p className="mt-6 text-sm text-mirakiBlue-600 dark:text-mirakiGray-400 max-w-md text-center">
+          To get a free Mapbox token, create an account at{' '}
+          <a 
+            href="https://account.mapbox.com/auth/signup/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-mirakiBlue-700 dark:text-mirakiGold underline"
+          >
+            mapbox.com
+          </a>
+          {' '}and copy your default public token.
+        </p>
       </div>
     );
   }
@@ -229,7 +286,7 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
             <p className="mt-4 text-sm text-mirakiBlue-600 dark:text-mirakiGray-300">
               You can get a Mapbox token by signing up at{' '}
               <a 
-                href="https://mapbox.com/" 
+                href="https://account.mapbox.com/auth/signup/"
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-mirakiBlue-700 dark:text-mirakiGold underline"
