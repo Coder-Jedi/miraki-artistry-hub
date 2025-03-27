@@ -82,7 +82,10 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
           artworks: [artwork]
         });
       } else {
-        artistLocations.get(artwork.artist)?.artworks.push(artwork);
+        const artistData = artistLocations.get(artwork.artist);
+        if (artistData) {
+          artistData.artworks.push(artwork);
+        }
       }
     });
     
