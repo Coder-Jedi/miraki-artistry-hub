@@ -8,16 +8,21 @@ import FilterBar from '@/components/FilterBar';
 import ArtworkGrid from '@/components/ArtworkGrid';
 import ArtworkModal from '@/components/ArtworkModal';
 import useArtworks from '@/hooks/useArtworks';
+import MapSection from '@/components/MapSection';
 
 const Index: React.FC = () => {
   const {
     featuredArtworks,
+    paginatedArtworks,
     filteredArtworks,
     loading,
     filters,
     updateFilters,
     selectedArtwork,
     modalOpen,
+    currentPage,
+    totalPages,
+    handlePageChange,
     openArtworkModal,
     viewArtworkDetails,
     closeArtworkModal,
@@ -44,16 +49,35 @@ const Index: React.FC = () => {
           
           <div className="mt-8">
             <ArtworkGrid 
-              artworks={filteredArtworks} 
+              artworks={paginatedArtworks} 
               loading={loading} 
-              onArtworkClick={viewArtworkDetails} 
+              onArtworkClick={viewArtworkDetails}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
         </div>
       </section>
       
+      {/* Interactive Map Section */}
+      <section id="map" className="page-section bg-mirakiBlue-50 dark:bg-mirakiBlue-950/50">
+        <div className="container-fluid">
+          <h2 className="section-heading mb-8">
+            Find Artists Near You
+          </h2>
+          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-12">
+            Discover talented artists in your area. Explore the map to find artists based on their location and view their artworks.
+          </p>
+          
+          <div className="h-[500px] rounded-xl overflow-hidden shadow-lg">
+            <MapSection artworks={filteredArtworks} onArtworkClick={viewArtworkDetails} />
+          </div>
+        </div>
+      </section>
+      
       {/* Artists Section with Link to Artists Page */}
-      <section id="artists" className="page-section bg-mirakiBlue-50 dark:bg-mirakiBlue-950/50">
+      <section id="artists" className="page-section">
         <div className="container-fluid">
           <h2 className="section-heading mb-8">
             Featured Artists

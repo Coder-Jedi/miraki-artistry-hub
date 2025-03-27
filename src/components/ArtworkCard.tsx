@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Artwork } from '@/types';
 import { ImageOff } from 'lucide-react';
 
@@ -19,6 +18,11 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({ artwork, onClick }) => {
     setImageLoaded(true); // We still consider it "loaded" to remove loading indicator
   };
 
+  // Make sure we use the full URL for images
+  const imageUrl = artwork.image.startsWith('http') 
+    ? artwork.image 
+    : `${window.location.origin}${artwork.image}`;
+
   return (
     <div 
       className="group cursor-pointer hover-lift rounded-lg overflow-hidden bg-white dark:bg-mirakiBlue-800 border border-mirakiGray-200 dark:border-mirakiBlue-700"
@@ -35,7 +39,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({ artwork, onClick }) => {
           </div>
         ) : (
           <img
-            src={artwork.image}
+            src={imageUrl}
             alt={artwork.title}
             className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'

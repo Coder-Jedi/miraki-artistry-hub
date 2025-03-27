@@ -4,10 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { Artwork, ArtworkCategory, FilterOptions } from '@/types';
 import { artworksData, getFeaturedArtworks } from '@/data/artworks';
 
+// Number of items to display per page
+const ITEMS_PER_PAGE = 8;
+
 const useArtworks = () => {
   const navigate = useNavigate();
   const [artworks, setArtworks] = useState<Artwork[]>(artworksData);
   const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>(artworksData);
+  const [paginatedArtworks, setPaginatedArtworks] = useState<Artwork[]>([]);
   const [filters, setFilters] = useState<FilterOptions>({
     category: 'All',
     searchQuery: '',
@@ -15,12 +19,14 @@ const useArtworks = () => {
   const [loading, setLoading] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const featuredArtworks = useMemo(() => getFeaturedArtworks(), []);
 
   // Apply filters when they change
   useEffect(() => {
     setLoading(true);
+    setCurrentPage(1); // Reset to first page when filters change
     
     // Simulate loading delay
     const timer = setTimeout(() => {
@@ -48,6 +54,28 @@ const useArtworks = () => {
     
     return () => clearTimeout(timer);
   }, [filters, artworks]);
+
+  // Calculate total pages
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredArtworks.length / ITEMS_PER_PAGE);
+  }, [filteredArtworks]);
+
+  // Update paginated results when filtered artworks or page changes
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setPaginatedArtworks(filteredArtworks.slice(startIndex, endIndex));
+  }, [filteredArtworks, currentPage]);
+
+  // Page change handler
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of explore section
+    const exploreSection = document.getElementById('explore');
+    if (exploreSection) {
+      exploreSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Open modal with selected artwork
   const openArtworkModal = (artwork: Artwork) => {
@@ -93,12 +121,16 @@ const useArtworks = () => {
   return {
     artworks,
     filteredArtworks,
+    paginatedArtworks,
     featuredArtworks,
     loading,
     filters,
     updateFilters,
     selectedArtwork,
     modalOpen,
+    currentPage,
+    totalPages,
+    handlePageChange,
     openArtworkModal,
     viewArtworkDetails,
     closeArtworkModal,

@@ -2,17 +2,24 @@
 import React from 'react';
 import { Artwork } from '@/types';
 import ArtworkCard from './ArtworkCard';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 interface ArtworkGridProps {
   artworks: Artwork[];
   loading: boolean;
   onArtworkClick: (artwork: Artwork) => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const ArtworkGrid: React.FC<ArtworkGridProps> = ({ 
   artworks, 
   loading, 
-  onArtworkClick 
+  onArtworkClick,
+  currentPage,
+  totalPages,
+  onPageChange
 }) => {
   if (loading) {
     return (
@@ -40,22 +47,59 @@ const ArtworkGrid: React.FC<ArtworkGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {artworks.map((artwork) => (
-        <div 
-          key={artwork.id}
-          className="opacity-0 animate-fade-in"
-          style={{
-            animationDelay: `${Math.random() * 0.5}s`,
-            animationFillMode: 'forwards'
-          }}
-        >
-          <ArtworkCard 
-            artwork={artwork} 
-            onClick={onArtworkClick}
-          />
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {artworks.map((artwork) => (
+          <div 
+            key={artwork.id}
+            className="opacity-0 animate-fade-in"
+            style={{
+              animationDelay: `${Math.random() * 0.5}s`,
+              animationFillMode: 'forwards'
+            }}
+          >
+            <ArtworkCard 
+              artwork={artwork} 
+              onClick={onArtworkClick}
+            />
+          </div>
+        ))}
+      </div>
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-12">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                  className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+                />
+              </PaginationItem>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <PaginationItem key={page}>
+                  <PaginationLink 
+                    isActive={currentPage === page}
+                    onClick={() => onPageChange(page)}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+                  className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
-      ))}
+      )}
     </div>
   );
 };
