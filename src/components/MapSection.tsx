@@ -45,7 +45,8 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
         zoom: 10,
       });
 
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      // Fixed: Properly initialize NavigationControl without type arguments
+      map.current.addControl(new mapboxgl.NavigationControl());
       
       map.current.on('load', () => {
         setMapLoaded(true);
