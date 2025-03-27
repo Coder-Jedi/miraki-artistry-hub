@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Artwork } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Map, Filter } from 'lucide-react';
+import { Map as MapIcon, Filter } from 'lucide-react';
 
 // This is a placeholder - users should provide their own token
 // In production, this should be moved to environment variables
@@ -172,7 +172,7 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
   if (mapError) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 bg-mirakiGray-100 dark:bg-mirakiBlue-900 rounded-xl">
-        <Map size={48} className="text-mirakiGray-400 mb-4" />
+        <MapIcon size={48} className="text-mirakiGray-400 mb-4" />
         <h3 className="text-xl font-medium text-mirakiBlue-800 dark:text-mirakiGray-200 mb-2">Map could not be loaded</h3>
         <p className="text-mirakiBlue-600 dark:text-mirakiGray-400 text-center mb-6">
           There was an error loading the map. Please check your Mapbox token.
