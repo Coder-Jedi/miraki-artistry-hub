@@ -31,8 +31,8 @@ const Index: React.FC = () => {
 
   return (
     <Layout>
-      {/* Hero Carousel Section */}
-      <Hero featuredArtworks={featuredArtworks} />
+      {/* Hero Carousel Section - Now positioned below the navbar with auto-rotation */}
+      <Hero featuredArtworks={featuredArtworks} autoplay={true} />
       
       {/* Explore Section */}
       <section id="explore" className="page-section">

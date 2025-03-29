@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Artwork } from '@/types';
@@ -14,14 +14,58 @@ import { cn } from '@/lib/utils';
 
 interface HeroProps {
   featuredArtworks: Artwork[];
+  autoplay?: boolean;
+  autoplayInterval?: number;
 }
 
-const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
+const Hero: React.FC<HeroProps> = ({ 
+  featuredArtworks, 
+  autoplay = false, 
+  autoplayInterval = 5000 
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
   const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
   const [imagesError, setImagesError] = useState<Record<string, boolean>>({});
+  const [api, setApi] = useState<any>(null);
+  const autoplayTimerRef = useRef<number | null>(null);
+
+  // Setup autoplay
+  useEffect(() => {
+    if (autoplay && api && featuredArtworks.length > 1) {
+      const startAutoplay = () => {
+        autoplayTimerRef.current = window.setTimeout(() => {
+          api.scrollNext();
+          startAutoplay();
+        }, autoplayInterval);
+      };
+
+      startAutoplay();
+
+      return () => {
+        if (autoplayTimerRef.current) {
+          clearTimeout(autoplayTimerRef.current);
+        }
+      };
+    }
+  }, [autoplay, api, autoplayInterval, featuredArtworks.length]);
+
+  // Pause autoplay on hover or interaction
+  const pauseAutoplay = () => {
+    if (autoplayTimerRef.current) {
+      clearTimeout(autoplayTimerRef.current);
+    }
+  };
+
+  const resumeAutoplay = () => {
+    if (autoplay && api && featuredArtworks.length > 1) {
+      pauseAutoplay();
+      autoplayTimerRef.current = window.setTimeout(() => {
+        api.scrollNext();
+      }, autoplayInterval);
+    }
+  };
 
   // Handle image loading state
   const handleImageLoad = (id: string) => {
@@ -43,25 +87,24 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-mirakiBlue-900 mb-16">
+    <section 
+      className="relative w-full overflow-hidden bg-mirakiBlue-900 mb-16 pt-16" 
+      onMouseEnter={pauseAutoplay}
+      onMouseLeave={resumeAutoplay}
+      onTouchStart={pauseAutoplay}
+      onTouchEnd={resumeAutoplay}
+    >
       <Carousel 
         className="w-full relative"
         opts={{
           align: 'start',
           loop: true,
         }}
-        setApi={(api) => {
-          if (api) {
-            api.on('select', () => {
-              const selectedIndex = api.selectedScrollSnap();
-              if (selectedIndex !== activeIndex) {
-                handleSlideChange(selectedIndex);
-              }
-            });
-          }
-        }}
+        setApi={setApi}
+        onMouseEnter={pauseAutoplay}
+        onMouseLeave={resumeAutoplay}
       >
-        <CarouselContent className="h-[70vh]">
+        <CarouselContent className="h-[60vh]">
           {featuredArtworks.map((artwork, index) => {
             const imageUrl = artwork.image.startsWith('http') 
               ? artwork.image 
@@ -138,7 +181,10 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
             {featuredArtworks.map((_, index) => (
               <button
                 key={index}
-                onClick={() => handleSlideChange(index)}
+                onClick={() => {
+                  handleSlideChange(index);
+                  pauseAutoplay();
+                }}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   activeIndex === index 
                     ? 'bg-mirakiGold w-8' 
@@ -155,6 +201,7 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
           onClick={() => {
             const newIndex = activeIndex === 0 ? featuredArtworks.length - 1 : activeIndex - 1;
             handleSlideChange(newIndex);
+            pauseAutoplay();
           }}
         >
           <ChevronLeft className="h-6 w-6" />
@@ -165,6 +212,7 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
           onClick={() => {
             const newIndex = (activeIndex + 1) % featuredArtworks.length;
             handleSlideChange(newIndex);
+            pauseAutoplay();
           }}
         >
           <ChevronRight className="h-6 w-6" />
