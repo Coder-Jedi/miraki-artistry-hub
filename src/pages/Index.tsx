@@ -31,7 +31,7 @@ const Index: React.FC = () => {
 
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* Hero Carousel Section */}
       <Hero featuredArtworks={featuredArtworks} />
       
       {/* Explore Section */}
