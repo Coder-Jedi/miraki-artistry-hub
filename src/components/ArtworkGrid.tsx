@@ -11,6 +11,7 @@ interface ArtworkGridProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  showFavoriteButton?: boolean;
 }
 
 const ArtworkGrid: React.FC<ArtworkGridProps> = ({ 
@@ -19,7 +20,8 @@ const ArtworkGrid: React.FC<ArtworkGridProps> = ({
   onArtworkClick,
   currentPage,
   totalPages,
-  onPageChange
+  onPageChange,
+  showFavoriteButton = false
 }) => {
   if (loading) {
     return (
@@ -49,7 +51,7 @@ const ArtworkGrid: React.FC<ArtworkGridProps> = ({
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {artworks.map((artwork) => (
+        {artworks.map((artwork, index) => (
           <div 
             key={artwork.id}
             className="opacity-0 animate-fade-in"
@@ -61,6 +63,7 @@ const ArtworkGrid: React.FC<ArtworkGridProps> = ({
             <ArtworkCard 
               artwork={artwork} 
               onClick={onArtworkClick}
+              showFavoriteButton={showFavoriteButton}
             />
           </div>
         ))}

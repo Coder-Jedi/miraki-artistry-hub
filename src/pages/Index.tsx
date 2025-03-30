@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Layout from '@/components/Layout';
 import Hero from '@/components/Hero';
-import FilterBar from '@/components/FilterBar';
 import ArtworkGrid from '@/components/ArtworkGrid';
 import ArtworkModal from '@/components/ArtworkModal';
 import useArtworks from '@/hooks/useArtworks';
@@ -14,48 +13,51 @@ const Index: React.FC = () => {
   const {
     featuredArtworks,
     paginatedArtworks,
-    filteredArtworks,
     loading,
-    filters,
-    updateFilters,
     selectedArtwork,
     modalOpen,
     currentPage,
     totalPages,
     handlePageChange,
-    openArtworkModal,
     viewArtworkDetails,
     closeArtworkModal,
     navigateArtwork,
-  } = useArtworks();
+  } = useArtworks(4); // Limit to 4 artworks on homepage
 
   return (
     <Layout>
       {/* Hero Section */}
       <Hero featuredArtworks={featuredArtworks} />
       
-      {/* Explore Section */}
-      <section id="explore" className="page-section">
+      {/* Featured Artworks Section */}
+      <section id="featured" className="page-section">
         <div className="container-fluid">
-          <h2 className="section-heading mb-16">
-            Explore Artworks
+          <h2 className="section-heading mb-8">
+            Featured Artworks
           </h2>
-          
-          <FilterBar 
-            filters={filters} 
-            updateFilters={updateFilters} 
-            totalArtworks={filteredArtworks.length} 
-          />
+          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-12">
+            Discover exceptional artworks carefully selected from our collection. These pieces represent the diversity and talent of our artist community.
+          </p>
           
           <div className="mt-8">
             <ArtworkGrid 
-              artworks={paginatedArtworks} 
+              artworks={paginatedArtworks.slice(0, 4)} 
               loading={loading} 
               onArtworkClick={viewArtworkDetails}
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
             />
+          </div>
+          
+          <div className="text-center py-12">
+            <Link 
+              to="/explore"
+              className="inline-flex items-center px-6 py-3 bg-mirakiBlue-800 hover:bg-mirakiBlue-700 text-white font-medium rounded-md transition-colors duration-300 shadow-md hover:shadow-lg"
+            >
+              Explore All Artworks
+              <ArrowRight size={18} className="ml-2" />
+            </Link>
           </div>
         </div>
       </section>
@@ -71,7 +73,17 @@ const Index: React.FC = () => {
           </p>
           
           <div className="h-[500px] rounded-xl overflow-hidden shadow-lg">
-            <MapSection artworks={filteredArtworks} onArtworkClick={viewArtworkDetails} />
+            <MapSection artworks={featuredArtworks} onArtworkClick={viewArtworkDetails} />
+          </div>
+          
+          <div className="text-center py-8">
+            <Link 
+              to="/explore#map-section"
+              className="inline-flex items-center px-6 py-3 bg-mirakiGray-200 hover:bg-mirakiGray-300 text-mirakiBlue-900 font-medium rounded-md transition-colors duration-300"
+            >
+              Explore Map View
+              <ArrowRight size={18} className="ml-2" />
+            </Link>
           </div>
         </div>
       </section>

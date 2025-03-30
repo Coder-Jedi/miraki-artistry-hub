@@ -7,6 +7,8 @@ export interface Artwork {
   category: string;
   image: string;
   featured: boolean;
+  price?: number;
+  forSale?: boolean;
   location?: {
     lat: number;
     lng: number;
@@ -53,4 +55,24 @@ export interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  favorites?: string[]; // Array of artwork IDs
+}
+
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+export interface RegisterFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }

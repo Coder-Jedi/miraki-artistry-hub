@@ -21,6 +21,8 @@ export const artworksData: Artwork[] = [
     category: 'Painting',
     image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
+    price: 750,
+    forSale: true,
     location: {
       lat: 34.0522,
       lng: -118.2437,
@@ -36,6 +38,8 @@ export const artworksData: Artwork[] = [
     category: 'Mixed Media',
     image: 'https://images.unsplash.com/photo-1569172122301-bc5008bc09c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
+    price: 950,
+    forSale: true,
     location: {
       lat: 34.0511,
       lng: -118.2468,
@@ -51,6 +55,8 @@ export const artworksData: Artwork[] = [
     category: 'Sculpture',
     image: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
+    price: 1200,
+    forSale: true,
     location: {
       lat: 34.0505,
       lng: -118.2400,
@@ -66,6 +72,8 @@ export const artworksData: Artwork[] = [
     category: 'Digital',
     image: 'https://images.unsplash.com/photo-1549490349-8643362247b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
+    price: 450,
+    forSale: true,
     location: {
       lat: 34.0530,
       lng: -118.2436,
@@ -81,6 +89,8 @@ export const artworksData: Artwork[] = [
     category: 'Photography',
     image: 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: true,
+    price: 850,
+    forSale: true,
     location: {
       lat: 34.0495,
       lng: -118.2475,
@@ -96,6 +106,8 @@ export const artworksData: Artwork[] = [
     category: 'Ceramics',
     image: 'https://images.unsplash.com/photo-1558879787-48100a7f6a68?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
+    price: 550,
+    forSale: false,
     location: {
       lat: 34.0535,
       lng: -118.2500,

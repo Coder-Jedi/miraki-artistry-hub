@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Search } from 'lucide-react';
 import { ArtworkCategory, FilterOptions } from '@/types';
@@ -8,12 +7,14 @@ interface FilterBarProps {
   filters: FilterOptions;
   updateFilters: (filters: Partial<FilterOptions>) => void;
   totalArtworks: number;
+  compact?: boolean;
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ 
   filters, 
   updateFilters,
-  totalArtworks
+  totalArtworks,
+  compact = false
 }) => {
   const handleCategoryChange = (category: ArtworkCategory) => {
     updateFilters({ category });
@@ -23,6 +24,28 @@ const FilterBar: React.FC<FilterBarProps> = ({
     updateFilters({ searchQuery: e.target.value });
   };
 
+  // If compact mode is enabled, we only render the category pills
+  if (compact) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {artworkCategories.map((category) => (
+          <button
+            key={category}
+            onClick={() => handleCategoryChange(category)}
+            className={`px-3 py-1.5 text-xs rounded-full transition-all duration-300 ${
+              filters.category === category
+                ? 'bg-mirakiBlue-900 text-white dark:bg-mirakiGold dark:text-mirakiBlue-900 shadow-md transform scale-105'
+                : 'bg-mirakiGray-200 text-mirakiBlue-700 hover:bg-mirakiGray-300 dark:bg-mirakiBlue-800 dark:text-mirakiGray-200 dark:hover:bg-mirakiBlue-700'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  // Otherwise, render the full filter bar
   return (
     <div className="sticky top-20 z-30 bg-white/80 dark:bg-mirakiBlue-900/80 backdrop-blur-md py-4 border-b border-mirakiGray-200 dark:border-mirakiBlue-700">
       <div className="container-fluid">
@@ -41,9 +64,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 <button
                   key={category}
                   onClick={() => handleCategoryChange(category)}
-                  className={`px-4 py-2 text-sm rounded-full transition-colors duration-300 ${
+                  className={`px-4 py-2 text-sm rounded-full transition-all duration-300 ${
                     filters.category === category
-                      ? 'bg-mirakiBlue-900 text-white dark:bg-mirakiGold dark:text-mirakiBlue-900'
+                      ? 'bg-mirakiBlue-900 text-white dark:bg-mirakiGold dark:text-mirakiBlue-900 shadow-md transform scale-105'
                       : 'bg-mirakiGray-200 text-mirakiBlue-700 hover:bg-mirakiGray-300 dark:bg-mirakiBlue-800 dark:text-mirakiGray-200 dark:hover:bg-mirakiBlue-700'
                   }`}
                 >
