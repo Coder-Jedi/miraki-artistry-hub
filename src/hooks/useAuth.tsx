@@ -1,6 +1,17 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Artwork } from '@/types';
+
+// Define the cart item structure
+interface CartItem {
+  id: string;
+  title: string;
+  artist: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
 
 // Define the shape of user data
 interface User {
@@ -18,6 +29,12 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  // Cart functionality
+  cart: CartItem[];
+  addToCart: (artwork: Artwork) => void;
+  removeFromCart: (artworkId: string) => void;
+  clearCart: () => void;
+  cartTotal: number;
 }
 
 // Create the context with a default value
@@ -28,6 +45,12 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   register: async () => {},
   logout: () => {},
+  // Cart default values
+  cart: [],
+  addToCart: () => {},
+  removeFromCart: () => {},
+  clearCart: () => {},
+  cartTotal: 0,
 });
 
 // Mock user data for demo
@@ -43,6 +66,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [cart, setCart] = useState<CartItem[]>([]);
+
+  // Calculate cart total
+  const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -52,11 +79,85 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
+      
+      // Restore cart from localStorage
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      }
+      
       setIsLoading(false);
     };
 
     checkAuth();
   }, []);
+
+  // Update localStorage when cart changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // Add to cart function
+  const addToCart = (artwork: Artwork) => {
+    if (!artwork.price) {
+      toast({
+        title: "Cannot add to cart",
+        description: "This artwork is not for sale.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCart(currentCart => {
+      // Check if item already exists in cart
+      const existingItemIndex = currentCart.findIndex(item => item.id === artwork.id);
+      
+      if (existingItemIndex > -1) {
+        // Item exists, update quantity
+        const updatedCart = [...currentCart];
+        updatedCart[existingItemIndex] = {
+          ...updatedCart[existingItemIndex],
+          quantity: updatedCart[existingItemIndex].quantity + 1
+        };
+        return updatedCart;
+      } else {
+        // Item doesn't exist, add new item
+        return [...currentCart, {
+          id: artwork.id,
+          title: artwork.title,
+          artist: artwork.artist,
+          price: artwork.price || 0,
+          image: artwork.image,
+          quantity: 1
+        }];
+      }
+    });
+
+    toast({
+      title: "Added to cart",
+      description: `${artwork.title} has been added to your cart.`,
+    });
+  };
+
+  // Remove from cart function
+  const removeFromCart = (artworkId: string) => {
+    setCart(currentCart => currentCart.filter(item => item.id !== artworkId));
+    
+    toast({
+      title: "Removed from cart",
+      description: "Item has been removed from your cart.",
+    });
+  };
+
+  // Clear cart function
+  const clearCart = () => {
+    setCart([]);
+    
+    toast({
+      title: "Cart cleared",
+      description: "All items have been removed from your cart.",
+    });
+  };
 
   // Login function
   const login = async (email: string, password: string) => {
@@ -140,6 +241,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         login,
         register,
         logout,
+        cart,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        cartTotal,
       }}
     >
       {children}
