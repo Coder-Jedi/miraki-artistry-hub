@@ -18,12 +18,21 @@ const useExploreFilters = () => {
   });
 
   // Advanced filters
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [dateRange, setDateRange] = useState<[number, number]>([0, 12]);
+  const [priceRange, setPriceRangeState] = useState<[number, number]>([0, 1000]);
+  const [dateRange, setDateRangeState] = useState<[number, number]>([0, 12]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
   // Sorting
   const [activeSortOption, setActiveSortOption] = useState<string>('newest');
+
+  // Create wrapper functions to handle type conversion
+  const setPriceRange = (value: number[]) => {
+    setPriceRangeState(value as [number, number]);
+  };
+
+  const setDateRange = (value: number[]) => {
+    setDateRangeState(value as [number, number]);
+  };
 
   // Toggle advanced filters panel
   const toggleAdvancedFilters = () => {
@@ -46,8 +55,8 @@ const useExploreFilters = () => {
       category: 'All',
       searchQuery: '',
     });
-    setPriceRange([0, 1000]);
-    setDateRange([0, 12]);
+    setPriceRangeState([0, 1000]);
+    setDateRangeState([0, 12]);
     setActiveSortOption('newest');
   };
 
