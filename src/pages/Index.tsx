@@ -1,10 +1,9 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Layout from '@/components/Layout';
 import Hero from '@/components/Hero';
-import ArtworkGrid from '@/components/ArtworkGrid';
 import ArtworkModal from '@/components/ArtworkModal';
 import useArtworks from '@/hooks/useArtworks';
 import MapSection from '@/components/MapSection';
@@ -29,6 +28,59 @@ const Index: React.FC = () => {
     navigateArtwork,
   } = useArtworks(4); // Limit to 4 artworks on homepage
 
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const carouselApiRef = useRef<any>(null);
+
+  // Set up scroll event to change center card
+  useEffect(() => {
+    const handleScroll = () => {
+      if (carouselRef.current) {
+        const items = carouselRef.current.querySelectorAll('.artwork-card-wrapper');
+        const containerRect = carouselRef.current.getBoundingClientRect();
+        const centerX = containerRect.left + containerRect.width / 2;
+        
+        let closestItem: Element | null = null;
+        let closestDistance = Infinity;
+        
+        items.forEach((item) => {
+          const itemRect = item.getBoundingClientRect();
+          const itemCenterX = itemRect.left + itemRect.width / 2;
+          const distance = Math.abs(centerX - itemCenterX);
+          
+          // Reset styles first
+          (item as HTMLElement).style.zIndex = '10';
+          (item as HTMLElement).style.transform = 'scale(0.9)';
+          
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestItem = item;
+          }
+        });
+        
+        // Apply styles to center item
+        if (closestItem) {
+          (closestItem as HTMLElement).style.zIndex = '20';
+          (closestItem as HTMLElement).style.transform = 'scale(1)';
+        }
+      }
+    };
+    
+    // Set up the API
+    if (carouselApiRef.current) {
+      carouselApiRef.current.on('select', handleScroll);
+      carouselApiRef.current.on('scroll', handleScroll);
+      // Initial setup
+      setTimeout(handleScroll, 100);
+    }
+    
+    return () => {
+      if (carouselApiRef.current) {
+        carouselApiRef.current.off('select', handleScroll);
+        carouselApiRef.current.off('scroll', handleScroll);
+      }
+    };
+  }, [carouselApiRef.current]);
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -44,18 +96,22 @@ const Index: React.FC = () => {
             Discover exceptional artworks carefully selected from our collection. These pieces represent the diversity and talent of our artist community.
           </p>
           
-          <div className="mt-8 px-4">
+          <div className="mt-8 px-4 py-8 relative">
             <Carousel 
               opts={{
-                align: "start",
+                align: "center",
                 loop: true,
+                dragFree: true,
               }}
               className="w-full"
+              setApi={(api) => {
+                carouselApiRef.current = api;
+              }}
             >
-              <CarouselContent className="-ml-2 md:-ml-4">
+              <CarouselContent ref={carouselRef} className="py-6">
                 {featuredArtworks.map((artwork) => (
-                  <CarouselItem key={artwork.id} className="pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
-                    <div className="h-full">
+                  <CarouselItem key={artwork.id} className="pl-6 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
+                    <div className="h-full transform transition-all duration-500 artwork-card-wrapper" style={{ transformOrigin: 'center', transform: 'scale(0.9)' }}>
                       <ArtworkCardHome 
                         artwork={artwork} 
                         onClick={viewArtworkDetails}
@@ -65,9 +121,9 @@ const Index: React.FC = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-end gap-2 mt-6">
-                <CarouselPrevious className="relative inset-auto left-auto h-10 w-10 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
-                <CarouselNext className="relative inset-auto right-auto h-10 w-10 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
+              <div className="flex justify-end gap-4 mt-4">
+                <CarouselPrevious className="relative inset-auto left-auto z-30 h-12 w-12 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
+                <CarouselNext className="relative inset-auto right-auto z-30 h-12 w-12 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
               </div>
             </Carousel>
           </div>
