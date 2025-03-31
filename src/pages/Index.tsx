@@ -8,6 +8,14 @@ import ArtworkGrid from '@/components/ArtworkGrid';
 import ArtworkModal from '@/components/ArtworkModal';
 import useArtworks from '@/hooks/useArtworks';
 import MapSection from '@/components/MapSection';
+import ArtworkCardHome from '@/components/ArtworkCardHome';
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem, 
+  CarouselPrevious, 
+  CarouselNext 
+} from '@/components/ui/carousel';
 
 const Index: React.FC = () => {
   const {
@@ -16,9 +24,6 @@ const Index: React.FC = () => {
     loading,
     selectedArtwork,
     modalOpen,
-    currentPage,
-    totalPages,
-    handlePageChange,
     viewArtworkDetails,
     closeArtworkModal,
     navigateArtwork,
@@ -39,15 +44,32 @@ const Index: React.FC = () => {
             Discover exceptional artworks carefully selected from our collection. These pieces represent the diversity and talent of our artist community.
           </p>
           
-          <div className="mt-8">
-            <ArtworkGrid 
-              artworks={paginatedArtworks.slice(0, 4)} 
-              loading={loading} 
-              onArtworkClick={viewArtworkDetails}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+          <div className="mt-8 px-4">
+            <Carousel 
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {featuredArtworks.map((artwork) => (
+                  <CarouselItem key={artwork.id} className="pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <div className="h-full">
+                      <ArtworkCardHome 
+                        artwork={artwork} 
+                        onClick={viewArtworkDetails}
+                        showFavoriteButton={true}
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-end gap-2 mt-6">
+                <CarouselPrevious className="relative inset-auto left-auto h-10 w-10 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
+                <CarouselNext className="relative inset-auto right-auto h-10 w-10 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
+              </div>
+            </Carousel>
           </div>
           
           <div className="text-center py-12">
