@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Layout from '@/components/Layout';
@@ -30,38 +30,14 @@ const Index: React.FC = () => {
 
   const carouselRef = useRef<HTMLDivElement>(null);
   const carouselApiRef = useRef<any>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // Set up scroll event to change center card
   useEffect(() => {
     const handleScroll = () => {
-      if (carouselRef.current) {
-        const items = carouselRef.current.querySelectorAll('.artwork-card-wrapper');
-        const containerRect = carouselRef.current.getBoundingClientRect();
-        const centerX = containerRect.left + containerRect.width / 2;
-        
-        let closestItem: Element | null = null;
-        let closestDistance = Infinity;
-        
-        items.forEach((item) => {
-          const itemRect = item.getBoundingClientRect();
-          const itemCenterX = itemRect.left + itemRect.width / 2;
-          const distance = Math.abs(centerX - itemCenterX);
-          
-          // Reset styles first
-          (item as HTMLElement).style.zIndex = '10';
-          (item as HTMLElement).style.transform = 'scale(0.9)';
-          
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestItem = item;
-          }
-        });
-        
-        // Apply styles to center item
-        if (closestItem) {
-          (closestItem as HTMLElement).style.zIndex = '20';
-          (closestItem as HTMLElement).style.transform = 'scale(1)';
-        }
+      if (carouselApiRef.current) {
+        const currentIndex = carouselApiRef.current.selectedScrollSnap();
+        setActiveIndex(currentIndex);
       }
     };
     
@@ -96,7 +72,7 @@ const Index: React.FC = () => {
             Discover exceptional artworks carefully selected from our collection. These pieces represent the diversity and talent of our artist community.
           </p>
           
-          <div className="mt-8 px-4 py-8 relative">
+          <div className="mt-8 py-8 relative">
             <Carousel 
               opts={{
                 align: "center",
@@ -108,22 +84,28 @@ const Index: React.FC = () => {
                 carouselApiRef.current = api;
               }}
             >
-              <CarouselContent ref={carouselRef} className="py-6">
-                {featuredArtworks.map((artwork) => (
-                  <CarouselItem key={artwork.id} className="pl-6 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
-                    <div className="h-full transform transition-all duration-500 artwork-card-wrapper" style={{ transformOrigin: 'center', transform: 'scale(0.9)' }}>
-                      <ArtworkCardHome 
-                        artwork={artwork} 
-                        onClick={viewArtworkDetails}
-                        showFavoriteButton={true}
-                      />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <div className="flex justify-end gap-4 mt-4">
-                <CarouselPrevious className="relative inset-auto left-auto z-30 h-12 w-12 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
-                <CarouselNext className="relative inset-auto right-auto z-30 h-12 w-12 rounded-full bg-mirakiBlue-100 dark:bg-mirakiBlue-800 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700" />
+              <div className="relative">
+                <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-mirakiBlue-100/80 dark:bg-mirakiBlue-800/80 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700 backdrop-blur-sm transition-all duration-300 transform hover:scale-110" />
+                
+                <CarouselContent ref={carouselRef} className="py-6 px-4">
+                  {featuredArtworks.map((artwork, index) => (
+                    <CarouselItem key={artwork.id} className="pl-4 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
+                      <div 
+                        className={`h-full transform transition-all duration-500 artwork-card-wrapper ${
+                          index === activeIndex ? 'center' : ''
+                        }`}
+                      >
+                        <ArtworkCardHome 
+                          artwork={artwork} 
+                          onClick={viewArtworkDetails}
+                          showFavoriteButton={true}
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                
+                <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-mirakiBlue-100/80 dark:bg-mirakiBlue-800/80 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700 backdrop-blur-sm transition-all duration-300 transform hover:scale-110" />
               </div>
             </Carousel>
           </div>
@@ -141,30 +123,7 @@ const Index: React.FC = () => {
       </section>
       
       {/* Interactive Map Section */}
-      <section id="map" className="page-section bg-mirakiBlue-50 dark:bg-mirakiBlue-950/50">
-        <div className="container-fluid">
-          <h2 className="section-heading mb-8">
-            Find Artists Near You
-          </h2>
-          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-12">
-            Discover talented artists in your area. Explore the map to find artists based on their location and view their artworks.
-          </p>
-          
-          <div className="h-[500px] rounded-xl overflow-hidden shadow-lg">
-            <MapSection artworks={featuredArtworks} onArtworkClick={viewArtworkDetails} />
-          </div>
-          
-          <div className="text-center py-8">
-            <Link 
-              to="/explore#map-section"
-              className="inline-flex items-center px-6 py-3 bg-mirakiGray-200 hover:bg-mirakiGray-300 text-mirakiBlue-900 font-medium rounded-md transition-colors duration-300"
-            >
-              Explore Map View
-              <ArrowRight size={18} className="ml-2" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <MapSection artworks={featuredArtworks} onArtworkClick={viewArtworkDetails} />
       
       {/* Artists Section with Link to Artists Page */}
       <section id="artists" className="page-section">
