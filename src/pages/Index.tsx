@@ -63,16 +63,16 @@ const Index: React.FC = () => {
       <Hero featuredArtworks={featuredArtworks} />
       
       {/* Featured Artworks Section */}
-      <section id="featured" className="page-section">
+      <section id="featured" className="page-section pt-16 pb-12">
         <div className="container-fluid">
-          <h2 className="section-heading mb-8">
+          <h2 className="section-heading mb-4">
             Featured Artworks
           </h2>
-          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-12">
+          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-6">
             Discover exceptional artworks carefully selected from our collection. These pieces represent the diversity and talent of our artist community.
           </p>
           
-          <div className="mt-8 py-8 relative">
+          <div className="mt-6 py-4 relative">
             <Carousel 
               opts={{
                 align: "center",
@@ -110,7 +110,7 @@ const Index: React.FC = () => {
             </Carousel>
           </div>
           
-          <div className="text-center py-12">
+          <div className="text-center py-8">
             <Link 
               to="/explore"
               className="inline-flex items-center px-6 py-3 bg-mirakiBlue-800 hover:bg-mirakiBlue-700 text-white font-medium rounded-md transition-colors duration-300 shadow-md hover:shadow-lg"
