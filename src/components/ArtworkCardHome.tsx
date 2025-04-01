@@ -60,8 +60,8 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
 
   return (
     <div className="artwork-card-wrapper relative h-full transform transition-all duration-500">
-      {/* Outer gradient box with blur effect - modified for better light mode appearance */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/95 to-mirakiGray-50/90 dark:from-mirakiBlue-700/50 dark:to-mirakiGold/20 backdrop-blur-md -m-4 p-8 shadow-sm" />
+      {/* Outer box - pure white for light mode, gradient with blur for dark mode */}
+      <div className="absolute inset-0 rounded-xl bg-white dark:bg-gradient-to-br dark:from-mirakiBlue-700/50 dark:to-mirakiGold/20 dark:backdrop-blur-md -m-4 p-8 shadow-sm" />
       
       <Card 
         className="group cursor-pointer overflow-hidden bg-transparent border-none shadow-none transition-all duration-300 hover:-translate-y-1 h-full relative z-10"
