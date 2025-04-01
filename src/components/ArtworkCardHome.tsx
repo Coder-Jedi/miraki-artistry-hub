@@ -60,8 +60,8 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
 
   return (
     <div className="artwork-card-wrapper relative h-full transform transition-all duration-500">
-      {/* Outer box - pure white for light mode, gradient with blur for dark mode */}
-      <div className="absolute inset-0 rounded-xl bg-white dark:bg-gradient-to-br dark:from-mirakiBlue-700/50 dark:to-mirakiGold/20 dark:backdrop-blur-md -m-4 p-8 shadow-sm" />
+      {/* Outer gradient box with blur effect */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-mirakiBlue-50/90 to-mirakiGold/10 dark:from-mirakiBlue-700/50 dark:to-mirakiGold/20 backdrop-blur-md -m-4 p-8" />
       
       <Card 
         className="group cursor-pointer overflow-hidden bg-transparent border-none shadow-none transition-all duration-300 hover:-translate-y-1 h-full relative z-10"
@@ -92,7 +92,7 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
             <img
               src={imageUrl}
               alt={artwork.title}
-              className={`relative z-10 w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 rounded-lg shadow-[0_15px_35px_rgba(0,0,0,0.2)] ${
+              className={`relative z-10 w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.12)] ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
