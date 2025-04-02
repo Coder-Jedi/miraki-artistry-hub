@@ -10,7 +10,8 @@ export const artistsData: Artist[] = [
     location: {
       lat: 40.7128,
       lng: -74.0060,
-      address: "New York, NY"
+      address: "New York, NY",
+      area: "Manhattan"
     },
     profileImage: "/artwork1.jpg",
     socialLinks: {
@@ -25,7 +26,8 @@ export const artistsData: Artist[] = [
     location: {
       lat: 37.7749,
       lng: -122.4194,
-      address: "San Francisco, CA"
+      address: "San Francisco, CA",
+      area: "Bay Area"
     },
     profileImage: "/artwork2.jpg",
     socialLinks: {
@@ -39,7 +41,8 @@ export const artistsData: Artist[] = [
     location: {
       lat: 25.7617,
       lng: -80.1918,
-      address: "Miami, FL"
+      address: "Miami, FL",
+      area: "South Beach"
     },
     profileImage: "/artwork3.jpg",
     socialLinks: {
@@ -54,7 +57,8 @@ export const artistsData: Artist[] = [
     location: {
       lat: 33.7490,
       lng: -84.3880,
-      address: "Atlanta, GA"
+      address: "Atlanta, GA",
+      area: "Midtown"
     },
     profileImage: "/artwork4.jpg",
     socialLinks: {
@@ -69,7 +73,8 @@ export const artistsData: Artist[] = [
     location: {
       lat: 34.0522,
       lng: -118.2437,
-      address: "Los Angeles, CA"
+      address: "Los Angeles, CA",
+      area: "Arts District"
     },
     profileImage: "/artwork5.jpg",
     socialLinks: {
@@ -83,7 +88,8 @@ export const artistsData: Artist[] = [
     location: {
       lat: 41.8781,
       lng: -87.6298,
-      address: "Chicago, IL"
+      address: "Chicago, IL",
+      area: "River North"
     },
     profileImage: "/artwork6.jpg",
     socialLinks: {
