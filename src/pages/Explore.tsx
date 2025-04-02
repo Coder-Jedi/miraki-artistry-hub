@@ -1,21 +1,30 @@
+
 import React, { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, ArrowUpDown, MapPin, Calendar, DollarSign, Heart } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowUpDown, MapPin, Calendar, DollarSign } from 'lucide-react';
 import Layout from '@/components/Layout';
 import FilterBar from '@/components/FilterBar';
 import ArtworkGrid from '@/components/ArtworkGrid';
 import ArtworkModal from '@/components/ArtworkModal';
-import MapSection from '@/components/MapSection';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import useArtworks from '@/hooks/useArtworks';
 import useExploreFilters from '@/hooks/useExploreFilters';
 
 const Explore: React.FC = () => {
-  const navigate = useNavigate();
-  
   const {
     artworks,
     filteredArtworks,
@@ -29,22 +38,30 @@ const Explore: React.FC = () => {
     viewArtworkDetails,
     closeArtworkModal,
     navigateArtwork,
+    filters,
+    updateFilters,
+    sortBy,
+    setSortBy,
+    priceRange,
+    setActivePriceRange,
+    dateRange,
+    setActiveDateRange
   } = useArtworks();
 
   const {
-    filters,
-    updateFilters,
     sortOptions,
     activeSortOption,
     setSortOption,
-    priceRange,
-    setPriceRange,
-    dateRange,
-    setDateRange,
     toggleAdvancedFilters,
     showAdvancedFilters,
     resetAllFilters,
+    mumbaiAreas
   } = useExploreFilters();
+
+  // Update the main hook's state when filter hook state changes
+  useEffect(() => {
+    setSortBy(activeSortOption);
+  }, [activeSortOption, setSortBy]);
 
   // Animation states
   const [isPageLoaded, setIsPageLoaded] = useState(false);
@@ -57,7 +74,7 @@ const Explore: React.FC = () => {
   return (
     <Layout>
       {/* Page Header */}
-      <section className={`page-section pt-24 pb-4 bg-gradient-to-r from-mirakiBlue-50 to-mirakiGray-100 dark:from-mirakiBlue-900 dark:to-mirakiBlue-800 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <section id="explore" className={`page-section pt-24 pb-4 bg-gradient-to-r from-mirakiBlue-50 to-mirakiGray-100 dark:from-mirakiBlue-900 dark:to-mirakiBlue-800 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
         <div className="container-fluid">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-mirakiBlue-900 dark:text-white">
@@ -102,8 +119,8 @@ const Explore: React.FC = () => {
               </Button>
 
               {/* Sort Dropdown */}
-              <HoverCard>
-                <HoverCardTrigger asChild>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     className="flex items-center space-x-2 hover-lift"
@@ -111,25 +128,23 @@ const Explore: React.FC = () => {
                     <ArrowUpDown size={18} />
                     <span>Sort By</span>
                   </Button>
-                </HoverCardTrigger>
-                <HoverCardContent className="bg-white dark:bg-mirakiBlue-800 border-mirakiGray-200 dark:border-mirakiBlue-700 p-0 w-56">
-                  <div className="py-2">
-                    {sortOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => setSortOption(option.value)}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-700 transition-colors ${
-                          activeSortOption === option.value
-                            ? 'bg-mirakiGray-200 dark:bg-mirakiBlue-700 font-medium'
-                            : ''
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white dark:bg-mirakiBlue-800 border-mirakiGray-200 dark:border-mirakiBlue-700 p-2 w-56 z-50 shadow-lg">
+                  {sortOptions.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      onClick={() => setSortOption(option.value)}
+                      className={`px-3 py-2 text-sm rounded-md hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-700 cursor-pointer ${
+                        activeSortOption === option.value
+                          ? 'bg-mirakiGray-200 dark:bg-mirakiBlue-700 font-medium'
+                          : ''
+                      }`}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
@@ -161,11 +176,11 @@ const Explore: React.FC = () => {
                     </h3>
                     <div className="px-2">
                       <Slider
-                        defaultValue={[0, 1000]}
-                        max={1000}
-                        step={50}
+                        defaultValue={[0, 5000]}
+                        max={5000}
+                        step={100}
                         value={priceRange}
-                        onValueChange={setPriceRange}
+                        onValueChange={(value) => setActivePriceRange(value as [number, number])}
                         className="my-6"
                       />
                       <div className="flex justify-between text-sm text-mirakiBlue-600 dark:text-mirakiGray-400">
@@ -187,7 +202,7 @@ const Explore: React.FC = () => {
                         max={12}
                         step={1}
                         value={dateRange}
-                        onValueChange={setDateRange}
+                        onValueChange={(value) => setActiveDateRange(value as [number, number])}
                         className="my-6"
                       />
                       <div className="flex justify-between text-sm text-mirakiBlue-600 dark:text-mirakiGray-400">
@@ -203,15 +218,21 @@ const Explore: React.FC = () => {
                       <MapPin size={16} className="mr-1" />
                       <span>Location</span>
                     </h3>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full justify-start"
-                      onClick={() => document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth' })}
+                    <Select 
+                      value={filters.location} 
+                      onValueChange={(value) => updateFilters({ location: value })}
                     >
-                      <MapPin size={16} className="mr-2" />
-                      Find on Map
-                    </Button>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mumbaiAreas.map(area => (
+                          <SelectItem key={area} value={area}>
+                            {area}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -253,9 +274,6 @@ const Explore: React.FC = () => {
               showFavoriteButton={true}
             />
           </div>
-          
-          {/* Map Section */}
-          {/* Removed Map Section */}
         </div>
       </section>
       

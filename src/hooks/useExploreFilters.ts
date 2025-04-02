@@ -10,15 +10,36 @@ const sortOptionsList = [
   { value: 'popular', label: 'Most Popular' },
 ];
 
+export const mumbaiAreas = [
+  'All Areas',
+  'Bandra',
+  'Colaba',
+  'Dadar',
+  'Fort',
+  'Juhu',
+  'Kala Ghoda',
+  'Lower Parel',
+  'Malabar Hill',
+  'Marine Drive',
+  'Powai',
+  'Worli',
+  'Andheri',
+  'Navi Mumbai - Vashi',
+  'Navi Mumbai - Belapur',
+  'Navi Mumbai - Nerul',
+  'Navi Mumbai - Kharghar'
+];
+
 const useExploreFilters = () => {
-  // Basic filters (category and search query)
+  // Basic filters
   const [filters, setFilters] = useState<FilterOptions>({
     category: 'All',
     searchQuery: '',
+    location: 'All Areas'
   });
 
   // Advanced filters
-  const [priceRange, setPriceRangeState] = useState<[number, number]>([0, 1000]);
+  const [priceRange, setPriceRangeState] = useState<[number, number]>([0, 5000]);
   const [dateRange, setDateRangeState] = useState<[number, number]>([0, 12]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
@@ -54,8 +75,9 @@ const useExploreFilters = () => {
     setFilters({
       category: 'All',
       searchQuery: '',
+      location: 'All Areas'
     });
-    setPriceRangeState([0, 1000]);
+    setPriceRangeState([0, 5000]);
     setDateRangeState([0, 12]);
     setActiveSortOption('newest');
   };
@@ -76,6 +98,7 @@ const useExploreFilters = () => {
     toggleAdvancedFilters,
     showAdvancedFilters,
     resetAllFilters,
+    mumbaiAreas
   };
 };
 

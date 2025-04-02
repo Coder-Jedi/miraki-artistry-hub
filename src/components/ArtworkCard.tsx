@@ -4,6 +4,7 @@ import { Artwork } from '@/types';
 import { ImageOff, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -59,7 +60,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
 
   return (
     <div 
-      className="group cursor-pointer rounded-lg overflow-hidden bg-white dark:bg-mirakiBlue-800 border border-mirakiGray-200 dark:border-mirakiBlue-700 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+      className="group h-full cursor-pointer rounded-lg overflow-hidden bg-white dark:bg-mirakiBlue-800 border border-mirakiGray-200 dark:border-mirakiBlue-700 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col"
       onClick={() => onClick(artwork)}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
@@ -110,27 +111,44 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
         )}
       </div>
       
-      <div className="p-4">
-        <h3 className="font-display text-lg font-medium text-mirakiBlue-900 dark:text-white group-hover:text-mirakiBlue-700 dark:group-hover:text-mirakiGold transition-colors">
+      <div className="p-4 flex-grow flex flex-col">
+        <h3 className="font-display text-lg font-medium text-mirakiBlue-900 dark:text-white group-hover:text-mirakiBlue-700 dark:group-hover:text-mirakiGold transition-colors line-clamp-1">
           {artwork.title}
         </h3>
         <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 text-sm mt-1">
           by {artwork.artist}
         </p>
         
-        {/* Price Information (if available) */}
-        {artwork.price && (
-          <div className="mt-3 pt-3 border-t border-mirakiGray-200 dark:border-mirakiBlue-700">
-            <span className="text-mirakiBlue-900 dark:text-white font-medium">
-              ${artwork.price}
-            </span>
-            {artwork.forSale && (
-              <span className="ml-2 text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full">
-                For Sale
-              </span>
-            )}
-          </div>
+        {artwork.description && (
+          <p className="mt-2 text-mirakiBlue-700 dark:text-mirakiGray-300 text-sm line-clamp-2">
+            {artwork.description}
+          </p>
         )}
+        
+        {/* Price Information or Inquire Badge (always at the bottom) */}
+        <div className="mt-auto pt-3 border-t border-mirakiGray-200 dark:border-mirakiBlue-700">
+          {artwork.price ? (
+            <div className="flex items-center justify-between">
+              <span className="text-mirakiBlue-900 dark:text-white font-medium">
+                ${artwork.price.toLocaleString()}
+              </span>
+              {artwork.forSale && (
+                <Badge className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800">
+                  For Sale
+                </Badge>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-mirakiGray-500 dark:text-mirakiGray-400">
+                Price unavailable
+              </span>
+              <Badge className="bg-mirakiGray-100 dark:bg-mirakiGray-800 text-mirakiGray-700 dark:text-mirakiGray-300 hover:bg-mirakiGray-200 dark:hover:bg-mirakiGray-700">
+                Inquire
+              </Badge>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

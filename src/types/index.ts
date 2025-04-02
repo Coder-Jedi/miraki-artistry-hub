@@ -13,8 +13,12 @@ export interface Artwork {
     lat: number;
     lng: number;
     address: string;
+    area: string;
   };
   createdAt: string; // ISO date string
+  medium?: string;
+  dimensions?: string;
+  year?: number;
 }
 
 export type ArtworkCategory = 
@@ -30,6 +34,7 @@ export type ArtworkCategory =
 export interface FilterOptions {
   category: ArtworkCategory;
   searchQuery: string;
+  location: string;
 }
 
 // Additional types for new features
@@ -42,6 +47,7 @@ export interface Artist {
     lat: number;
     lng: number;
     address: string;
+    area: string;
   };
   profileImage?: string;
   socialLinks?: {
@@ -49,6 +55,8 @@ export interface Artist {
     instagram?: string;
     twitter?: string;
   };
+  specialization?: string[];
+  featuredWorks?: string[]; // Array of artwork IDs
 }
 
 export interface PaginationProps {

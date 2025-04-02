@@ -15,7 +15,10 @@ const useArtworks = (limit?: number) => {
   const [filters, setFilters] = useState<FilterOptions>({
     category: 'All',
     searchQuery: '',
+    location: 'All Areas'
   });
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [dateRange, setDateRange] = useState<[number, number]>([0, 12]);
   const [sortBy, setSortBy] = useState<string>('newest');
   const [loading, setLoading] = useState(false);
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
@@ -49,6 +52,32 @@ const useArtworks = (limit?: number) => {
         );
       }
       
+      // Apply location filter
+      if (filters.location !== 'All Areas') {
+        results = results.filter(
+          artwork => artwork.location?.area === filters.location
+        );
+      }
+      
+      // Apply price range filter
+      results = results.filter(artwork => {
+        // If price is undefined, only include in results if the min price is 0
+        if (artwork.price === undefined) {
+          return priceRange[0] === 0;
+        }
+        return artwork.price >= priceRange[0] && artwork.price <= priceRange[1];
+      });
+      
+      // Apply date range filter (months ago)
+      results = results.filter(artwork => {
+        const creationDate = new Date(artwork.createdAt);
+        const now = new Date();
+        const monthsAgo = (now.getFullYear() - creationDate.getFullYear()) * 12 + 
+                          (now.getMonth() - creationDate.getMonth());
+        
+        return monthsAgo >= dateRange[0] && monthsAgo <= dateRange[1];
+      });
+      
       // Apply sorting
       switch (sortBy) {
         case 'newest':
@@ -58,10 +87,20 @@ const useArtworks = (limit?: number) => {
           results.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
           break;
         case 'priceAsc':
-          results.sort((a, b) => (a.price || 0) - (b.price || 0));
+          results.sort((a, b) => {
+            // Handle undefined prices (put them at the end)
+            if (a.price === undefined) return 1;
+            if (b.price === undefined) return -1;
+            return a.price - b.price;
+          });
           break;
         case 'priceDesc':
-          results.sort((a, b) => (b.price || 0) - (a.price || 0));
+          results.sort((a, b) => {
+            // Handle undefined prices (put them at the end)
+            if (a.price === undefined) return 1;
+            if (b.price === undefined) return -1;
+            return b.price - a.price;
+          });
           break;
         case 'popular':
           // For demo purposes, let's assume featured artworks are more popular
@@ -76,7 +115,7 @@ const useArtworks = (limit?: number) => {
     }, 300);
     
     return () => clearTimeout(timer);
-  }, [filters, artworks, sortBy]);
+  }, [filters, artworks, sortBy, priceRange, dateRange]);
 
   // Calculate total pages
   const totalPages = useMemo(() => {
@@ -141,6 +180,16 @@ const useArtworks = (limit?: number) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
+  // Set price range
+  const setActivePriceRange = (range: [number, number]) => {
+    setPriceRange(range);
+  };
+
+  // Set date range
+  const setActiveDateRange = (range: [number, number]) => {
+    setDateRange(range);
+  };
+
   return {
     artworks,
     filteredArtworks,
@@ -151,6 +200,10 @@ const useArtworks = (limit?: number) => {
     updateFilters,
     sortBy,
     setSortBy,
+    priceRange,
+    setActivePriceRange,
+    dateRange,
+    setActiveDateRange,
     selectedArtwork,
     modalOpen,
     currentPage,
