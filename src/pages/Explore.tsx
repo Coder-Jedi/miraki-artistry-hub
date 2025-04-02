@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal, ArrowUpDown, MapPin, Calendar, DollarSign } from 'lucide-react';
 import Layout from '@/components/Layout';
@@ -81,7 +80,7 @@ const Explore: React.FC = () => {
               Explore Artworks
             </h1>
             <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 text-lg mb-8">
-              Discover unique artworks from talented artists around the world. Filter, sort, and find the perfect piece for your collection.
+              Discover unique artworks from talented artists across Mumbai. Filter, sort, and find the perfect piece for your collection.
             </p>
           </div>
         </div>
@@ -264,15 +263,26 @@ const Explore: React.FC = () => {
 
           {/* Artwork Grid */}
           <div className={`transition-opacity duration-700 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <ArtworkGrid 
-              artworks={paginatedArtworks} 
-              loading={loading} 
-              onArtworkClick={viewArtworkDetails}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              showFavoriteButton={true}
-            />
+            {filteredArtworks.length > 0 ? (
+              <ArtworkGrid 
+                artworks={paginatedArtworks} 
+                loading={loading} 
+                onArtworkClick={viewArtworkDetails}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                showFavoriteButton={true}
+              />
+            ) : (
+              <div className="text-center py-20">
+                <h3 className="text-xl font-medium text-mirakiBlue-800 dark:text-mirakiGray-200 mb-3">
+                  No artworks found
+                </h3>
+                <p className="text-mirakiBlue-600 dark:text-mirakiGray-400 max-w-md mx-auto mb-8">
+                  Try adjusting your filters or search criteria to find artworks.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>

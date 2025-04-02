@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Artwork, ArtworkCategory, FilterOptions } from '@/types';
@@ -37,7 +36,10 @@ const useArtworks = (limit?: number) => {
       let results = [...artworks];
       
       // Apply category filter
-      if (filters.category !== 'All') {
+      if (filters.category === 'All' || filters.category === '') {
+        // Include all artworks if category is "All" or empty
+        results = [...artworks];
+      } else {
         results = results.filter(artwork => artwork.category === filters.category);
       }
       
@@ -68,15 +70,16 @@ const useArtworks = (limit?: number) => {
         return artwork.price >= priceRange[0] && artwork.price <= priceRange[1];
       });
       
-      // Apply date range filter (months ago)
-      results = results.filter(artwork => {
-        const creationDate = new Date(artwork.createdAt);
-        const now = new Date();
-        const monthsAgo = (now.getFullYear() - creationDate.getFullYear()) * 12 + 
-                          (now.getMonth() - creationDate.getMonth());
+      // // Apply date range filter (months ago)
+      // results = results.filter(artwork => {
+      //   const creationDate = new Date(artwork.createdAt);
+      //   const now = new Date();
+      //   const monthsAgo = (now.getFullYear() - creationDate.getFullYear()) * 12 + 
+      //                     (now.getMonth() - creationDate.getMonth());
         
-        return monthsAgo >= dateRange[0] && monthsAgo <= dateRange[1];
-      });
+      //   // Ensure monthsAgo is non-negative and within the specified range
+      //   return monthsAgo >= 0 && monthsAgo >= dateRange[0] && monthsAgo <= dateRange[1];
+      // });
       
       // Apply sorting
       switch (sortBy) {

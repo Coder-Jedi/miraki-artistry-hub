@@ -1,4 +1,3 @@
-
 import { Artwork, ArtworkCategory } from '@/types';
 
 export const artworkCategories: ArtworkCategory[] = [
@@ -202,7 +201,7 @@ export const artworksData: Artwork[] = [
     artist: 'Noah Park',
     description: 'A digital collage series examining the artifacts of internet culture and digital communication. The work preserves ephemeral online moments as archaeological specimens.',
     category: 'Digital',
-    image: 'https://images.unsplash.com/photo-1568819317551-31051b37f69f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     featured: false,
     location: {
       lat: 19.1236,

@@ -155,7 +155,7 @@ const Index: React.FC = () => {
       </section>
       
       {/* Interactive Map Section */}
-      <MapSection artworks={featuredArtworks} onArtworkClick={viewArtworkDetails} />
+      {/* <MapSection artworks={featuredArtworks} onArtworkClick={viewArtworkDetails} /> */}
       
       {/* Artists Section with Link to Artists Page */}
       <section id="artists" className="page-section">
