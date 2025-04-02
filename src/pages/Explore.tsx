@@ -255,18 +255,7 @@ const Explore: React.FC = () => {
           </div>
           
           {/* Map Section */}
-          <div id="map-section" className="mt-16">
-            <h2 className="section-heading mb-8">
-              Find Artworks By Location
-            </h2>
-            <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-3xl mb-8">
-              Discover artworks from artists near you. Explore the map to find artworks based on location and view their details.
-            </p>
-            
-            <div className={`h-[500px] rounded-xl overflow-hidden shadow-lg transition-transform duration-700 ${isPageLoaded ? 'translate-y-0' : 'translate-y-20'}`}>
-              <MapSection artworks={filteredArtworks} onArtworkClick={viewArtworkDetails} />
-            </div>
-          </div>
+          {/* Removed Map Section */}
         </div>
       </section>
       
