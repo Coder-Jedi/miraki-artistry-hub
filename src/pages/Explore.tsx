@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal, ArrowUpDown, MapPin, Calendar, DollarSign, Heart } from 'lucide-react';
 import Layout from '@/components/Layout';
@@ -58,7 +57,7 @@ const Explore: React.FC = () => {
   return (
     <Layout>
       {/* Page Header */}
-      <section className={`page-section pt-8 pb-4 bg-gradient-to-r from-mirakiBlue-50 to-mirakiGray-100 dark:from-mirakiBlue-900 dark:to-mirakiBlue-800 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <section className={`page-section pt-24 pb-4 bg-gradient-to-r from-mirakiBlue-50 to-mirakiGray-100 dark:from-mirakiBlue-900 dark:to-mirakiBlue-800 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
         <div className="container-fluid">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-mirakiBlue-900 dark:text-white">
