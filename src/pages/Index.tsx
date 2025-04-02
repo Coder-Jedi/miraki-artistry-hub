@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -30,7 +29,7 @@ const Index: React.FC = () => {
     navigateArtwork,
   } = useArtworks(4); // Limit to 4 artworks on homepage
 
-  const { featuredArtists } = useArtists(4); // Limit to 4 artists on homepage
+  const { featuredArtists } = useArtists(8); // Limit to 4 artists on homepage
 
   const artworkCarouselRef = useRef<HTMLDivElement>(null);
   const artworkCarouselApiRef = useRef<any>(null);
@@ -101,7 +100,7 @@ const Index: React.FC = () => {
           <h2 className="section-heading mb-4">
             Featured Artworks
           </h2>
-          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-6">
+          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-6 mt-8">
             Discover exceptional artworks carefully selected from our collection. These pieces represent the diversity and talent of our artist community.
           </p>
           
@@ -164,7 +163,7 @@ const Index: React.FC = () => {
           <h2 className="section-heading mb-4">
             Featured Artists
           </h2>
-          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-6">
+          <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-2xl mb-6 mt-8">
             Discover the talented artists behind these extraordinary works. Each artist brings their unique perspective and creative vision to our community.
           </p>
           
@@ -172,8 +171,8 @@ const Index: React.FC = () => {
             <Carousel 
               opts={{
                 align: "center",
-                loop: true,
-                dragFree: true,
+                loop: true, // Enable infinite looping for circular carousel
+                dragFree: false, // Disable drag-free to ensure proper looping
               }}
               className="w-full"
               setApi={(api) => {
@@ -181,14 +180,18 @@ const Index: React.FC = () => {
               }}
             >
               <div className="relative">
-                <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-mirakiBlue-100/80 dark:bg-mirakiBlue-800/80 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700 backdrop-blur-sm transition-all duration-300 transform hover:scale-110" />
+                <CarouselPrevious 
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-mirakiBlue-100/80 dark:bg-mirakiBlue-800/80 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700 backdrop-blur-sm transition-all duration-300 transform hover:scale-110 pointer-events-auto disabled:pointer-events-none"
+                />
                 
                 <CarouselContent ref={artistCarouselRef} className="py-6 px-4">
                   {featuredArtists.map((artist, index) => (
                     <CarouselItem key={artist.id} className="pl-4 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
                       <div 
-                        className={`h-full transform transition-all duration-500 artist-card-wrapper ${
-                          index === artistActiveIndex ? 'center' : ''
+                        className={`h-full transform transition-all duration-500 artist-card-wrapper border-2 rounded-lg shadow-lg ${
+                          index === artistActiveIndex 
+                            ? 'border-mirakiGold shadow-mirakiGold/50 hover:border-mirakiBlue-700 hover:shadow-mirakiBlue/50' 
+                            : 'border-transparent shadow-none hover:border-mirakiBlue-700 hover:shadow-mirakiBlue/50'
                         }`}
                       >
                         <ArtistCardHome 
@@ -199,7 +202,9 @@ const Index: React.FC = () => {
                   ))}
                 </CarouselContent>
                 
-                <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-mirakiBlue-100/80 dark:bg-mirakiBlue-800/80 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700 backdrop-blur-sm transition-all duration-300 transform hover:scale-110" />
+                <CarouselNext 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-mirakiBlue-100/80 dark:bg-mirakiBlue-800/80 hover:bg-mirakiBlue-200 dark:hover:bg-mirakiBlue-700 backdrop-blur-sm transition-all duration-300 transform hover:scale-110 pointer-events-auto disabled:pointer-events-none"
+                />
               </div>
             </Carousel>
           </div>

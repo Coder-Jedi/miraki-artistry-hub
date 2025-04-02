@@ -126,6 +126,12 @@
   }
   
   .artwork-card-wrapper:not(.center) {
-    @apply z-10 scale-90 brightness-75;
+    @apply z-10 scale-90 brightness-85;
+  }
+}
+
+@layer utilities {
+  .brightness-85 {
+    filter: brightness(0.85);
   }
 }

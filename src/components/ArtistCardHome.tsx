@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Artist } from '@/types';
@@ -32,10 +31,10 @@ const ArtistCardHome: React.FC<ArtistCardHomeProps> = ({ artist }) => {
   return (
     <div className="artist-card-wrapper relative h-full transform transition-all duration-500">
       {/* Outer gradient box with blur effect in dark mode */}
-      <div className="absolute inset-0 rounded-xl dark:bg-gradient-to-br dark:from-mirakiBlue-700/50 dark:to-mirakiGold/20 dark:backdrop-blur-md bg-white -m-4 p-8" />
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-mirakiBlue-200/70 to-mirakiGold/30 dark:from-mirakiBlue-800/50 dark:to-mirakiGold/20 backdrop-blur-md -m-4 p-8" />
       
       <Card 
-        className="group cursor-pointer overflow-hidden bg-transparent border-none shadow-none transition-all duration-300 hover:-translate-y-1 h-full relative z-10"
+        className="group cursor-pointer overflow-hidden bg-white border border-mirakiGray-200 shadow-md transition-all duration-300 hover:-translate-y-1 h-full relative z-10 dark:bg-transparent dark:border-none dark:shadow-none hover:border-mirakiGold hover:shadow-mirakiGold/50"
         onClick={handleClick}
       >
         <div className="relative aspect-square overflow-hidden rounded-full mx-auto w-44 h-44 mt-4">
@@ -73,13 +72,13 @@ const ArtistCardHome: React.FC<ArtistCardHomeProps> = ({ artist }) => {
           )}
         </div>
         
-        <CardContent className="p-4 text-center bg-transparent">
-          <h3 className="font-display text-lg font-medium text-mirakiBlue-900 dark:text-white group-hover:text-mirakiBlue-700 dark:group-hover:text-mirakiGold transition-colors">
+        <CardContent className="p-4 text-center bg-white dark:bg-transparent">
+          <h3 className="font-display text-lg font-medium text-mirakiBlue-900 group-hover:text-mirakiBlue-800 group-hover:font-semibold transition-colors dark:text-white dark:group-hover:text-mirakiGold">
             {artist.name}
           </h3>
           
           {artist.bio && (
-            <p className="mt-2 text-mirakiBlue-700 dark:text-mirakiGray-300 text-sm line-clamp-2">
+            <p className="mt-2 text-mirakiBlue-700 text-sm line-clamp-2 dark:text-mirakiGray-300">
               {artist.bio}
             </p>
           )}
