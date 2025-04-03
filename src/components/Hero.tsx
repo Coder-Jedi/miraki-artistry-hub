@@ -41,9 +41,14 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
   };
 
   return (
-    <section className="relative w-full py-6 md:py-12 overflow-hidden bg-mirakiGray-50 dark:bg-mirakiBlue-900/30">
-      {/* Background Carousel */}
-      <div className="container-fluid">
+    <section className="relative w-full pt-0 pb-16 md:pb-24 overflow-hidden bg-gradient-to-b from-background to-mirakiGray-50 dark:from-background dark:to-mirakiBlue-900/10">
+      {/* Background decorative elements */}
+      <div className="absolute left-0 top-0 w-full h-48 bg-gradient-to-b from-background via-background/80 to-transparent z-0"></div>
+      <div className="absolute -top-20 right-20 w-64 h-64 rounded-full bg-mirakiGold/5 dark:bg-mirakiGold/10 blur-3xl"></div>
+      <div className="absolute top-40 left-10 w-40 h-40 rounded-full bg-mirakiBlue-400/10 blur-2xl"></div>
+      
+      {/* Carousel Container */}
+      <div className="container-fluid relative z-10">
         <div className="relative aspect-video md:aspect-[21/9] overflow-hidden rounded-2xl shadow-xl">
           {featuredArtworks.map((artwork, index) => {
             // Get full URL for the image
