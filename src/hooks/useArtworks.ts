@@ -1,12 +1,19 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Artwork, ArtworkCategory, FilterOptions } from '@/types';
-import { artwork as artworkData } from '@/data/artworks';
+import { Artwork, ArtworkCategory } from '@/types';
+import { artworksData } from '@/data/artworks';
+
+interface FilterOptions {
+  category: ArtworkCategory | undefined;
+  priceRange: [number, number];
+  searchTerm: string;
+  sortBy: string;
+}
 
 const useArtworks = (limit?: number) => {
-  const [artworks, setArtworks] = useState<Artwork[]>(artworkData);
-  const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>(artworkData);
+  const [artworks, setArtworks] = useState<Artwork[]>(artworksData);
+  const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>(artworksData);
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -59,9 +66,9 @@ const useArtworks = (limit?: number) => {
         case 'price-high':
           return b.price - a.price;
         case 'newest':
-          return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'oldest':
-          return new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime();
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         default:
           return 0; // Default sort - keep original order
       }
@@ -74,7 +81,7 @@ const useArtworks = (limit?: number) => {
   // Featured artworks - top 4 most recent
   const featuredArtworks = useMemo(() => {
     return [...artworks]
-      .sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 4);
   }, [artworks]);
   
