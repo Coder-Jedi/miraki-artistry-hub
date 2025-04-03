@@ -1,12 +1,13 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Layout from '@/components/Layout';
+import GradientHeader from '@/components/GradientHeader';
 import Hero from '@/components/Hero';
 import ArtworkModal from '@/components/ArtworkModal';
 import useArtworks from '@/hooks/useArtworks';
 import useArtists from '@/hooks/useArtists';
-import MapSection from '@/components/MapSection';
 import ArtworkCardHome from '@/components/ArtworkCardHome';
 import ArtistCardHome from '@/components/ArtistCardHome';
 import { 
@@ -29,7 +30,7 @@ const Index: React.FC = () => {
     navigateArtwork,
   } = useArtworks(4); // Limit to 4 artworks on homepage
 
-  const { featuredArtists } = useArtists(8); // Limit to 4 artists on homepage
+  const { featuredArtists } = useArtists(8); // Limit to 8 artists on homepage
 
   const artworkCarouselRef = useRef<HTMLDivElement>(null);
   const artworkCarouselApiRef = useRef<any>(null);
@@ -91,7 +92,10 @@ const Index: React.FC = () => {
 
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* Gradient Header Section */}
+      <GradientHeader />
+      
+      {/* Hero Carousel Section */}
       <Hero featuredArtworks={featuredArtworks} />
       
       {/* Featured Artworks Section */}
@@ -153,9 +157,6 @@ const Index: React.FC = () => {
           </div>
         </div>
       </section>
-      
-      {/* Interactive Map Section */}
-      {/* <MapSection artworks={featuredArtworks} onArtworkClick={viewArtworkDetails} /> */}
       
       {/* Artists Section with Link to Artists Page */}
       <section id="artists" className="page-section">
