@@ -1,10 +1,8 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Layout from '@/components/Layout';
-import GradientHeader from '@/components/GradientHeader';
-import Hero from '@/components/Hero';
+import HeroSection from '@/components/HeroSection';
 import ArtworkModal from '@/components/ArtworkModal';
 import useArtworks from '@/hooks/useArtworks';
 import useArtists from '@/hooks/useArtists';
@@ -40,9 +38,9 @@ const Index: React.FC = () => {
   const artistCarouselApiRef = useRef<any>(null);
   const [artistActiveIndex, setArtistActiveIndex] = useState(0);
 
-  // Set up scroll event to change center card for artworks
+  // Auto carousel scroll effects
   useEffect(() => {
-    const handleScroll = () => {
+    const handleArtworkScroll = () => {
       if (artworkCarouselApiRef.current) {
         const currentIndex = artworkCarouselApiRef.current.selectedScrollSnap();
         setArtworkActiveIndex(currentIndex);
@@ -51,23 +49,23 @@ const Index: React.FC = () => {
     
     // Set up the API
     if (artworkCarouselApiRef.current) {
-      artworkCarouselApiRef.current.on('select', handleScroll);
-      artworkCarouselApiRef.current.on('scroll', handleScroll);
+      artworkCarouselApiRef.current.on('select', handleArtworkScroll);
+      artworkCarouselApiRef.current.on('scroll', handleArtworkScroll);
       // Initial setup
-      setTimeout(handleScroll, 100);
+      setTimeout(handleArtworkScroll, 100);
     }
     
     return () => {
       if (artworkCarouselApiRef.current) {
-        artworkCarouselApiRef.current.off('select', handleScroll);
-        artworkCarouselApiRef.current.off('scroll', handleScroll);
+        artworkCarouselApiRef.current.off('select', handleArtworkScroll);
+        artworkCarouselApiRef.current.off('scroll', handleArtworkScroll);
       }
     };
   }, [artworkCarouselApiRef.current]);
 
   // Set up scroll event to change center card for artists
   useEffect(() => {
-    const handleScroll = () => {
+    const handleArtistScroll = () => {
       if (artistCarouselApiRef.current) {
         const currentIndex = artistCarouselApiRef.current.selectedScrollSnap();
         setArtistActiveIndex(currentIndex);
@@ -76,27 +74,24 @@ const Index: React.FC = () => {
     
     // Set up the API
     if (artistCarouselApiRef.current) {
-      artistCarouselApiRef.current.on('select', handleScroll);
-      artistCarouselApiRef.current.on('scroll', handleScroll);
+      artistCarouselApiRef.current.on('select', handleArtistScroll);
+      artistCarouselApiRef.current.on('scroll', handleArtistScroll);
       // Initial setup
-      setTimeout(handleScroll, 100);
+      setTimeout(handleArtistScroll, 100);
     }
     
     return () => {
       if (artistCarouselApiRef.current) {
-        artistCarouselApiRef.current.off('select', handleScroll);
-        artistCarouselApiRef.current.off('scroll', handleScroll);
+        artistCarouselApiRef.current.off('select', handleArtistScroll);
+        artistCarouselApiRef.current.off('scroll', handleArtistScroll);
       }
     };
   }, [artistCarouselApiRef.current]);
 
   return (
     <Layout>
-      {/* Gradient Header Section */}
-      <GradientHeader />
-      
-      {/* Hero Carousel Section */}
-      <Hero featuredArtworks={featuredArtworks} />
+      {/* Combined Hero Section with Header */}
+      <HeroSection featuredArtworks={featuredArtworks} />
       
       {/* Featured Artworks Section */}
       <section id="featured" className="page-section pt-16 pb-12">
