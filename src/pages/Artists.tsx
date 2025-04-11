@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Map, Palette, Grid } from 'lucide-react';
+import { Map as MapIcon, Palette, Grid } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { artworksData } from '@/data/artworks';
 import { Artwork } from '@/types';
 import ArtworkCard from '@/components/ArtworkCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { artistsData } from '@/data/artists';
+import MapSection from '@/components/MapSection';
 
 interface Artist {
   name: string;
@@ -127,7 +128,7 @@ const Artists: React.FC = () => {
                       <span>Explore List</span>
                     </TabsTrigger>
                     <TabsTrigger value="map" className="flex items-center gap-2">
-                      <Map size={18} />
+                      <MapIcon size={18} />
                       <span>Explore on Map</span>
                     </TabsTrigger>
                   </TabsList>
@@ -166,12 +167,8 @@ const Artists: React.FC = () => {
                 
                 {/* Map View */}
                 <TabsContent value="map" className={`transition-all duration-500 ${isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-                  <div className="bg-mirakiGray-100 dark:bg-mirakiBlue-800 rounded-lg p-6 flex flex-col items-center justify-center min-h-[500px]">
-                    <Map size={64} className="text-mirakiBlue-400 dark:text-mirakiGray-500 mb-4" />
-                    <h3 className="text-xl font-medium text-mirakiBlue-800 dark:text-white mb-2">Artist Map Coming Soon</h3>
-                    <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 max-w-md text-center">
-                      Soon you'll be able to discover artists by their locations across the city.
-                    </p>
+                  <div className="h-[600px] rounded-lg overflow-hidden">
+                    <MapSection artworks={artworksData} onArtworkClick={handleArtworkClick} />
                   </div>
                 </TabsContent>
               </Tabs>
