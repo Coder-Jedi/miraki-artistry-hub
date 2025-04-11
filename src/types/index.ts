@@ -1,3 +1,4 @@
+
 export interface Artwork {
   id: string;
   title: string;
@@ -9,14 +10,29 @@ export interface Artwork {
     lat: number;
     lng: number;
     address: string;
+    area?: string;
   };
-  price: number;
+  price?: number;
   category: ArtworkCategory;
   description: string;
   likes: number;
+  featured?: boolean;
+  forSale?: boolean;
+  createdAt?: string;
+  dimensions?: string;
 }
 
-export type ArtworkCategory = "All" | "Painting" | "Sculpture" | "Photography" | "Digital Art" | "Other";
+export type ArtworkCategory = 
+  | "All" 
+  | "Painting" 
+  | "Sculpture" 
+  | "Photography" 
+  | "Digital" 
+  | "Digital Art"
+  | "Mixed Media" 
+  | "Ceramics" 
+  | "Illustration" 
+  | "Other";
 
 export interface FilterOptions {
   category: ArtworkCategory;
@@ -42,4 +58,17 @@ export interface Artist {
     facebook?: string;
   };
   popularity?: number;
+  artworks?: Artwork[];
+}
+
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+export interface RegisterFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }

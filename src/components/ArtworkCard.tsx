@@ -132,7 +132,7 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
               <span className="text-mirakiBlue-900 dark:text-white font-medium">
                 ${artwork.price.toLocaleString()}
               </span>
-              {artwork.forSale && (
+              {artwork.forSale === true && (
                 <Badge className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800">
                   For Sale
                 </Badge>

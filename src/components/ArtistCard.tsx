@@ -92,7 +92,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
             <div className="relative z-10 w-full h-full flex items-center justify-center bg-mirakiGray-100 dark:bg-mirakiBlue-950 rounded-full">
               <div className="flex flex-col items-center text-center p-4">
                 <ImageOff size={32} className="text-mirakiGray-400 mb-2" />
-                <p className="text-mirakiBlue-500 dark:text-mirakiGray-400 text-xs">Image not available</p>
+                <p className="text-mirakiBlue-500 dark:text-mirakiGray-400">Image not available</p>
               </div>
             </div>
           ) : (
@@ -126,7 +126,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
           
           {/* Artwork count */}
           <p className="mt-2 text-xs text-mirakiBlue-600 dark:text-mirakiGray-400">
-            {artist.artworks.length} {artist.artworks.length === 1 ? 'artwork' : 'artworks'}
+            {artist.artworks?.length || 0} {(artist.artworks?.length || 0) === 1 ? 'artwork' : 'artworks'}
           </p>
         </CardContent>
         

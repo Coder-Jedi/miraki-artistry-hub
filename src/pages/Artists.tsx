@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal, Star } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { artworksData } from '@/data/artworks';
-import { Artwork } from '@/types';
+import { Artwork, Artist } from '@/types';
 import ArtworkCard from '@/components/ArtworkCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { artistsData } from '@/data/artists';
@@ -20,25 +19,7 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { mumbaiAreas } from '@/hooks/useExploreFilters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-interface Artist {
-  id: string;
-  name: string;
-  artworks: Artwork[];
-  featuredImage?: string;
-  profileImage?: string;
-  bio?: string;
-  location?: {
-    lat: number;
-    lng: number;
-    address: string;
-    area: string;
-  };
-  socialLinks?: {
-    website?: string;
-    instagram?: string;
-  };
-  popularity?: number;
-}
+// Using the Artist type from types/index.ts instead of redefining it here
 
 interface ArtistFilters {
   searchQuery: string;
@@ -92,10 +73,9 @@ const Artists: React.FC = () => {
         id: artistData?.id || `artist-${artistsArray.length + 1}`,
         name,
         artworks,
-        featuredImage: artworks[0].image, // Use first artwork as featured image
-        profileImage: artistData?.profileImage || artworks[0].image,
         bio: artistData?.bio,
         location: artistData?.location,
+        profileImage: artistData?.profileImage || artworks[0].image,
         socialLinks: artistData?.socialLinks,
         // Assign random popularity rating from 1.0 to 5.0
         popularity: artistData?.popularity || parseFloat((2.5 + Math.random() * 2.5).toFixed(1))
@@ -125,8 +105,7 @@ const Artists: React.FC = () => {
       setIsPageLoaded(true);
     }, 100);
   }, [nameFromParam]);
-
-  // Filter artists based on filter settings
+  
   useEffect(() => {
     if (!artists.length) return;
     
@@ -222,6 +201,7 @@ const Artists: React.FC = () => {
   }
 
   return (
+    // ... keep existing code (component JSX)
     <Layout>
       {/* Page Header with enhanced gradient */}
       <section id="artists" className={`page-section pt-24 pb-4 bg-gradient-to-r from-mirakiBlue-600 via-mirakiBlue-500 to-mirakiBlue-400 dark:from-mirakiBlue-900 dark:via-mirakiBlue-800 dark:to-mirakiBlue-700 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
@@ -473,14 +453,13 @@ const Artists: React.FC = () => {
                 </TabsContent>
               </Tabs>
             ) : (
-              /* Artist Detail View - This stays the same as before */
               <>
                 <div className="mb-12">
                   <div className="flex flex-col md:flex-row items-start gap-8">
                     <div className="w-full md:w-1/3">
                       <div className="aspect-square overflow-hidden rounded-lg bg-mirakiGray-100 dark:bg-mirakiBlue-800">
                         <img 
-                          src={selectedArtist.featuredImage} 
+                          src={selectedArtist.profileImage} 
                           alt={selectedArtist.name} 
                           className="w-full h-full object-cover"
                         />
@@ -491,8 +470,7 @@ const Artists: React.FC = () => {
                         {selectedArtist.name}
                       </h2>
                       <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 mb-6">
-                        {selectedArtist.name} is a talented artist with {selectedArtist.artworks.length} artworks in our gallery.
-                        Their unique style and perspective bring life to every piece they create.
+                        {selectedArtist.bio}
                       </p>
                       <div className="flex items-center gap-4">
                         <button className="bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900 px-4 py-2 rounded-md transition-colors">
@@ -514,7 +492,7 @@ const Artists: React.FC = () => {
                 </h3>
               
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {selectedArtist.artworks.map(artwork => (
+                  {selectedArtist.artworks?.map(artwork => (
                     <ArtworkCard 
                       key={artwork.id}
                       artwork={artwork}

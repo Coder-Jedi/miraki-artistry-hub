@@ -150,7 +150,7 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
               <span className="text-mirakiBlue-900 dark:text-white font-medium">
                 ${artwork.price.toLocaleString()}
               </span>
-              {artwork.forSale && (
+              {artwork.forSale === true && (
                 <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full">
                   For Sale
                 </span>

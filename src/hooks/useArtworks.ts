@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Artwork, ArtworkCategory, FilterOptions } from '@/types';
@@ -71,24 +70,21 @@ const useArtworks = (limit?: number) => {
         return artwork.price >= priceRange[0] && artwork.price <= priceRange[1];
       });
       
-      // // Apply date range filter (months ago)
-      // results = results.filter(artwork => {
-      //   const creationDate = new Date(artwork.createdAt);
-      //   const now = new Date();
-      //   const monthsAgo = (now.getFullYear() - creationDate.getFullYear()) * 12 + 
-      //                     (now.getMonth() - creationDate.getMonth());
-        
-      //   // Ensure monthsAgo is non-negative and within the specified range
-      //   return monthsAgo >= 0 && monthsAgo >= dateRange[0] && monthsAgo <= dateRange[1];
-      // });
-      
       // Apply sorting
       switch (sortBy) {
         case 'newest':
-          results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          results.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          });
           break;
         case 'oldest':
-          results.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          results.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateA - dateB;
+          });
           break;
         case 'priceAsc':
           results.sort((a, b) => {
