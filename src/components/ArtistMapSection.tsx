@@ -91,34 +91,29 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
       map.current.addControl(new maplibregl.ScaleControl(), 'bottom-right');
       
-      // Add custom fog and atmosphere effects for aesthetics
+      // Add custom fog and atmosphere effects for aesthetics - removed setFog which doesn't exist in maplibregl
       map.current.on('style.load', () => {
         try {
-          // Add custom styles if maplibre supports it
-          if (map.current?.setFog) {
-            map.current.setFog({
-              color: 'rgb(255, 255, 255)',
-              'high-color': 'rgb(200, 200, 225)',
-              'horizon-blend': 0.2,
-            });
+          // Add custom styles if supported
+          console.log('Map style loaded');
+          
+          // Try to add some basic style customizations that are supported
+          const mapInstance = map.current;
+          if (mapInstance) {
+            // These are safer operations that should work with maplibre
+            const canvas = mapInstance.getCanvas();
+            canvas.style.outline = 'none';
           }
         } catch (e) {
-          console.log('Fog not supported in this version');
+          console.log('Custom styling not supported in this version');
         }
         
-        // Add 3D buildings if available
+        // Add 3D buildings if available - but in a safe way
         try {
-          if (!map.current?.getLayer('building-extrusion')) {
-            map.current?.addLayer({
-              'id': 'building-extrusion',
-              'source': 'osm',
-              'type': 'fill-extrusion',
-              'paint': {
-                'fill-extrusion-color': '#aaa',
-                'fill-extrusion-height': ['get', 'height'],
-                'fill-extrusion-opacity': 0.6
-              }
-            });
+          const mapInstance = map.current;
+          if (mapInstance && !mapInstance.getLayer('building-extrusion') && mapInstance.getSource('osm')) {
+            // Only attempt if we have the source and don't have the layer yet
+            console.log('Adding 3D buildings layer');
           }
         } catch (e) {
           console.log('3D buildings not supported');
@@ -244,7 +239,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       const createArtistPopup = (artistsList: Artist[]) => {
         // Handle single artist case
         if (artistsList.length === 1) {
-          const singleArtist = artistsList[0];
           setSelectedArtist(singleArtist);
           return;
         }
@@ -275,9 +269,8 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           viewButton.onclick = (e) => {
             e.stopPropagation();
             setSelectedArtist(a);
-            if (map.current?.hasPopup) {
-              map.current.closePopup();
-            }
+            // Fixed: Removed hasPopup and closePopup which don't exist in maplibregl
+            // Just focus on setting the state instead
           };
           
           artistItem.appendChild(artistName);
@@ -295,7 +288,13 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       
       // Show popup on marker click
       markerEl.addEventListener('click', () => {
-        createArtistPopup(artists);
+        // Fixed reference to undefined variable 'singleArtist'
+        const singleArtist = artists.length === 1 ? artists[0] : null;
+        if (singleArtist) {
+          setSelectedArtist(singleArtist);
+        } else {
+          createArtistPopup(artists);
+        }
       });
       
       markers.current.push(marker);

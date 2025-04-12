@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal, Star } from 'lucide-react';
@@ -20,6 +19,7 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { mumbaiAreas } from '@/hooks/useExploreFilters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import ArtistCardHome from '@/components/ArtistCardHome';
+import ArtistMapSection from '@/components/ArtistMapSection';
 
 interface ArtistFilters {
   searchQuery: string;
@@ -296,7 +296,7 @@ const Artists: React.FC = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => updateFilters({ sortBy: 'name_desc' })} className={filters.sortBy === 'name_desc' ? "bg-mirakiGray-100 dark:bg-mirakiBlue-700" : ""}>
                               Name (Z-A)
-                            </DropdownMenuItem>
+                            </DropdownMenuItem
                             <DropdownMenuItem onClick={() => updateFilters({ sortBy: 'artwork_count' })} className={filters.sortBy === 'artwork_count' ? "bg-mirakiGray-100 dark:bg-mirakiBlue-700" : ""}>
                               Most Artworks
                             </DropdownMenuItem>
