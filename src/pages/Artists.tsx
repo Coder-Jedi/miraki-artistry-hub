@@ -296,7 +296,7 @@ const Artists: React.FC = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => updateFilters({ sortBy: 'name_desc' })} className={filters.sortBy === 'name_desc' ? "bg-mirakiGray-100 dark:bg-mirakiBlue-700" : ""}>
                               Name (Z-A)
-                            </DropdownMenuItem
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => updateFilters({ sortBy: 'artwork_count' })} className={filters.sortBy === 'artwork_count' ? "bg-mirakiGray-100 dark:bg-mirakiBlue-700" : ""}>
                               Most Artworks
                             </DropdownMenuItem>
