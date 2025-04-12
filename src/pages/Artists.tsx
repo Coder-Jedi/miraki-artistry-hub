@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal, Star } from 'lucide-react';
+import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { artworksData } from '@/data/artworks';
 import { Artwork, Artist } from '@/types';
@@ -20,6 +21,7 @@ import { mumbaiAreas } from '@/hooks/useExploreFilters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import ArtistCardHome from '@/components/ArtistCardHome';
 import ArtistMapSection from '@/components/ArtistMapSection';
+import ArtistDetailsSection from '@/components/ArtistDetailsSection';
 
 interface ArtistFilters {
   searchQuery: string;
@@ -182,6 +184,10 @@ const Artists: React.FC = () => {
   // Handle page change
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
+  const handleBackToArtists = () => {
+    setSelectedArtist(null);
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -244,12 +250,12 @@ const Artists: React.FC = () => {
       </section>
 
       {/* Main Content Section */}
-      <section className="page-section py-8">
-        <div className="container-fluid">
-          <div className="max-w-6xl mx-auto">
-            
-            {/* Only show tabs when not viewing a specific artist */}
-            {!selectedArtist ? (
+      {selectedArtist ? (
+        <ArtistDetailsSection artist={selectedArtist} onBackClick={handleBackToArtists} />
+      ) : (
+        <section className="page-section py-8">
+          <div className="container-fluid">
+            <div className="max-w-6xl mx-auto">
               <Tabs defaultValue="list" onValueChange={setActiveTab} className="w-full mb-8">
                 <div className="flex justify-center">
                   <TabsList className="mb-8">
@@ -479,59 +485,10 @@ const Artists: React.FC = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-            ) : (
-              <>
-                <div className="mb-12">
-                  <div className="flex flex-col md:flex-row items-start gap-8">
-                    <div className="w-full md:w-1/3">
-                      <div className="aspect-square overflow-hidden rounded-lg bg-mirakiGray-100 dark:bg-mirakiBlue-800">
-                        <img 
-                          src={selectedArtist.profileImage} 
-                          alt={selectedArtist.name} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                    <div className="w-full md:w-2/3">
-                      <h2 className="font-display text-3xl font-semibold text-mirakiBlue-900 dark:text-white mb-4">
-                        {selectedArtist.name}
-                      </h2>
-                      <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 mb-6">
-                        {selectedArtist.bio}
-                      </p>
-                      <div className="flex items-center gap-4">
-                        <button className="bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900 px-4 py-2 rounded-md transition-colors">
-                          Contact Artist
-                        </button>
-                        <button 
-                          onClick={() => setSelectedArtist(null)}
-                          className="border border-mirakiGray-300 dark:border-mirakiBlue-700 hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-800 px-4 py-2 rounded-md transition-colors"
-                        >
-                          View All Artists
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              
-                <h3 className="font-display text-2xl font-medium text-mirakiBlue-900 dark:text-white mb-8">
-                  Artworks by {selectedArtist.name}
-                </h3>
-              
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {selectedArtist.artworks?.map(artwork => (
-                    <ArtworkCard 
-                      key={artwork.id}
-                      artwork={artwork}
-                      onClick={handleArtworkClick}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </Layout>
   );
 };
