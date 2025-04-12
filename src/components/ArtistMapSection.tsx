@@ -239,7 +239,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       const createArtistPopup = (artistsList: Artist[]) => {
         // Handle single artist case
         if (artistsList.length === 1) {
-          setSelectedArtist(singleArtist);
+          setSelectedArtist(artistsList[0]);
           return;
         }
         
@@ -288,13 +288,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       
       // Show popup on marker click
       markerEl.addEventListener('click', () => {
-        // Fixed reference to undefined variable 'singleArtist'
-        const singleArtist = artists.length === 1 ? artists[0] : null;
-        if (singleArtist) {
-          setSelectedArtist(singleArtist);
-        } else {
-          createArtistPopup(artists);
-        }
+        createArtistPopup(artists);
       });
       
       markers.current.push(marker);

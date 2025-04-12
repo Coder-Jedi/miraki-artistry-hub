@@ -1,3 +1,4 @@
+
 import { Artwork, ArtworkCategory } from '@/types';
 
 export const artworkCategories: ArtworkCategory[] = [
@@ -31,7 +32,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-02-15T14:22:10Z',
     medium: 'Oil on Canvas',
     dimensions: '36" x 48"',
-    year: 2023
+    year: 2023,
+    likes: 124
   },
   {
     id: '2',
@@ -52,7 +54,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-03-22T09:15:30Z',
     medium: 'Mixed Media',
     dimensions: '24" x 36"',
-    year: 2023
+    year: 2023,
+    likes: 87
   },
   {
     id: '3',
@@ -73,7 +76,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-01-10T16:40:22Z',
     medium: 'Brass and Glass',
     dimensions: '18" x 12" x 8"',
-    year: 2023
+    year: 2023,
+    likes: 156
   },
   {
     id: '4',
@@ -94,7 +98,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-05-05T10:11:12Z',
     medium: 'Digital Print',
     dimensions: '24" x 24"',
-    year: 2023
+    year: 2023,
+    likes: 92
   },
   {
     id: '5',
@@ -115,7 +120,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-04-18T14:30:45Z',
     medium: 'Archival Pigment Print',
     dimensions: '20" x 30"',
-    year: 2023
+    year: 2023,
+    likes: 118
   },
   {
     id: '6',
@@ -136,7 +142,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-03-01T11:20:33Z',
     medium: 'Glazed Stoneware',
     dimensions: 'Various sizes',
-    year: 2023
+    year: 2023,
+    likes: 78
   },
   {
     id: '7',
@@ -155,7 +162,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-06-12T09:45:10Z',
     medium: 'Ink and Watercolor on Paper',
     dimensions: '11" x 14"',
-    year: 2023
+    year: 2023,
+    likes: 64
   },
   {
     id: '8',
@@ -174,7 +182,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-02-28T13:15:20Z',
     medium: 'Concrete and Metal',
     dimensions: 'Various sizes',
-    year: 2022
+    year: 2022,
+    likes: 42
   },
   {
     id: '9',
@@ -193,7 +202,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-05-20T15:10:05Z',
     medium: 'Acrylic on Canvas',
     dimensions: '48" x 60"',
-    year: 2023
+    year: 2023,
+    likes: 185
   },
   {
     id: '10',
@@ -212,7 +222,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-04-05T16:22:40Z',
     medium: 'Digital Print',
     dimensions: '24" x 36"',
-    year: 2023
+    year: 2023,
+    likes: 73
   },
   {
     id: '11',
@@ -231,7 +242,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-01-25T12:34:56Z',
     medium: 'Archival Pigment Print',
     dimensions: '16" x 20"',
-    year: 2022
+    year: 2022,
+    likes: 49
   },
   {
     id: '12',
@@ -250,7 +262,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-03-15T10:30:00Z',
     medium: 'Textile, Found Objects',
     dimensions: '30" x 40"',
-    year: 2023
+    year: 2023,
+    likes: 94
   },
   {
     id: '13',
@@ -271,7 +284,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-08-02T08:15:00Z',
     medium: 'Watercolor on Paper',
     dimensions: '18" x 24"',
-    year: 2023
+    year: 2023,
+    likes: 67
   },
   {
     id: '14',
@@ -292,7 +306,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-07-12T10:30:00Z',
     medium: 'Mixed Media on Canvas',
     dimensions: '24" x 36"',
-    year: 2023
+    year: 2023,
+    likes: 112
   },
   {
     id: '15',
@@ -313,7 +328,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-09-20T14:45:00Z',
     medium: 'Pen and Ink on Paper',
     dimensions: '11" x 14"',
-    year: 2023
+    year: 2023,
+    likes: 138
   },
   {
     id: '16',
@@ -334,7 +350,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-06-15T09:20:00Z',
     medium: 'Glazed Ceramic',
     dimensions: 'Various Sizes',
-    year: 2023
+    year: 2023,
+    likes: 56
   },
   {
     id: '17',
@@ -355,7 +372,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-08-15T11:45:00Z',
     medium: 'Digital Print',
     dimensions: '24" x 36"',
-    year: 2023
+    year: 2023,
+    likes: 89
   },
   {
     id: '18',
@@ -374,7 +392,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-04-30T13:20:00Z',
     medium: 'Silver Gelatin Print',
     dimensions: '11" x 14"',
-    year: 2022
+    year: 2022,
+    likes: 75
   },
   {
     id: '19',
@@ -395,7 +414,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-05-15T10:00:00Z',
     medium: 'Recycled Materials',
     dimensions: 'Various Sizes',
-    year: 2023
+    year: 2023,
+    likes: 203
   },
   {
     id: '20',
@@ -416,7 +436,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-07-10T16:15:00Z',
     medium: 'Oil on Canvas',
     dimensions: '30" x 40"',
-    year: 2023
+    year: 2023,
+    likes: 142
   },
   {
     id: '21',
@@ -437,7 +458,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-03-05T09:30:00Z',
     medium: 'Graphite and Watercolor on Paper',
     dimensions: '8" x 10"',
-    year: 2022
+    year: 2022,
+    likes: 68
   },
   {
     id: '22',
@@ -458,7 +480,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-10-25T18:30:00Z',
     medium: 'Mixed Media Installation',
     dimensions: 'Room-sized Installation',
-    year: 2023
+    year: 2023,
+    likes: 246
   },
   {
     id: '23',
@@ -479,7 +502,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-02-12T14:30:00Z',
     medium: 'Oil on Canvas',
     dimensions: '24" x 36"',
-    year: 2022
+    year: 2022,
+    likes: 105
   },
   {
     id: '24',
@@ -500,7 +524,8 @@ export const artworksData: Artwork[] = [
     createdAt: '2023-09-10T15:45:00Z',
     medium: 'Digital Print on Aluminum',
     dimensions: '24" x 24"',
-    year: 2023
+    year: 2023,
+    likes: 84
   }
 ];
 
