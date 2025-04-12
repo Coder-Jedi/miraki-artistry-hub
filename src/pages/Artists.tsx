@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal, Star } from 'lucide-react';
@@ -18,8 +19,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { mumbaiAreas } from '@/hooks/useExploreFilters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-
-// Using the Artist type from types/index.ts instead of redefining it here
+import ArtistCardHome from '@/components/ArtistCardHome';
 
 interface ArtistFilters {
   searchQuery: string;
@@ -60,7 +60,10 @@ const Artists: React.FC = () => {
       if (!artistMap.has(artwork.artist)) {
         artistMap.set(artwork.artist, []);
       }
-      artistMap.get(artwork.artist)?.push(artwork);
+      const artworks = artistMap.get(artwork.artist);
+      if (artworks) {
+        artworks.push(artwork);
+      }
     });
     
     // Convert map to array of Artist objects
@@ -143,7 +146,7 @@ const Artists: React.FC = () => {
         filtered.sort((a, b) => b.name.localeCompare(a.name));
         break;
       case 'artwork_count':
-        filtered.sort((a, b) => b.artworks.length - a.artworks.length);
+        filtered.sort((a, b) => (b.artworks?.length || 0) - (a.artworks?.length || 0));
         break;
     }
     
@@ -182,15 +185,37 @@ const Artists: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="container-fluid py-24">
+        {/* Updated loader to match the new UI */}
+        <section className="page-section bg-gradient-to-r from-mirakiBlue-600 via-mirakiBlue-500 to-mirakiBlue-400 dark:from-mirakiBlue-900 dark:via-mirakiBlue-800 dark:to-mirakiBlue-700 pt-24 pb-4">
+          <div className="container-fluid">
+            <div className="max-w-4xl mx-auto md:mx-0">
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white animate-pulse">
+                Discover Artists
+              </h1>
+              <div className="bg-white/10 h-6 w-2/3 animate-pulse rounded-md mb-8"></div>
+            </div>
+          </div>
+        </section>
+        
+        <div className="container-fluid py-12">
           <div className="max-w-6xl mx-auto">
-            <h1 className="section-heading mb-12">Artists</h1>
+            <div className="flex justify-center mb-8">
+              <div className="bg-mirakiGray-200 dark:bg-mirakiBlue-800 rounded-md h-12 w-80 animate-pulse"></div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map(index => (
-                <div key={index} className="animate-pulse">
-                  <div className="h-64 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-lg mb-4"></div>
-                  <div className="h-6 w-2/3 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded mb-2"></div>
-                  <div className="h-4 w-1/2 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded"></div>
+                <div key={index} className="relative h-full">
+                  {/* Outer gradient box animation */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-mirakiBlue-200/70 to-mirakiGold/30 dark:from-mirakiBlue-800/50 dark:to-mirakiGold/20 backdrop-blur-md -m-4 p-8 animate-pulse"></div>
+                  
+                  <div className="relative z-10 h-full p-6 bg-white/80 dark:bg-mirakiBlue-900/80 rounded-lg border border-mirakiGray-200 dark:border-mirakiBlue-700">
+                    <div className="flex flex-col items-center">
+                      <div className="w-32 h-32 rounded-full bg-mirakiGray-200 dark:bg-mirakiBlue-700 animate-pulse mb-4"></div>
+                      <div className="h-6 w-1/2 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-md animate-pulse mb-2"></div>
+                      <div className="h-4 w-1/4 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-md animate-pulse mb-3"></div>
+                      <div className="h-16 w-full bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-md animate-pulse"></div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -201,16 +226,15 @@ const Artists: React.FC = () => {
   }
 
   return (
-    // ... keep existing code (component JSX)
     <Layout>
-      {/* Page Header with enhanced gradient */}
+      {/* Updated page header with gradient to match explore page */}
       <section id="artists" className={`page-section pt-24 pb-4 bg-gradient-to-r from-mirakiBlue-600 via-mirakiBlue-500 to-mirakiBlue-400 dark:from-mirakiBlue-900 dark:via-mirakiBlue-800 dark:to-mirakiBlue-700 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
         <div className="container-fluid">
-          <div className="max-w-4xl mx-auto md:mx-0 animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white">
+          <div className="max-w-6xl mx-auto">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
               {selectedArtist ? `${selectedArtist.name}` : 'Discover Artists'}
             </h1>
-            <p className="text-lg md:text-xl text-white/80 mb-8">
+            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl animate-fade-in opacity-0" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
               {selectedArtist 
                 ? `Explore the unique creative vision of ${selectedArtist.name} through their art collection.`
                 : 'Meet the talented artists behind our curated collection of artworks, each with their own unique style and perspective.'}
@@ -366,14 +390,13 @@ const Artists: React.FC = () => {
                     </p>
                   </div>
                   
-                  {/* Artists Grid */}
+                  {/* Artists Grid - Updated to use ArtistCardHome for consistent UI */}
                   {filteredArtists.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {currentArtists.map(artist => (
-                        <ArtistCard 
+                        <ArtistCardHome 
                           key={artist.id} 
                           artist={artist} 
-                          onClick={() => setSelectedArtist(artist)}
                         />
                       ))}
                     </div>
@@ -448,7 +471,11 @@ const Artists: React.FC = () => {
                 {/* Map View */}
                 <TabsContent value="map" className={`transition-all duration-500 ${isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
                   <div className="h-[600px] rounded-lg overflow-hidden">
-                    <MapSection artworks={artworksData} onArtworkClick={handleArtworkClick} />
+                    <ArtistMapSection 
+                      artists={filteredArtists} 
+                      filters={filters}
+                      updateFilters={updateFilters}
+                    />
                   </div>
                 </TabsContent>
               </Tabs>

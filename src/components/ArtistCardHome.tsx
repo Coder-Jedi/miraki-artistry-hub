@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Artist } from '@/types';
-import { ImageOff, ExternalLink } from 'lucide-react';
+import { ImageOff, ExternalLink, Star } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 interface ArtistCardHomeProps {
@@ -23,21 +24,52 @@ const ArtistCardHome: React.FC<ArtistCardHomeProps> = ({ artist }) => {
     navigate(`/artists?name=${encodeURIComponent(artist.name)}`);
   };
 
+  // Function to render star ratings
+  const renderStarRating = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    return (
+      <div className="flex items-center">
+        {[...Array(fullStars)].map((_, i) => (
+          <Star key={`full-${i}`} size={14} className="text-mirakiGold fill-mirakiGold" />
+        ))}
+        
+        {hasHalfStar && (
+          <div className="relative">
+            <Star size={14} className="text-mirakiGold" />
+            <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+              <Star size={14} className="text-mirakiGold fill-mirakiGold" />
+            </div>
+          </div>
+        )}
+        
+        {[...Array(5 - fullStars - (hasHalfStar ? 1 : 0))].map((_, i) => (
+          <Star key={`empty-${i}`} size={14} className="text-mirakiGray-300 dark:text-mirakiGray-600" />
+        ))}
+        
+        <span className="ml-1 text-xs text-mirakiGray-500 dark:text-mirakiGray-400">
+          {rating.toFixed(1)}
+        </span>
+      </div>
+    );
+  };
+
   // Make sure we use the full URL for images
   const imageUrl = artist.profileImage?.startsWith('http') 
     ? artist.profileImage 
     : artist.profileImage ? `${window.location.origin}${artist.profileImage}` : '';
 
   return (
-    <div className="artist-card-wrapper relative h-full transform transition-all duration-500">
+    <div className="artist-card-wrapper relative h-full transform transition-all duration-500 hover:-translate-y-1">
       {/* Outer gradient box with blur effect in dark mode */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-mirakiBlue-200/70 to-mirakiGold/30 dark:from-mirakiBlue-800/50 dark:to-mirakiGold/20 backdrop-blur-md -m-4 p-8" />
       
       <Card 
-        className="group cursor-pointer overflow-hidden bg-white border border-mirakiGray-200 shadow-md transition-all duration-300 hover:-translate-y-1 h-full relative z-10 dark:bg-transparent dark:border-none dark:shadow-none hover:border-mirakiGold hover:shadow-mirakiGold/50"
+        className="group cursor-pointer overflow-hidden bg-white/80 dark:bg-mirakiBlue-900/80 backdrop-blur-md border border-mirakiGray-200 shadow-md transition-all duration-300 h-full relative z-10 dark:border-mirakiBlue-800 hover:border-mirakiGold hover:shadow-mirakiGold/20"
         onClick={handleClick}
       >
-        <div className="relative aspect-square overflow-hidden rounded-full mx-auto w-44 h-44 mt-4">
+        <div className="relative aspect-square overflow-hidden rounded-full mx-auto w-32 h-32 mt-6">
           {/* Blur backdrop effect */}
           <div className="absolute inset-0 z-0 scale-110 opacity-50 blur-xl">
             {!imageError && imageUrl && (
@@ -62,29 +94,38 @@ const ArtistCardHome: React.FC<ArtistCardHomeProps> = ({ artist }) => {
             <img
               src={imageUrl}
               alt={artist.name}
-              className={`relative z-10 w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] ${
+              className={`relative z-10 w-full h-full object-cover transition-all duration-500 rounded-full shadow-lg group-hover:shadow-xl ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
               onError={handleImageError}
-              style={{ transform: 'translateZ(20px)' }}
             />
           )}
         </div>
         
-        <CardContent className="p-4 text-center bg-white dark:bg-transparent">
-          <h3 className="font-display text-lg font-medium text-mirakiBlue-900 group-hover:text-mirakiBlue-800 group-hover:font-semibold transition-colors dark:text-white dark:group-hover:text-mirakiGold">
+        <CardContent className="p-4 text-center">
+          <h3 className="font-display text-lg font-medium text-mirakiBlue-900 group-hover:text-mirakiBlue-800 group-hover:font-semibold transition-colors dark:text-white dark:group-hover:text-mirakiGold mt-2">
             {artist.name}
           </h3>
           
+          {/* Popularity Rating */}
+          <div className="mt-1 flex justify-center">
+            {renderStarRating(artist.popularity || 0)}
+          </div>
+          
           {artist.bio && (
-            <p className="mt-2 text-mirakiBlue-700 text-sm line-clamp-2 dark:text-mirakiGray-300">
+            <p className="mt-3 text-mirakiBlue-700 text-sm line-clamp-2 dark:text-mirakiGray-300">
               {artist.bio}
             </p>
           )}
+          
+          {/* Artwork count */}
+          <p className="mt-2 text-xs text-mirakiBlue-600 dark:text-mirakiGray-400">
+            {artist.artworks?.length || 0} {(artist.artworks?.length || 0) === 1 ? 'artwork' : 'artworks'}
+          </p>
         </CardContent>
         
-        <CardFooter className="px-4 pb-4 pt-0 bg-transparent flex-col">
+        <CardFooter className="px-4 pb-5 pt-0 flex-col">
           {/* Location information */}
           {artist.location?.address && (
             <div className="text-center w-full">
@@ -95,7 +136,7 @@ const ArtistCardHome: React.FC<ArtistCardHomeProps> = ({ artist }) => {
           )}
           
           {/* Social Links */}
-          {artist.socialLinks && (
+          {artist.socialLinks && Object.values(artist.socialLinks).some(link => !!link) && (
             <div className="flex justify-center space-x-3 mt-3">
               {artist.socialLinks.website && (
                 <a 
@@ -108,7 +149,6 @@ const ArtistCardHome: React.FC<ArtistCardHomeProps> = ({ artist }) => {
                   <ExternalLink size={16} />
                 </a>
               )}
-              {/* Add more social icons if needed */}
             </div>
           )}
         </CardFooter>
