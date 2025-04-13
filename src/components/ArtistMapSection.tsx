@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -71,7 +72,11 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   const { toast } = useToast();
 
   const initializeMap = () => {
-    if (!mapContainer.current) return;
+    console.log('Initializing map...');
+    if (!mapContainer.current) {
+      console.error('Map container ref is null');
+      return;
+    }
     
     try {
       // Remove existing markers
@@ -111,23 +116,8 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
       map.current.addControl(new maplibregl.ScaleControl(), 'bottom-right');
       
-      // Add custom fog and atmosphere effects for aesthetics - removed setFog which doesn't exist in maplibregl
-      map.current.on('style.load', () => {
-        try {
-          // Add custom styles if supported
-          console.log('Map style loaded');
-          
-          // Try to add some basic style customizations that are supported
-          const mapInstance = map.current;
-          if (mapInstance) {
-            // These are safer operations that should work with maplibre
-            const canvas = mapInstance.getCanvas();
-            canvas.style.outline = 'none';
-          }
-        } catch (e) {
-          console.log('Custom styling not supported in this version');
-        }
-
+      map.current.on('load', () => {
+        console.log('Map loaded successfully');
         setMapLoaded(true);
         setMapError(false);
         toast({
@@ -136,6 +126,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           duration: 3000,
         });
         
+        // Add markers after map is loaded
         addArtistMarkers();
       });
       
@@ -161,7 +152,12 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
 
   // Function to add artist markers to the map
   const addArtistMarkers = () => {
-    if (!map.current || !mapLoaded) return;
+    if (!map.current || !mapLoaded) {
+      console.log('Map not ready for markers');
+      return;
+    }
+    
+    console.log('Adding markers for artists:', artists);
     
     // Clear existing markers
     markers.current.forEach(marker => marker.remove());
@@ -170,8 +166,17 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     // Track unique locations to avoid overlapping markers
     const uniqueLocations = new Map<string, { artist: Artist, artists: Artist[] }>();
     
+    // Log if there are any artists without location
+    const artistsWithoutLocation = artists.filter(artist => !artist.location);
+    if (artistsWithoutLocation.length > 0) {
+      console.warn('Artists without location:', artistsWithoutLocation.map(a => a.name));
+    }
+    
     artists.forEach(artist => {
-      if (!artist.location) return;
+      if (!artist.location) {
+        console.warn(`Artist ${artist.name} has no location data`);
+        return;
+      }
       
       const locationKey = `${artist.location.lat.toFixed(4)},${artist.location.lng.toFixed(4)}`;
       
@@ -192,7 +197,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     
     // Create markers for each unique location
     uniqueLocations.forEach(({ artist, artists }, key) => {
-      if (!artist.location || !map.current) return;
+      if (!artist.location || !map.current) {
+        console.warn('Cannot create marker: missing location or map');
+        return;
+      }
       
       // Select a gradient based on artist name
       const gradientIndex = Math.abs(artist.name.charCodeAt(0)) % markerGradients.length;
@@ -274,98 +282,103 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         }
       }
       
-      // Create and add the marker
-      const marker = new maplibregl.Marker({
-        element: markerEl,
-        anchor: 'bottom',
-      })
-        .setLngLat([artist.location.lng, artist.location.lat])
-        .addTo(map.current);
-      
-      // Add hover animation
-      pinContainer.addEventListener('mouseenter', () => {
-        pinContainer.style.transform = 'scale(1.15) translateY(-5px)';
-        shadow.style.width = '10px';
-        shadow.style.filter = 'blur(3px)';
-      });
-      
-      pinContainer.addEventListener('mouseleave', () => {
-        pinContainer.style.transform = 'scale(1) translateY(0)';
-        shadow.style.width = '6px';
-        shadow.style.filter = 'blur(2px)';
-      });
-      
-      // Create popup for artist(s)
-      const handleMarkerClick = () => {
-        // For single artist, select and show in sidebar
-        if (artists.length === 1) {
-          setSelectedArtist(artists[0]);
-          return;
-        }
-        
-        // For multiple artists, show popup with list
-        const popupElement = document.createElement('div');
-        popupElement.className = 'p-4 max-w-xs bg-white dark:bg-mirakiBlue-800 rounded-lg shadow-lg';
-        
-        const title = document.createElement('h3');
-        title.className = 'text-lg font-bold text-mirakiBlue-900 dark:text-white mb-2';
-        title.textContent = `${artists.length} Artists at this Location`;
-        popupElement.appendChild(title);
-        
-        const list = document.createElement('div');
-        list.className = 'space-y-2 max-h-40 overflow-y-auto';
-        
-        artists.forEach(a => {
-          const artistItem = document.createElement('div');
-          artistItem.className = 'flex items-center justify-between p-2 hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-700 rounded cursor-pointer';
-          
-          const artistName = document.createElement('span');
-          artistName.className = 'text-mirakiBlue-800 dark:text-white';
-          artistName.textContent = a.name;
-          
-          const viewButton = document.createElement('button');
-          viewButton.className = 'text-xs px-2 py-1 bg-mirakiGold text-mirakiBlue-900 rounded hover:bg-mirakiGold-600';
-          viewButton.textContent = 'View';
-          viewButton.onclick = (e) => {
-            e.stopPropagation();
-            setSelectedArtist(a);
-            // Close any active popup
-            if (activePopup.current) {
-              activePopup.current.remove();
-              activePopup.current = null;
-            }
-          };
-          
-          artistItem.appendChild(artistName);
-          artistItem.appendChild(viewButton);
-          list.appendChild(artistItem);
-        });
-        
-        popupElement.appendChild(list);
-        
-        // Close any active popup before creating a new one
-        if (activePopup.current) {
-          activePopup.current.remove();
-        }
-        
-        // Create and track the popup
-        const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '300px' })
+      try {
+        // Create and add the marker
+        console.log(`Adding marker for ${artist.name} at [${artist.location.lng}, ${artist.location.lat}]`);
+        const marker = new maplibregl.Marker({
+          element: markerEl,
+          anchor: 'bottom',
+        })
           .setLngLat([artist.location.lng, artist.location.lat])
-          .setDOMContent(popupElement)
-          .addTo(map.current!);
+          .addTo(map.current);
         
-        activePopup.current = popup;
-        
-        // Handle popup close event
-        popup.on('close', () => {
-          activePopup.current = null;
+        // Add hover animation
+        pinContainer.addEventListener('mouseenter', () => {
+          pinContainer.style.transform = 'scale(1.15) translateY(-5px)';
+          shadow.style.width = '10px';
+          shadow.style.filter = 'blur(3px)';
         });
-      };
-      
-      // Show popup on marker click
-      pinContainer.addEventListener('click', handleMarkerClick);
-      
-      markers.current.push(marker);
+        
+        pinContainer.addEventListener('mouseleave', () => {
+          pinContainer.style.transform = 'scale(1) translateY(0)';
+          shadow.style.width = '6px';
+          shadow.style.filter = 'blur(2px)';
+        });
+        
+        // Create popup for artist(s)
+        const handleMarkerClick = () => {
+          // For single artist, select and show in sidebar
+          if (artists.length === 1) {
+            setSelectedArtist(artists[0]);
+            return;
+          }
+          
+          // For multiple artists, show popup with list
+          const popupElement = document.createElement('div');
+          popupElement.className = 'p-4 max-w-xs bg-white dark:bg-mirakiBlue-800 rounded-lg shadow-lg';
+          
+          const title = document.createElement('h3');
+          title.className = 'text-lg font-bold text-mirakiBlue-900 dark:text-white mb-2';
+          title.textContent = `${artists.length} Artists at this Location`;
+          popupElement.appendChild(title);
+          
+          const list = document.createElement('div');
+          list.className = 'space-y-2 max-h-40 overflow-y-auto';
+          
+          artists.forEach(a => {
+            const artistItem = document.createElement('div');
+            artistItem.className = 'flex items-center justify-between p-2 hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-700 rounded cursor-pointer';
+            
+            const artistName = document.createElement('span');
+            artistName.className = 'text-mirakiBlue-800 dark:text-white';
+            artistName.textContent = a.name;
+            
+            const viewButton = document.createElement('button');
+            viewButton.className = 'text-xs px-2 py-1 bg-mirakiGold text-mirakiBlue-900 rounded hover:bg-mirakiGold-600';
+            viewButton.textContent = 'View';
+            viewButton.onclick = (e) => {
+              e.stopPropagation();
+              setSelectedArtist(a);
+              // Close any active popup
+              if (activePopup.current) {
+                activePopup.current.remove();
+                activePopup.current = null;
+              }
+            };
+            
+            artistItem.appendChild(artistName);
+            artistItem.appendChild(viewButton);
+            list.appendChild(artistItem);
+          });
+          
+          popupElement.appendChild(list);
+          
+          // Close any active popup before creating a new one
+          if (activePopup.current) {
+            activePopup.current.remove();
+          }
+          
+          // Create and track the popup
+          const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '300px' })
+            .setLngLat([artist.location.lng, artist.location.lat])
+            .setDOMContent(popupElement)
+            .addTo(map.current!);
+          
+          activePopup.current = popup;
+          
+          // Handle popup close event
+          popup.on('close', () => {
+            activePopup.current = null;
+          });
+        };
+        
+        // Show popup on marker click
+        pinContainer.addEventListener('click', handleMarkerClick);
+        
+        markers.current.push(marker);
+      } catch (error) {
+        console.error('Error creating marker:', error);
+      }
     });
     
     // If a location filter is active, fly to that area
@@ -377,6 +390,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     }
 
     console.log(`Added ${markers.current.length} markers to the map`);
+    if (markers.current.length === 0) {
+      console.warn('No markers were added. Artist data or locations might be missing.');
+      console.log('Artists data:', artists);
+    }
   };
 
   // Helper function to get gradient start color
@@ -393,7 +410,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
 
   // Fit map to show all markers
   const fitMapToMarkers = () => {
-    if (!map.current || markers.current.length === 0) return;
+    if (!map.current || markers.current.length === 0) {
+      console.log('Cannot fit map to markers: map not initialized or no markers');
+      return;
+    }
     
     try {
       const bounds = new maplibregl.LngLatBounds();
@@ -420,7 +440,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   
   // Fly to specific area using the area coordinates
   const flyToLocation = (locationName: string) => {
-    if (!map.current) return;
+    if (!map.current) {
+      console.log('Cannot fly to location: map not initialized');
+      return;
+    }
     
     const areaCoords = areaCoordinates[locationName as keyof typeof areaCoordinates];
     
@@ -455,10 +478,12 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
 
   // Initialize map on component mount
   useEffect(() => {
+    console.log('Component mounted, initializing map');
     initializeMap();
     
     return () => {
       if (map.current) {
+        console.log('Cleaning up map');
         map.current.remove();
       }
     };
@@ -466,6 +491,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   
   // Update markers when artists change or map loads
   useEffect(() => {
+    console.log('Artists or display options changed, updating markers');
     if (mapLoaded) {
       addArtistMarkers();
     }
@@ -473,6 +499,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
 
   // Watch for location filter changes to update map view
   useEffect(() => {
+    console.log('Location filter changed:', filters.location);
     if (mapLoaded && map.current) {
       if (filters.location !== 'All Areas') {
         flyToLocation(filters.location);
@@ -626,6 +653,12 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           </div>
         </div>
       )}
+      
+      {/* Debug info */}
+      <div className="bg-yellow-100 text-yellow-800 p-2 rounded-md mb-2 text-xs">
+        <p>Artists loaded: {artists.length} | Map loaded: {mapLoaded ? 'Yes' : 'No'} | Markers: {markers.current.length}</p>
+        <p>Artist locations: {artists.filter(a => a.location).length}/{artists.length}</p>
+      </div>
       
       {/* Map container with fixed height */}
       <div className="relative h-[600px] border border-mirakiGray-200 dark:border-mirakiBlue-700 rounded-lg shadow-md overflow-hidden">
