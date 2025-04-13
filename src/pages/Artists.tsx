@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal } from 'lucide-react';
@@ -474,15 +473,13 @@ const Artists: React.FC = () => {
                   )}
                 </TabsContent>
                 
-                {/* Map View */}
+                {/* Map View - Now with filters outside the map */}
                 <TabsContent value="map" className={`transition-all duration-500 ${isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-                  <div className="h-[600px] rounded-lg overflow-hidden">
-                    <ArtistMapSection 
-                      artists={filteredArtists} 
-                      filters={filters}
-                      updateFilters={updateFilters}
-                    />
-                  </div>
+                  <ArtistMapSection 
+                    artists={filteredArtists} 
+                    filters={filters}
+                    updateFilters={updateFilters}
+                  />
                 </TabsContent>
               </Tabs>
             </div>

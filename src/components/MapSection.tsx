@@ -120,18 +120,44 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
     });
     
     // Create markers for each artist
-    artistLocations.forEach(({ artist, location, artworks }) => {
+    artistLocations.forEach(({ artist, location, artworks }, key) => {
       if (!location || !map.current) return;
       
       // Create marker element
       const markerEl = document.createElement('div');
       markerEl.className = 'flex flex-col items-center';
       
-      // Marker icon
-      const markerIcon = document.createElement('div');
-      markerIcon.className = 'w-10 h-10 rounded-full bg-mirakiGold flex items-center justify-center text-mirakiBlue-900 font-bold border-2 border-white shadow-lg cursor-pointer transition-all hover:scale-110';
-      markerIcon.innerHTML = artist.charAt(0).toUpperCase();
-      markerEl.appendChild(markerIcon);
+      // Create pin container for improved visual
+      const pinContainer = document.createElement('div');
+      pinContainer.className = 'relative transform transition-all duration-300 hover:scale-110 cursor-pointer';
+      pinContainer.style.width = '36px';
+      pinContainer.style.height = '48px';
+      
+      // Create the pin shape with gradient background
+      const pinShape = document.createElement('div');
+      pinShape.className = 'absolute top-0 left-0 w-full h-full';
+      pinShape.innerHTML = `
+        <svg viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 0C8.1 0 0 8.1 0 18C0 29.3 14.6 46.8 17.2 48C17.5 48.1 17.8 48.1 18 48C20.6 46.8 36 29.3 36 18C36 8.1 27.9 0 18 0Z" fill="#FFB347" />
+        </svg>
+      `;
+      
+      // Add artist initial in the center
+      const artistInitial = document.createElement('div');
+      artistInitial.className = 'absolute flex items-center justify-center text-mirakiBlue-900 font-bold text-sm top-2.5 left-0 w-full';
+      artistInitial.textContent = artist.charAt(0).toUpperCase();
+      
+      // Add shadow for 3D effect
+      const shadow = document.createElement('div');
+      shadow.className = 'absolute -bottom-2 left-1/2 transform -translate-x-1/2 rounded-full bg-black/15 blur-sm';
+      shadow.style.width = '16px';
+      shadow.style.height = '4px';
+      
+      // Assemble pin
+      pinContainer.appendChild(pinShape);
+      pinContainer.appendChild(artistInitial);
+      pinContainer.appendChild(shadow);
+      markerEl.appendChild(pinContainer);
       
       // Artist name label (conditionally visible)
       const nameLabel = document.createElement('div');
@@ -140,7 +166,10 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
       markerEl.appendChild(nameLabel);
       
       // Create and add the marker
-      const marker = new maplibregl.Marker(markerEl)
+      const marker = new maplibregl.Marker({
+        element: markerEl,
+        anchor: 'bottom',
+      })
         .setLngLat([location.lng, location.lat])
         .addTo(map.current);
       
@@ -160,6 +189,19 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
       `;
       
       const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHTML);
+      
+      // Add hover animation
+      markerEl.addEventListener('mouseenter', () => {
+        pinContainer.style.transform = 'scale(1.15) translateY(-5px)';
+        shadow.style.width = '20px';
+        shadow.style.filter = 'blur(3px)';
+      });
+      
+      markerEl.addEventListener('mouseleave', () => {
+        pinContainer.style.transform = 'scale(1) translateY(0)';
+        shadow.style.width = '16px';
+        shadow.style.filter = 'blur(2px)';
+      });
       
       // Show popup on marker click
       markerEl.addEventListener('click', () => {

@@ -193,7 +193,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       
       // Marker icon with gradient background
       const markerIcon = document.createElement('div');
-      markerIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-lg cursor-pointer transition-all hover:scale-110 hover:shadow-xl';
+      markerIcon.className = 'w-10 h-10 rounded-full bg-mirakiGold flex items-center justify-center text-mirakiBlue-900 font-bold border-2 border-white shadow-lg cursor-pointer transition-all hover:scale-110';
       markerIcon.style.background = gradientColor;
       markerIcon.innerHTML = artist.name.charAt(0).toUpperCase();
       markerEl.appendChild(markerIcon);
