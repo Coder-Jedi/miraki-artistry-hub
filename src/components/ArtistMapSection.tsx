@@ -5,7 +5,6 @@ import { Artist } from '@/types';
 import { Button } from '@/components/ui/button';
 import { MapIcon, Filter, User, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { mumbaiAreas } from '@/hooks/useExploreFilters';
 import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -45,7 +44,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
   const [showLabels, setShowLabels] = useState(true);
-  const [isMapFilterOpen, setIsMapFilterOpen] = useState(false);
   const [showPopularity, setShowPopularity] = useState(true);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const { toast } = useToast();
@@ -384,7 +382,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   // Handle location filter change
   const handleLocationChange = (location: string) => {
     updateFilters({ location });
-    setIsMapFilterOpen(false);
   };
 
   // Handle location reset
@@ -425,135 +422,89 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   }
 
   return (
-    <div className="relative h-full">
-      {/* Map controls */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <Sheet open={isMapFilterOpen} onOpenChange={setIsMapFilterOpen}>
-          <SheetTrigger asChild>
-            <Button 
-              size="sm"
-              className="bg-white/90 hover:bg-white border border-mirakiGray-200 text-mirakiBlue-800"
-            >
-              <Filter size={16} className="mr-2" />
-              Filter Artists
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="w-80">
-            <SheetHeader>
-              <SheetTitle>Filter Artists on Map</SheetTitle>
-              <SheetDescription>
-                Apply filters to find artists in specific areas or with certain popularity ratings.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="mt-6 space-y-6">
-              {/* Location Filter */}
-              <div>
-                <h3 className="text-lg font-medium mb-2">Location</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  <div 
-                    key="all-areas"
-                    className={`px-3 py-2 rounded-md cursor-pointer transition-colors ${
-                      filters.location === 'All Areas' 
-                        ? 'bg-mirakiBlue-100 dark:bg-mirakiBlue-700 text-mirakiBlue-900 dark:text-white' 
-                        : 'hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-800'
-                    }`}
-                    onClick={() => handleLocationChange('All Areas')}
-                  >
-                    All Areas
-                  </div>
-                  {mumbaiAreas.map(area => (
-                    <div 
-                      key={area}
-                      className={`px-3 py-2 rounded-md cursor-pointer transition-colors ${
-                        filters.location === area 
-                          ? 'bg-mirakiBlue-100 dark:bg-mirakiBlue-700 text-mirakiBlue-900 dark:text-white' 
-                          : 'hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-800'
-                      }`}
-                      onClick={() => handleLocationChange(area)}
-                    >
-                      {area}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Popularity Range Filter */}
-              <div>
-                <h3 className="text-lg font-medium mb-2">Popularity Rating</h3>
-                <p className="text-sm text-mirakiBlue-600 dark:text-mirakiGray-400 mb-4">
-                  Rating: {filters.popularityRange[0]} - {filters.popularityRange[1]}
-                </p>
-                <Slider 
-                  defaultValue={[0, 5]}
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  value={filters.popularityRange}
-                  onValueChange={(value) => handlePopularityChange(value as [number, number])}
-                  className="mb-4"
-                />
-                <div className="flex justify-between text-xs text-mirakiBlue-600 dark:text-mirakiGray-400">
-                  <span>0</span>
-                  <span>1</span>
-                  <span>2</span>
-                  <span>3</span>
-                  <span>4</span>
-                  <span>5</span>
-                </div>
-              </div>
-              
-              {/* Display Controls */}
-              <div>
-                <h3 className="text-lg font-medium mb-2">Display Options</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span>Show Artist Names</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={toggleLabelVisibility}
-                      className={showLabels ? "bg-mirakiBlue-100" : ""}
-                    >
-                      {showLabels ? "Hide" : "Show"}
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Show Popularity Ratings</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={togglePopularityVisibility}
-                      className={showPopularity ? "bg-mirakiBlue-100" : ""}
-                    >
-                      {showPopularity ? "Hide" : "Show"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Reset Button */}
+    <div className="flex flex-col w-full">
+      {/* Filter options - moved above the map */}
+      <div className="mb-4 p-4 bg-white/90 dark:bg-mirakiBlue-900/90 rounded-lg shadow-sm">
+        <h3 className="text-lg font-medium mb-4">Filter Artists on Map</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Location Filter */}
+          <div>
+            <h4 className="text-sm font-medium mb-2">Location</h4>
+            <div className="relative">
+              <select 
+                value={filters.location}
+                onChange={(e) => handleLocationChange(e.target.value)}
+                className="w-full p-2 rounded border border-mirakiGray-200 dark:border-mirakiBlue-700 bg-white dark:bg-mirakiBlue-800 text-mirakiBlue-800 dark:text-white"
+              >
+                {mumbaiAreas.map(area => (
+                  <option key={area} value={area}>{area}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          {/* Popularity Range Filter */}
+          <div>
+            <h4 className="text-sm font-medium mb-2">
+              Popularity Rating: {filters.popularityRange[0]} - {filters.popularityRange[1]}
+            </h4>
+            <Slider 
+              defaultValue={[0, 5]}
+              min={0}
+              max={5}
+              step={0.5}
+              value={filters.popularityRange}
+              onValueChange={(value) => handlePopularityChange(value as [number, number])}
+              className="mb-1"
+            />
+            <div className="flex justify-between text-xs text-mirakiBlue-600 dark:text-mirakiGray-400">
+              <span>0</span>
+              <span>5</span>
+            </div>
+          </div>
+          
+          {/* Display Controls */}
+          <div>
+            <h4 className="text-sm font-medium mb-2">Display Options</h4>
+            <div className="flex gap-2">
               <Button 
-                className="w-full mt-4"
+                variant="outline" 
+                size="sm" 
+                onClick={toggleLabelVisibility}
+                className={showLabels ? "bg-mirakiBlue-100 dark:bg-mirakiBlue-700" : ""}
+              >
+                {showLabels ? "Hide" : "Show"} Names
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={togglePopularityVisibility}
+                className={showPopularity ? "bg-mirakiBlue-100 dark:bg-mirakiBlue-700" : ""}
+              >
+                {showPopularity ? "Hide" : "Show"} Ratings
+              </Button>
+              <Button 
                 variant="outline"
+                size="sm"
                 onClick={() => {
                   updateFilters({
                     location: 'All Areas',
                     popularityRange: [0, 5]
                   });
-                  setIsMapFilterOpen(false);
                   resetLocation();
                 }}
               >
-                Reset All Filters
+                Reset
               </Button>
             </div>
-          </SheetContent>
-        </Sheet>
+          </div>
+        </div>
       </div>
       
       {/* Filter info banner */}
       {filters.location !== 'All Areas' && (
-        <div className="absolute top-4 right-4 z-10 bg-white/90 dark:bg-mirakiBlue-900/90 py-2 px-4 rounded-md shadow-md backdrop-blur-sm">
+        <div className="mb-2 bg-white/90 dark:bg-mirakiBlue-900/90 py-2 px-4 rounded-md shadow-md backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <span className="text-sm">Showing artists in: <strong>{filters.location}</strong></span>
             <Button size="sm" variant="ghost" onClick={resetLocation} className="h-7 w-7 p-0">
@@ -564,83 +515,64 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       )}
       
       {/* Selected artist detail sheet */}
-      <Sheet open={!!selectedArtist} onOpenChange={(open) => !open && setSelectedArtist(null)}>
-        <SheetContent className="w-[320px] sm:w-[540px]">
-          {selectedArtist && (
-            <>
-              <SheetHeader>
-                <SheetTitle className="text-2xl">{selectedArtist.name}</SheetTitle>
-                <div className="flex items-center text-mirakiGray-500 dark:text-mirakiGray-400 text-sm mb-2">
-                  <MapIcon size={14} className="mr-1" />
-                  {selectedArtist.location?.address}
+      <div className="relative h-[600px]">
+        {/* Map container */}
+        <div ref={mapContainer} className="h-full w-full bg-mirakiGray-200 dark:bg-mirakiBlue-900 rounded-lg overflow-hidden" />
+        
+        {/* Selected artist popup */}
+        {selectedArtist && (
+          <div className="absolute right-4 top-4 w-[320px] bg-white dark:bg-mirakiBlue-800 rounded-lg shadow-lg p-4 z-20">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-xl font-medium">{selectedArtist.name}</h3>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setSelectedArtist(null)}>×</Button>
+            </div>
+            
+            <div className="flex items-center text-mirakiGray-500 dark:text-mirakiGray-400 text-sm mb-2">
+              <MapIcon size={14} className="mr-1" />
+              {selectedArtist.location?.address}
+            </div>
+            
+            <div className="flex items-center mb-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  size={16}
+                  className={i < (selectedArtist.popularity || 0) ? "fill-mirakiGold text-mirakiGold" : "text-mirakiGray-300"}
+                />
+              ))}
+              <span className="text-sm ml-1 text-mirakiGray-500 dark:text-mirakiGray-400">
+                {selectedArtist.popularity?.toFixed(1)}
+              </span>
+            </div>
+            
+            {selectedArtist.profileImage && (
+              <div className="flex mb-3">
+                <div className="w-20 h-20 rounded-full overflow-hidden mr-3">
+                  <img
+                    src={selectedArtist.profileImage}
+                    alt={selectedArtist.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className="flex items-center">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={i < (selectedArtist.popularity || 0) ? "fill-mirakiGold text-mirakiGold" : "text-mirakiGray-300"}
-                    />
-                  ))}
-                  <span className="text-sm ml-1 text-mirakiGray-500 dark:text-mirakiGray-400">
-                    {selectedArtist.popularity?.toFixed(1)}
-                  </span>
-                </div>
-              </SheetHeader>
-              
-              <div className="mt-6">
-                {selectedArtist.profileImage && (
-                  <div className="w-32 h-32 mx-auto rounded-full overflow-hidden mb-4">
-                    <img
-                      src={selectedArtist.profileImage}
-                      alt={selectedArtist.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                
-                {selectedArtist.bio && (
-                  <p className="text-mirakiBlue-700 dark:text-mirakiGray-300 mb-6">
-                    {selectedArtist.bio}
-                  </p>
-                )}
-                
-                <div className="mb-6">
-                  <h3 className="font-medium text-lg mb-2">Artworks</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {selectedArtist.artworks?.slice(0, 6).map((artwork, index) => (
-                      <div key={artwork.id} className="aspect-square rounded-md overflow-hidden">
-                        <img 
-                          src={artwork.image} 
-                          alt={artwork.title} 
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  {(selectedArtist.artworks?.length || 0) > 6 && (
-                    <p className="text-sm text-center text-mirakiBlue-600 dark:text-mirakiGray-400 mt-2">
-                      +{(selectedArtist.artworks?.length || 0) - 6} more artworks
+                <div className="flex-1">
+                  {selectedArtist.bio && (
+                    <p className="text-sm text-mirakiBlue-700 dark:text-mirakiGray-300 line-clamp-4">
+                      {selectedArtist.bio}
                     </p>
                   )}
                 </div>
-                
-                <div className="flex justify-center gap-3">
-                  <Button 
-                    onClick={() => window.location.href = `/artists?name=${encodeURIComponent(selectedArtist.name)}`}
-                    className="bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900"
-                  >
-                    <User size={16} className="mr-2" /> View Artist Profile
-                  </Button>
-                </div>
               </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
-      
-      {/* Map container */}
-      <div ref={mapContainer} className="h-full w-full bg-mirakiGray-200 dark:bg-mirakiBlue-900" />
+            )}
+            
+            <Button 
+              onClick={() => window.location.href = `/artists?name=${encodeURIComponent(selectedArtist.name)}`}
+              className="w-full bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900"
+            >
+              <User size={16} className="mr-2" /> View Artist Profile
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

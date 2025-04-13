@@ -255,21 +255,26 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
   }
 
   return (
-    <div className="relative h-[600px]">
-      {/* Map controls - positioned at the top for visibility */}
-      <div className="absolute top-4 right-4 z-10">
-        <Button 
-          size="sm"
-          variant="outline"
-          className="bg-white/90 hover:bg-white border border-mirakiGray-200 text-mirakiBlue-800"
-          onClick={toggleNameVisibility}
-        >
-          {showNames ? "Hide" : "Show"} Artist Names
-        </Button>
+    <div className="flex flex-col w-full">
+      {/* Map controls - moved above the map */}
+      <div className="mb-4 p-4 bg-white/90 dark:bg-mirakiBlue-900/90 rounded-lg shadow-sm">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">Artwork Locations</h3>
+          <Button 
+            size="sm"
+            variant="outline"
+            className="bg-white hover:bg-white border border-mirakiGray-200 text-mirakiBlue-800"
+            onClick={toggleNameVisibility}
+          >
+            {showNames ? "Hide" : "Show"} Artist Names
+          </Button>
+        </div>
       </div>
       
       {/* Map container */}
-      <div ref={mapContainer} className="h-full w-full bg-mirakiGray-200 dark:bg-mirakiBlue-900" />
+      <div className="relative h-[600px]">
+        <div ref={mapContainer} className="h-full w-full bg-mirakiGray-200 dark:bg-mirakiBlue-900 rounded-lg overflow-hidden" />
+      </div>
     </div>
   );
 };
