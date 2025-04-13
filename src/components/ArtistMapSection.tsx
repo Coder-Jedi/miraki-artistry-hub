@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -22,6 +23,27 @@ interface ArtistMapSectionProps {
   filters: ArtistFilters;
   updateFilters: (filters: Partial<ArtistFilters>) => void;
 }
+
+// Mumbai area coordinates for zooming to specific areas
+const areaCoordinates = {
+  'All Areas': { lat: 19.0760, lng: 72.8777, zoom: 10 },
+  'Bandra': { lat: 19.0596, lng: 72.8295, zoom: 14 },
+  'Colaba': { lat: 18.9067, lng: 72.8147, zoom: 14 },
+  'Dadar': { lat: 19.0178, lng: 72.8478, zoom: 14 },
+  'Fort': { lat: 18.9340, lng: 72.8340, zoom: 14 },
+  'Juhu': { lat: 19.1075, lng: 72.8263, zoom: 14 },
+  'Kala Ghoda': { lat: 18.9281, lng: 72.8319, zoom: 15 },
+  'Lower Parel': { lat: 18.9982, lng: 72.8270, zoom: 14 },
+  'Malabar Hill': { lat: 18.9548, lng: 72.7985, zoom: 14 },
+  'Marine Drive': { lat: 18.9442, lng: 72.8239, zoom: 14 },
+  'Powai': { lat: 19.1176, lng: 72.9081, zoom: 14 },
+  'Worli': { lat: 19.0096, lng: 72.8173, zoom: 14 },
+  'Andheri': { lat: 19.1136, lng: 72.8697, zoom: 14 },
+  'Navi Mumbai - Vashi': { lat: 19.0748, lng: 73.0008, zoom: 14 },
+  'Navi Mumbai - Belapur': { lat: 19.0237, lng: 73.0400, zoom: 14 },
+  'Navi Mumbai - Nerul': { lat: 19.0353, lng: 73.0197, zoom: 14 },
+  'Navi Mumbai - Kharghar': { lat: 19.0474, lng: 73.0658, zoom: 14 }
+};
 
 const MUMBAI_CENTER = { lat: 19.0760, lng: 72.8777 };
 const DEFAULT_ZOOM = 10;
@@ -105,17 +127,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         } catch (e) {
           console.log('Custom styling not supported in this version');
         }
-        
-        // Add 3D buildings if available - but in a safe way
-        try {
-          const mapInstance = map.current;
-          if (mapInstance && !mapInstance.getLayer('building-extrusion') && mapInstance.getSource('osm')) {
-            // Only attempt if we have the source and don't have the layer yet
-            console.log('Adding 3D buildings layer');
-          }
-        } catch (e) {
-          console.log('3D buildings not supported');
-        }
 
         setMapLoaded(true);
         setMapError(false);
@@ -177,11 +188,13 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       }
     });
     
+    console.log(`Creating markers for ${uniqueLocations.size} locations`);
+    
     // Create markers for each unique location
     uniqueLocations.forEach(({ artist, artists }, key) => {
       if (!artist.location || !map.current) return;
       
-      // Select a gradient based on artist or location
+      // Select a gradient based on artist name
       const gradientIndex = Math.abs(artist.name.charCodeAt(0)) % markerGradients.length;
       const gradientColor = markerGradients[gradientIndex];
       
@@ -189,71 +202,120 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       const markerEl = document.createElement('div');
       markerEl.className = 'flex flex-col items-center';
       
-      // Marker icon with gradient background
-      const markerIcon = document.createElement('div');
-      markerIcon.className = 'w-10 h-10 rounded-full bg-mirakiGold flex items-center justify-center text-mirakiBlue-900 font-bold border-2 border-white shadow-lg cursor-pointer transition-all hover:scale-110';
-      markerIcon.style.background = gradientColor;
-      markerIcon.innerHTML = artist.name.charAt(0).toUpperCase();
-      markerEl.appendChild(markerIcon);
+      // Pin container
+      const pinContainer = document.createElement('div');
+      pinContainer.className = 'relative transform transition-all duration-300 hover:scale-110 cursor-pointer';
+      pinContainer.style.width = '40px';
+      pinContainer.style.height = '54px';
       
-      // Number of artists at this location (if multiple)
-      if (artists.length > 1) {
-        const countBadge = document.createElement('div');
-        countBadge.className = 'absolute -top-2 -right-2 w-6 h-6 rounded-full bg-mirakiGold text-mirakiBlue-900 text-xs font-bold flex items-center justify-center border border-white';
-        countBadge.textContent = artists.length.toString();
-        markerIcon.appendChild(countBadge);
-        markerIcon.style.position = 'relative';
+      // Create the pin shape with gradient background
+      const pinShape = document.createElement('div');
+      pinShape.className = 'absolute top-0 left-0 w-full h-full';
+      pinShape.innerHTML = `
+        <svg viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 0C8.95 0 0 8.95 0 20C0 31.05 8.95 40 20 40C31.05 40 40 31.05 40 20C40 8.95 31.05 0 20 0ZM20 54L8.95 40C3.16 34.21 0 27.37 0 20C0 8.95 8.95 0 20 0C31.05 0 40 8.95 40 20C40 27.37 36.84 34.21 31.05 40L20 54Z" fill="url(#${artist.id}-gradient)" />
+          <defs>
+            <linearGradient id="${artist.id}-gradient" x1="0" y1="0" x2="40" y2="54" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="${getGradientStartColor(gradientIndex)}" />
+              <stop offset="100%" stop-color="${getGradientEndColor(gradientIndex)}" />
+            </linearGradient>
+          </defs>
+        </svg>
+      `;
+      
+      // Artist image in the pin
+      const artistImage = document.createElement('div');
+      artistImage.className = 'absolute top-2 left-1/2 transform -translate-x-1/2 w-7 h-7 rounded-full bg-white overflow-hidden border-2 border-white';
+      
+      // Create image element if profileImage exists
+      if (artist.profileImage) {
+        const imgElement = document.createElement('img');
+        imgElement.src = artist.profileImage;
+        imgElement.alt = artist.name;
+        imgElement.className = 'w-full h-full object-cover';
+        artistImage.appendChild(imgElement);
+      } else {
+        // Fallback to artist initial if no image
+        artistImage.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-mirakiBlue-600 text-white font-bold text-sm">${artist.name.charAt(0).toUpperCase()}</div>`;
       }
       
-      // Artist name label (conditionally visible)
-      const nameLabel = document.createElement('div');
-      nameLabel.className = `mt-1 px-2 py-1 bg-white dark:bg-mirakiBlue-800 text-mirakiBlue-900 dark:text-white text-xs font-medium rounded shadow-md whitespace-nowrap ${showLabels ? 'block' : 'hidden'}`;
-      nameLabel.textContent = artists.length > 1 ? `${artists.length} artists` : artist.name;
-      markerEl.appendChild(nameLabel);
+      // Add shadow for 3D effect
+      const shadow = document.createElement('div');
+      shadow.className = 'absolute -bottom-1 left-1/2 transform -translate-x-1/2 rounded-full bg-black/20 blur-sm w-6 h-2 transition-all duration-300';
       
-      // Popularity indicator (conditionally visible)
-      if (showPopularity && artist.popularity) {
-        const popContainer = document.createElement('div');
-        popContainer.className = `flex items-center mt-1 ${showLabels ? 'block' : 'hidden'}`;
+      // Assemble pin
+      pinContainer.appendChild(pinShape);
+      pinContainer.appendChild(artistImage);
+      pinContainer.appendChild(shadow);
+      markerEl.appendChild(pinContainer);
+      
+      // Artist name label (conditionally visible)
+      if (showLabels) {
+        const nameLabel = document.createElement('div');
+        nameLabel.className = 'mt-1 px-2 py-1 bg-white dark:bg-mirakiBlue-800 text-mirakiBlue-900 dark:text-white text-xs font-medium rounded shadow-md whitespace-nowrap';
+        nameLabel.textContent = artists.length > 1 ? `${artists.length} artists` : artist.name;
+        markerEl.appendChild(nameLabel);
         
-        // Create star rating
-        const popularityRating = Math.round(artist.popularity);
-        for (let i = 0; i < 5; i++) {
-          const star = document.createElement('span');
-          star.className = i < popularityRating ? 'text-mirakiGold text-xs' : 'text-gray-300 text-xs';
-          star.innerHTML = '★';
-          popContainer.appendChild(star);
+        // Popularity indicator
+        if (showPopularity && artist.popularity) {
+          const popContainer = document.createElement('div');
+          popContainer.className = 'flex items-center mt-1';
+          
+          // Create star rating
+          const popularityRating = Math.round(artist.popularity);
+          for (let i = 0; i < 5; i++) {
+            const star = document.createElement('span');
+            star.className = i < popularityRating ? 'text-mirakiGold text-xs' : 'text-gray-300 text-xs';
+            star.innerHTML = '★';
+            popContainer.appendChild(star);
+          }
+          
+          markerEl.appendChild(popContainer);
         }
-        
-        markerEl.appendChild(popContainer);
       }
       
       // Create and add the marker
-      const marker = new maplibregl.Marker(markerEl)
+      const marker = new maplibregl.Marker({
+        element: markerEl,
+        anchor: 'bottom',
+      })
         .setLngLat([artist.location.lng, artist.location.lat])
         .addTo(map.current);
       
-      // Create custom popup for artist(s)
-      const createArtistPopup = (artistsList: Artist[]) => {
-        // Handle single artist case
-        if (artistsList.length === 1) {
-          setSelectedArtist(artistsList[0]);
+      // Add hover animation
+      pinContainer.addEventListener('mouseenter', () => {
+        pinContainer.style.transform = 'scale(1.15) translateY(-5px)';
+        shadow.style.width = '10px';
+        shadow.style.filter = 'blur(3px)';
+      });
+      
+      pinContainer.addEventListener('mouseleave', () => {
+        pinContainer.style.transform = 'scale(1) translateY(0)';
+        shadow.style.width = '6px';
+        shadow.style.filter = 'blur(2px)';
+      });
+      
+      // Create popup for artist(s)
+      const handleMarkerClick = () => {
+        // For single artist, select and show in sidebar
+        if (artists.length === 1) {
+          setSelectedArtist(artists[0]);
           return;
         }
         
-        // Handle multiple artists case
+        // For multiple artists, show popup with list
         const popupElement = document.createElement('div');
         popupElement.className = 'p-4 max-w-xs bg-white dark:bg-mirakiBlue-800 rounded-lg shadow-lg';
         
         const title = document.createElement('h3');
         title.className = 'text-lg font-bold text-mirakiBlue-900 dark:text-white mb-2';
-        title.textContent = `${artistsList.length} Artists at this Location`;
+        title.textContent = `${artists.length} Artists at this Location`;
         popupElement.appendChild(title);
         
         const list = document.createElement('div');
         list.className = 'space-y-2 max-h-40 overflow-y-auto';
         
-        artistsList.forEach(a => {
+        artists.forEach(a => {
           const artistItem = document.createElement('div');
           artistItem.className = 'flex items-center justify-between p-2 hover:bg-mirakiGray-100 dark:hover:bg-mirakiBlue-700 rounded cursor-pointer';
           
@@ -267,8 +329,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           viewButton.onclick = (e) => {
             e.stopPropagation();
             setSelectedArtist(a);
-            // Fixed: Removed hasPopup and closePopup which don't exist in maplibregl
-            // Just focus on setting the state instead
+            // Remove popup when artist is selected
+            if (map.current && map.current.getPopup()) {
+              map.current.getPopup().remove();
+            }
           };
           
           artistItem.appendChild(artistName);
@@ -285,9 +349,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       };
       
       // Show popup on marker click
-      markerEl.addEventListener('click', () => {
-        createArtistPopup(artists);
-      });
+      pinContainer.addEventListener('click', handleMarkerClick);
       
       markers.current.push(marker);
     });
@@ -299,7 +361,21 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       // Otherwise fit the map to show all markers
       fitMapToMarkers();
     }
+
+    console.log(`Added ${markers.current.length} markers to the map`);
   };
+
+  // Helper function to get gradient start color
+  function getGradientStartColor(index: number): string {
+    const startColors = ['#FF9A9E', '#43CBFF', '#FCCF31', '#667EEA', '#F6D365', '#A1C4FD', '#0BA360'];
+    return startColors[index % startColors.length];
+  }
+
+  // Helper function to get gradient end color
+  function getGradientEndColor(index: number): string {
+    const endColors = ['#FECFEF', '#9708CC', '#F55555', '#764BA2', '#FDA085', '#C2E9FB', '#3CBA92'];
+    return endColors[index % endColors.length];
+  }
 
   // Fit map to show all markers
   const fitMapToMarkers = () => {
@@ -328,26 +404,38 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     }
   };
   
-  // Fly to specific area
+  // Fly to specific area using the area coordinates
   const flyToLocation = (locationName: string) => {
     if (!map.current) return;
     
-    // Find an artist with the matching location
-    const artistWithLocation = artists.find(artist => artist.location?.area === locationName);
+    const areaCoords = areaCoordinates[locationName as keyof typeof areaCoordinates];
     
-    if (artistWithLocation && artistWithLocation.location) {
+    if (areaCoords) {
+      console.log(`Flying to ${locationName}: lat ${areaCoords.lat}, lng ${areaCoords.lng}, zoom ${areaCoords.zoom}`);
       map.current.flyTo({
-        center: [artistWithLocation.location.lng, artistWithLocation.location.lat],
-        zoom: 13,
+        center: [areaCoords.lng, areaCoords.lat],
+        zoom: areaCoords.zoom,
         duration: 1000
       });
     } else {
-      // If no matching artist, just fly to Mumbai
-      map.current.flyTo({
-        center: [MUMBAI_CENTER.lng, MUMBAI_CENTER.lat],
-        zoom: DEFAULT_ZOOM,
-        duration: 1000
-      });
+      // If no matching coordinates, find an artist with the matching location
+      const artistWithLocation = artists.find(artist => artist.location?.area === locationName);
+      
+      if (artistWithLocation && artistWithLocation.location) {
+        console.log(`Flying to artist location: ${locationName}`);
+        map.current.flyTo({
+          center: [artistWithLocation.location.lng, artistWithLocation.location.lat],
+          zoom: 13,
+          duration: 1000
+        });
+      } else {
+        // If no matching artist, just fly to Mumbai
+        map.current.flyTo({
+          center: [MUMBAI_CENTER.lng, MUMBAI_CENTER.lat],
+          zoom: DEFAULT_ZOOM,
+          duration: 1000
+        });
+      }
     }
   };
 
@@ -368,6 +456,17 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       addArtistMarkers();
     }
   }, [artists, mapLoaded, showLabels, showPopularity]);
+
+  // Watch for location filter changes to update map view
+  useEffect(() => {
+    if (mapLoaded && map.current) {
+      if (filters.location !== 'All Areas') {
+        flyToLocation(filters.location);
+      } else {
+        fitMapToMarkers();
+      }
+    }
+  }, [filters.location, mapLoaded]);
 
   // Toggle name visibility
   const toggleLabelVisibility = () => {
@@ -514,10 +613,9 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         </div>
       )}
       
-      {/* Selected artist detail sheet */}
-      <div className="relative h-[600px]">
-        {/* Map container */}
-        <div ref={mapContainer} className="h-full w-full bg-mirakiGray-200 dark:bg-mirakiBlue-900 rounded-lg overflow-hidden" />
+      {/* Map container with fixed height */}
+      <div className="relative h-[600px] border border-mirakiGray-200 dark:border-mirakiBlue-700 rounded-lg shadow-md overflow-hidden">
+        <div ref={mapContainer} className="h-full w-full bg-mirakiGray-200 dark:bg-mirakiBlue-900" />
         
         {/* Selected artist popup */}
         {selectedArtist && (
@@ -578,3 +676,4 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
 };
 
 export default ArtistMapSection;
+
