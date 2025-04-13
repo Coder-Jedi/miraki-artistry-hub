@@ -549,15 +549,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
             </div>
           </SheetContent>
         </Sheet>
-        
-        <Button 
-          size="sm"
-          variant="outline"
-          className="bg-white/90 hover:bg-white border border-mirakiGray-200 text-mirakiBlue-800"
-          onClick={toggleLabelVisibility}
-        >
-          {showLabels ? "Hide" : "Show"} Artist Names
-        </Button>
       </div>
       
       {/* Filter info banner */}

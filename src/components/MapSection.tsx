@@ -4,7 +4,7 @@ import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Artwork } from '@/types';
 import { Button } from '@/components/ui/button';
-import { MapIcon, Filter, MapPin } from 'lucide-react';
+import { MapIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface MapSectionProps {
@@ -255,17 +255,16 @@ const MapSection: React.FC<MapSectionProps> = ({ artworks, onArtworkClick }) => 
   }
 
   return (
-    <div className="relative h-full">
-      {/* Map controls */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+    <div className="relative h-[600px]">
+      {/* Map controls - positioned at the top for visibility */}
+      <div className="absolute top-4 right-4 z-10">
         <Button 
           size="sm"
           variant="outline"
           className="bg-white/90 hover:bg-white border border-mirakiGray-200 text-mirakiBlue-800"
           onClick={toggleNameVisibility}
         >
-          <Filter size={16} className="mr-2" />
-          {showNames ? 'Hide' : 'Show'} Artist Names
+          {showNames ? "Hide" : "Show"} Artist Names
         </Button>
       </div>
       
