@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -63,6 +62,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
+  const activePopup = useRef<maplibregl.Popup | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
   const [showLabels, setShowLabels] = useState(true);
@@ -329,9 +329,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           viewButton.onclick = (e) => {
             e.stopPropagation();
             setSelectedArtist(a);
-            // Remove popup when artist is selected
-            if (map.current && map.current.getPopup()) {
-              map.current.getPopup().remove();
+            // Close any active popup
+            if (activePopup.current) {
+              activePopup.current.remove();
+              activePopup.current = null;
             }
           };
           
@@ -342,10 +343,23 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         
         popupElement.appendChild(list);
         
+        // Close any active popup before creating a new one
+        if (activePopup.current) {
+          activePopup.current.remove();
+        }
+        
+        // Create and track the popup
         const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '300px' })
           .setLngLat([artist.location.lng, artist.location.lat])
           .setDOMContent(popupElement)
           .addTo(map.current!);
+        
+        activePopup.current = popup;
+        
+        // Handle popup close event
+        popup.on('close', () => {
+          activePopup.current = null;
+        });
       };
       
       // Show popup on marker click
@@ -622,7 +636,14 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           <div className="absolute right-4 top-4 w-[320px] bg-white dark:bg-mirakiBlue-800 rounded-lg shadow-lg p-4 z-20">
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-xl font-medium">{selectedArtist.name}</h3>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setSelectedArtist(null)}>×</Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {
+                setSelectedArtist(null);
+                // Also clear any active popup when closing artist sidebar
+                if (activePopup.current) {
+                  activePopup.current.remove();
+                  activePopup.current = null;
+                }
+              }}>×</Button>
             </div>
             
             <div className="flex items-center text-mirakiGray-500 dark:text-mirakiGray-400 text-sm mb-2">
@@ -676,4 +697,3 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
 };
 
 export default ArtistMapSection;
-
