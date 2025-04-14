@@ -85,3 +85,12 @@
   color: rgba(255, 255, 255, 0.7) !important;
   font-size: 10px;
 }
+
+/* Added styles for map loading transitions */
+.maplibregl-canvas-container {
+  transition: opacity 0.3s ease;
+}
+
+.maplibregl-canvas-container.loading {
+  opacity: 0.5;
+}

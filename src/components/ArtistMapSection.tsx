@@ -376,12 +376,21 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     })
     .sort((a, b) => b[1].length - a[1].length);
 
-  // Initialize map on component mount
+  // Initialize map on component mount - Fixed to only run when tab is active
   useEffect(() => {
-    console.log('Component mounted, initializing map');
-    initializeMap();
+    // Only initialize map when this component is visible (fixes map not loading issue)
+    const initMapWhenVisible = () => {
+      if (mapContainer.current && !map.current) {
+        console.log('Component mounted, initializing map');
+        initializeMap();
+      }
+    };
+    
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(initMapWhenVisible, 300);
     
     return () => {
+      clearTimeout(timer);
       if (map.current) {
         console.log('Cleaning up map');
         map.current.remove();
@@ -613,8 +622,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           </div>
         </div>
       </div>
-
-      {/* Additional interactive elements - removed for simplicity but can be added back */}
     </div>
   );
 };

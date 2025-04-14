@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal } from 'lucide-react';
@@ -22,6 +23,7 @@ import ArtistCardHome from '@/components/ArtistCardHome';
 import ArtistMapSection from '@/components/ArtistMapSection';
 import ArtistDetailsSection from '@/components/ArtistDetailsSection';
 import useArtists from '@/hooks/useArtists';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ArtistFilters {
   searchQuery: string;
@@ -163,14 +165,12 @@ const Artists: React.FC = () => {
   if (loading || artistsLoading) {
     return (
       <Layout>
-        {/* Updated loader to match the new UI */}
+        {/* Updated loader with proper styling */}
         <section className="page-section bg-gradient-to-r from-mirakiBlue-50 to-mirakiGray-100 dark:from-mirakiBlue-900 dark:to-mirakiBlue-800 pt-24 pb-4">
           <div className="container-fluid">
             <div className="max-w-4xl mx-auto md:mx-0">
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white animate-pulse">
-                Discover Artists
-              </h1>
-              <div className="bg-white/10 h-6 w-2/3 animate-pulse rounded-md mb-8"></div>
+              <Skeleton className="h-12 w-2/3 mb-4" />
+              <Skeleton className="h-6 w-3/4 mb-8" />
             </div>
           </div>
         </section>
@@ -178,21 +178,16 @@ const Artists: React.FC = () => {
         <div className="container-fluid py-12">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-center mb-8">
-              <div className="bg-mirakiGray-200 dark:bg-mirakiBlue-800 rounded-md h-12 w-80 animate-pulse"></div>
+              <Skeleton className="h-12 w-80" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map(index => (
-                <div key={index} className="relative h-full">
-                  {/* Outer gradient box animation */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-mirakiBlue-200/70 to-mirakiGold/30 dark:from-mirakiBlue-800/50 dark:to-mirakiGold/20 backdrop-blur-md -m-4 p-8 animate-pulse"></div>
-                  
-                  <div className="relative z-10 h-full p-6 bg-white/80 dark:bg-mirakiBlue-900/80 rounded-lg border border-mirakiGray-200 dark:border-mirakiBlue-700">
-                    <div className="flex flex-col items-center">
-                      <div className="w-32 h-32 rounded-full bg-mirakiGray-200 dark:bg-mirakiBlue-700 animate-pulse mb-4"></div>
-                      <div className="h-6 w-1/2 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-md animate-pulse mb-2"></div>
-                      <div className="h-4 w-1/4 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-md animate-pulse mb-3"></div>
-                      <div className="h-16 w-full bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-md animate-pulse"></div>
-                    </div>
+                <div key={index} className="bg-white/80 dark:bg-mirakiBlue-900/80 rounded-lg border border-mirakiGray-200 dark:border-mirakiBlue-700 p-6 shadow-sm">
+                  <div className="flex flex-col items-center">
+                    <Skeleton className="w-32 h-32 rounded-full mb-4" />
+                    <Skeleton className="h-6 w-1/2 mb-2" />
+                    <Skeleton className="h-4 w-1/4 mb-3" />
+                    <Skeleton className="h-16 w-full" />
                   </div>
                 </div>
               ))}
@@ -227,7 +222,7 @@ const Artists: React.FC = () => {
           <div className="container-fluid">
             <div className="max-w-6xl mx-auto">
               {/* Enhanced Tabs with animated underlines and icons */}
-              <Tabs defaultValue="list" onValueChange={setActiveTab} className="w-full mb-8">
+              <Tabs defaultValue="list" value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
                 <div className="flex justify-center">
                   <TabsList className="mb-8 bg-white/20 dark:bg-mirakiBlue-900/20 backdrop-blur-md rounded-full p-1">
                     <TabsTrigger 
