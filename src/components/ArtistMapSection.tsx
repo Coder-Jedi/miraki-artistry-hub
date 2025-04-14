@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -26,9 +27,17 @@ interface ArtistMapSectionProps {
   updateFilters: (filters: Partial<ArtistFilters>) => void;
 }
 
+// Define a common type for area coordinates to ensure all have the same structure
+type AreaCoordinate = {
+  lat: number;
+  lng: number;
+  zoom: number;
+  color: string;
+};
+
 // Mumbai area coordinates and styling
-const areaCoordinates = {
-  'All Areas': { lat: 19.0760, lng: 72.8777, zoom: 10 },
+const areaCoordinates: Record<string, AreaCoordinate> = {
+  'All Areas': { lat: 19.0760, lng: 72.8777, zoom: 10, color: '#FFFFFF' }, // Add color property
   'Bandra': { lat: 19.0596, lng: 72.8295, zoom: 13.5, color: '#FF9A9E' },
   'Colaba': { lat: 18.9067, lng: 72.8147, zoom: 13.5, color: '#43CBFF' },
   'Dadar': { lat: 19.0178, lng: 72.8478, zoom: 13.5, color: '#FCCF31' },
