@@ -21,6 +21,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ArtistCardHome from '@/components/ArtistCardHome';
 import ArtistMapSection from '@/components/ArtistMapSection';
 import ArtistDetailsSection from '@/components/ArtistDetailsSection';
+import useArtists from '@/hooks/useArtists';
 
 interface ArtistFilters {
   searchQuery: string;
@@ -33,7 +34,10 @@ interface ArtistFilters {
 const Artists: React.FC = () => {
   const [searchParams] = useSearchParams();
   const nameFromParam = searchParams.get('name');
-  const [artists, setArtists] = useState<Artist[]>([]);
+  
+  // Use the useArtists hook instead of managing artists state directly
+  const { featuredArtists, loading: artistsLoading } = useArtists();
+  
   const [filteredArtists, setFilteredArtists] = useState<Artist[]>([]);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,44 +58,13 @@ const Artists: React.FC = () => {
   const artistsPerPage = 9;
 
   useEffect(() => {
-    // Organize artworks by artist
-    const artistMap = new Map<string, Artwork[]>();
-    
-    artworksData.forEach(artwork => {
-      if (!artistMap.has(artwork.artist)) {
-        artistMap.set(artwork.artist, []);
-      }
-      const artworks = artistMap.get(artwork.artist);
-      if (artworks) {
-        artworks.push(artwork);
-      }
-    });
-    
-    // Convert map to array of Artist objects
-    const artistsArray: Artist[] = [];
-    artistMap.forEach((artworks, name) => {
-      // Find matching artist from artistsData
-      const artistData = artistsData.find(artist => artist.name === name);
-      
-      artistsArray.push({
-        id: artistData?.id || `artist-${artistsArray.length + 1}`,
-        name,
-        artworks,
-        bio: artistData?.bio,
-        location: artistData?.location,
-        profileImage: artistData?.profileImage || artworks[0].image,
-        socialLinks: artistData?.socialLinks,
-        // Assign random popularity rating from 1.0 to 5.0
-        popularity: artistData?.popularity || parseFloat((2.5 + Math.random() * 2.5).toFixed(1))
-      });
-    });
-    
-    setArtists(artistsArray);
-    setFilteredArtists(artistsArray);
+    // Log the artists data for debugging
+    console.log("Artists data from useArtists:", featuredArtists);
+    console.log("Artists with locations:", featuredArtists.filter(a => a.location).length);
     
     // If name param exists, select that artist
-    if (nameFromParam) {
-      const foundArtist = artistsArray.find(artist => 
+    if (nameFromParam && featuredArtists.length > 0) {
+      const foundArtist = featuredArtists.find(artist => 
         artist.name.toLowerCase() === nameFromParam.toLowerCase()
       );
       if (foundArtist) {
@@ -108,12 +81,12 @@ const Artists: React.FC = () => {
     setTimeout(() => {
       setIsPageLoaded(true);
     }, 100);
-  }, [nameFromParam]);
+  }, [nameFromParam, featuredArtists]);
   
   useEffect(() => {
-    if (!artists.length) return;
+    if (!featuredArtists.length) return;
     
-    let filtered = [...artists];
+    let filtered = [...featuredArtists];
     
     // Apply search filter
     if (filters.searchQuery) {
@@ -153,7 +126,7 @@ const Artists: React.FC = () => {
     
     setFilteredArtists(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [filters, artists]);
+  }, [filters, featuredArtists]);
 
   const handleArtworkClick = (artwork: Artwork) => {
     // Navigate to artwork details
@@ -187,7 +160,7 @@ const Artists: React.FC = () => {
     setSelectedArtist(null);
   };
 
-  if (loading) {
+  if (loading || artistsLoading) {
     return (
       <Layout>
         {/* Updated loader to match the new UI */}

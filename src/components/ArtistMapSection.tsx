@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -163,20 +162,23 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
     
+    // Directly check if artists have location data and log it
+    artists.forEach(artist => {
+      console.log(`Artist: ${artist.name}, Has location: ${!!artist.location}`, artist.location);
+    });
+    
+    // Filter artists with valid location data
+    const artistsWithLocations = artists.filter(artist => artist.location && 
+      typeof artist.location.lat === 'number' && 
+      typeof artist.location.lng === 'number');
+    
+    console.log(`Found ${artistsWithLocations.length} artists with valid location data`);
+    
     // Track unique locations to avoid overlapping markers
     const uniqueLocations = new Map<string, { artist: Artist, artists: Artist[] }>();
     
-    // Log if there are any artists without location
-    const artistsWithoutLocation = artists.filter(artist => !artist.location);
-    if (artistsWithoutLocation.length > 0) {
-      console.warn('Artists without location:', artistsWithoutLocation.map(a => a.name));
-    }
-    
-    artists.forEach(artist => {
-      if (!artist.location) {
-        console.warn(`Artist ${artist.name} has no location data`);
-        return;
-      }
+    artistsWithLocations.forEach(artist => {
+      if (!artist.location) return;
       
       const locationKey = `${artist.location.lat.toFixed(4)},${artist.location.lng.toFixed(4)}`;
       
@@ -193,14 +195,13 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       }
     });
     
-    console.log(`Creating markers for ${uniqueLocations.size} locations`);
+    console.log(`Creating markers for ${uniqueLocations.size} unique locations`);
     
     // Create markers for each unique location
     uniqueLocations.forEach(({ artist, artists }, key) => {
-      if (!artist.location || !map.current) {
-        console.warn('Cannot create marker: missing location or map');
-        return;
-      }
+      if (!artist.location || !map.current) return;
+      
+      console.log(`Creating marker for ${artist.name} at [${artist.location.lng}, ${artist.location.lat}]`);
       
       // Select a gradient based on artist name
       const gradientIndex = Math.abs(artist.name.charCodeAt(0)) % markerGradients.length;
@@ -284,7 +285,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       
       try {
         // Create and add the marker
-        console.log(`Adding marker for ${artist.name} at [${artist.location.lng}, ${artist.location.lat}]`);
         const marker = new maplibregl.Marker({
           element: markerEl,
           anchor: 'bottom',
@@ -390,10 +390,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     }
 
     console.log(`Added ${markers.current.length} markers to the map`);
-    if (markers.current.length === 0) {
-      console.warn('No markers were added. Artist data or locations might be missing.');
-      console.log('Artists data:', artists);
-    }
   };
 
   // Helper function to get gradient start color
@@ -492,6 +488,8 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   // Update markers when artists change or map loads
   useEffect(() => {
     console.log('Artists or display options changed, updating markers');
+    console.log('Artists in component:', artists);
+    console.log('Artists with locations:', artists.filter(a => a.location).length);
     if (mapLoaded) {
       addArtistMarkers();
     }
@@ -654,10 +652,17 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         </div>
       )}
       
-      {/* Debug info */}
+      {/* Debug info with more details */}
       <div className="bg-yellow-100 text-yellow-800 p-2 rounded-md mb-2 text-xs">
         <p>Artists loaded: {artists.length} | Map loaded: {mapLoaded ? 'Yes' : 'No'} | Markers: {markers.current.length}</p>
         <p>Artist locations: {artists.filter(a => a.location).length}/{artists.length}</p>
+        <p>Current filters: {filters.location !== 'All Areas' ? filters.location : 'No location filter'}, Rating: {filters.popularityRange[0]}-{filters.popularityRange[1]}</p>
+        <button 
+          onClick={() => console.log('Filtered artists:', artists)} 
+          className="underline hover:text-yellow-900"
+        >
+          Log Artists Data
+        </button>
       </div>
       
       {/* Map container with fixed height */}
@@ -720,13 +725,4 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
               onClick={() => window.location.href = `/artists?name=${encodeURIComponent(selectedArtist.name)}`}
               className="w-full bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900"
             >
-              <User size={16} className="mr-2" /> View Artist Profile
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default ArtistMapSection;
+              <User size={16} className="mr-2
