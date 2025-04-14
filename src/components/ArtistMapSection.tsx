@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -725,4 +726,14 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
               onClick={() => window.location.href = `/artists?name=${encodeURIComponent(selectedArtist.name)}`}
               className="w-full bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900"
             >
-              <User size={16} className="mr-2
+              <User size={16} className="mr-2" />
+              View Artist Profile
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ArtistMapSection;

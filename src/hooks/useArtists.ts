@@ -8,7 +8,7 @@ const useArtists = (limit?: number) => {
   
   // Use the artists data from our data source
   const featuredArtists = useMemo(() => {
-    console.log("Artists data in hook:", artistsData);
+    console.log("Artists data in hook:", artistsData.length);
     // Make sure all artists have location data
     const artists = getFeaturedArtists();
     // Explicitly log location data for debugging
