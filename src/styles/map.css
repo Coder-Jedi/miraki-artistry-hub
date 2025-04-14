@@ -1,0 +1,87 @@
+
+/* Map component styles */
+.area-marker {
+  position: relative;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+}
+
+.area-marker:hover {
+  z-index: 10;
+}
+
+.area-marker.active-area {
+  z-index: 5;
+}
+
+.area-marker.active-area::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Map Navigation Controls Styling */
+.maplibregl-ctrl-group {
+  background-color: rgba(23, 25, 35, 0.8) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 8px !important;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.maplibregl-ctrl-group button {
+  width: 32px;
+  height: 32px;
+  background-color: transparent !important;
+  color: white !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.maplibregl-ctrl-group button span {
+  filter: invert(1);
+}
+
+/* Scale Control Styling */
+.maplibregl-ctrl-scale {
+  background-color: rgba(23, 25, 35, 0.8) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Attribution Control Styling */
+.maplibregl-ctrl-attrib {
+  background-color: rgba(23, 25, 35, 0.8) !important;
+  backdrop-filter: blur(8px);
+  padding: 2px 5px;
+  border-radius: 4px 4px 0 0;
+}
+
+.maplibregl-ctrl-attrib-inner a {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 10px;
+}

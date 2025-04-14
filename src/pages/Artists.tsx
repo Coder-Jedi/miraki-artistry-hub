@@ -226,16 +226,23 @@ const Artists: React.FC = () => {
         <section className="page-section py-8">
           <div className="container-fluid">
             <div className="max-w-6xl mx-auto">
+              {/* Enhanced Tabs with animated underlines and icons */}
               <Tabs defaultValue="list" onValueChange={setActiveTab} className="w-full mb-8">
                 <div className="flex justify-center">
-                  <TabsList className="mb-8">
-                    <TabsTrigger value="list" className="flex items-center gap-2">
+                  <TabsList className="mb-8 bg-white/20 dark:bg-mirakiBlue-900/20 backdrop-blur-md rounded-full p-1">
+                    <TabsTrigger 
+                      value="list" 
+                      className="flex items-center gap-2 rounded-full px-6 py-3 data-[state=active]:bg-white dark:data-[state=active]:bg-mirakiBlue-800 data-[state=active]:shadow-md transition-all duration-300"
+                    >
                       <Grid size={18} />
-                      <span>Explore List</span>
+                      <span>Artist List</span>
                     </TabsTrigger>
-                    <TabsTrigger value="map" className="flex items-center gap-2">
+                    <TabsTrigger 
+                      value="map" 
+                      className="flex items-center gap-2 rounded-full px-6 py-3 data-[state=active]:bg-white dark:data-[state=active]:bg-mirakiBlue-800 data-[state=active]:shadow-md transition-all duration-300"
+                    >
                       <MapIcon size={18} />
-                      <span>Explore on Map</span>
+                      <span>Explore Map</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -444,9 +451,13 @@ const Artists: React.FC = () => {
                   )}
                 </TabsContent>
                 
-                {/* Map View - Passes the filtered artists to the ArtistMapSection */}
+                {/* Enhanced Map View with Snapchat-style visualization */}
                 <TabsContent value="map" className={`transition-all duration-500 ${isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-                  {/* Pass filtered artists with debug information included */}
+                  <div className="mb-4 text-center">
+                    <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 text-sm">
+                      Explore artists by area in an interactive map. Click on areas to see artists based there.
+                    </p>
+                  </div>
                   <ArtistMapSection 
                     artists={filteredArtists} 
                     filters={filters}
