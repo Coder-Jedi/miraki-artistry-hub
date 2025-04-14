@@ -157,23 +157,63 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       return;
     }
     
-    console.log('Adding markers for artists:', artists);
+    console.log('Adding markers for artists:', artists.length);
     
     // Clear existing markers
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
     
-    // Directly check if artists have location data and log it
-    artists.forEach(artist => {
-      console.log(`Artist: ${artist.name}, Has location: ${!!artist.location}`, artist.location);
-    });
+    // Count valid locations for debugging
+    const validLocationCount = artists.filter(artist => 
+      artist.location && 
+      typeof artist.location.lat === 'number' && 
+      typeof artist.location.lng === 'number'
+    ).length;
+    
+    console.log(`Artists with valid location data: ${validLocationCount}/${artists.length}`);
+    
+    // Example artist data dump for debugging
+    if (artists.length > 0) {
+      console.log("First artist location sample:", artists[0]?.location);
+    }
     
     // Filter artists with valid location data
-    const artistsWithLocations = artists.filter(artist => artist.location && 
+    const artistsWithLocations = artists.filter(artist => 
+      artist.location && 
       typeof artist.location.lat === 'number' && 
-      typeof artist.location.lng === 'number');
+      typeof artist.location.lng === 'number'
+    );
     
     console.log(`Found ${artistsWithLocations.length} artists with valid location data`);
+    
+    // If no artists have valid locations, show a warning and provide a fallback
+    if (artistsWithLocations.length === 0) {
+      console.warn("No artists have valid location data! Using fallback data.");
+      
+      // Add a fallback marker at Mumbai center
+      const markerEl = document.createElement('div');
+      markerEl.className = 'p-2 bg-red-500 text-white rounded-full';
+      markerEl.textContent = '!';
+      
+      new maplibregl.Marker({
+        element: markerEl,
+      })
+        .setLngLat([MUMBAI_CENTER.lng, MUMBAI_CENTER.lat])
+        .addTo(map.current);
+        
+      // Add a popup explaining the issue
+      new maplibregl.Popup({ closeButton: true })
+        .setLngLat([MUMBAI_CENTER.lng, MUMBAI_CENTER.lat])
+        .setHTML(`
+          <div class="p-3">
+            <h3 class="font-bold text-red-500">Location Data Missing</h3>
+            <p>Artists don't have valid location data.</p>
+          </div>
+        `)
+        .addTo(map.current);
+        
+      return;
+    }
     
     // Track unique locations to avoid overlapping markers
     const uniqueLocations = new Map<string, { artist: Artist, artists: Artist[] }>();
@@ -201,8 +241,6 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     // Create markers for each unique location
     uniqueLocations.forEach(({ artist, artists }, key) => {
       if (!artist.location || !map.current) return;
-      
-      console.log(`Creating marker for ${artist.name} at [${artist.location.lng}, ${artist.location.lat}]`);
       
       // Select a gradient based on artist name
       const gradientIndex = Math.abs(artist.name.charCodeAt(0)) % markerGradients.length;
@@ -489,7 +527,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   // Update markers when artists change or map loads
   useEffect(() => {
     console.log('Artists or display options changed, updating markers');
-    console.log('Artists in component:', artists);
+    console.log('Artists in component:', artists.length);
     console.log('Artists with locations:', artists.filter(a => a.location).length);
     if (mapLoaded) {
       addArtistMarkers();
@@ -654,13 +692,13 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       )}
       
       {/* Debug info with more details */}
-      <div className="bg-yellow-100 text-yellow-800 p-2 rounded-md mb-2 text-xs">
+      <div className="bg-amber-100 text-amber-800 p-2 rounded-md mb-2 text-xs">
         <p>Artists loaded: {artists.length} | Map loaded: {mapLoaded ? 'Yes' : 'No'} | Markers: {markers.current.length}</p>
         <p>Artist locations: {artists.filter(a => a.location).length}/{artists.length}</p>
         <p>Current filters: {filters.location !== 'All Areas' ? filters.location : 'No location filter'}, Rating: {filters.popularityRange[0]}-{filters.popularityRange[1]}</p>
         <button 
           onClick={() => console.log('Filtered artists:', artists)} 
-          className="underline hover:text-yellow-900"
+          className="underline hover:text-amber-900"
         >
           Log Artists Data
         </button>

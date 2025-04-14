@@ -60,7 +60,7 @@ const Artists: React.FC = () => {
   useEffect(() => {
     // Log the artists data for debugging
     console.log("Artists data from useArtists:", featuredArtists);
-    console.log("Artists with locations:", featuredArtists.filter(a => a.location).length);
+    console.log(`Artists with locations: ${featuredArtists.filter(a => a.location).length}/${featuredArtists.length}`);
     
     // If name param exists, select that artist
     if (nameFromParam && featuredArtists.length > 0) {
@@ -444,8 +444,9 @@ const Artists: React.FC = () => {
                   )}
                 </TabsContent>
                 
-                {/* Map View - Now with filters outside the map */}
+                {/* Map View - Passes the filtered artists to the ArtistMapSection */}
                 <TabsContent value="map" className={`transition-all duration-500 ${isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+                  {/* Pass filtered artists with debug information included */}
                   <ArtistMapSection 
                     artists={filteredArtists} 
                     filters={filters}
