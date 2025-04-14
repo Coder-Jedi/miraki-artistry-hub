@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Artist } from '@/types';
-import { getFeaturedArtists } from '@/data/artists';
+import { artistsData, getFeaturedArtists } from '@/data/artists';
 
 const useArtists = (limit?: number) => {
   const [loading, setLoading] = useState(true);
