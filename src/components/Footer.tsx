@@ -24,12 +24,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/#explore" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors">
+                <Link to="/explore" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors">
                   Explore
                 </Link>
               </li>
               <li>
-                <Link to="/#artists" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors">
+                <Link to="/artists" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors">
                   Artists
                 </Link>
               </li>
@@ -53,7 +53,7 @@ const Footer = () => {
         </div>
         
         <div className="mt-12 pt-6 border-t border-mirakiGray-200 dark:border-mirakiBlue-800 text-mirakiBlue-600 dark:text-mirakiGray-400 flex flex-col md:flex-row justify-between">
-          <p>© 2023 Miraki. All rights reserved.</p>
+          <p>© 2025 Miraki. All rights reserved.</p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <a href="#" className="hover:text-mirakiBlue-800 dark:hover:text-white transition-colors">
               Privacy Policy

@@ -112,7 +112,7 @@ const ArtworkDetails: React.FC = () => {
           {/* Breadcrumb */}
           <div className="mb-6">
             <Link 
-              to="/" 
+              to="/explore" 
               className="inline-flex items-center text-mirakiBlue-600 dark:text-mirakiGray-300 hover:text-mirakiBlue-800 dark:hover:text-white transition-colors"
             >
               <ArrowLeft size={16} className="mr-2" />

@@ -191,7 +191,7 @@ const Artists: React.FC = () => {
     return (
       <Layout>
         {/* Updated loader to match the new UI */}
-        <section className="page-section bg-gradient-to-r from-mirakiBlue-600 via-mirakiBlue-500 to-mirakiBlue-400 dark:from-mirakiBlue-900 dark:via-mirakiBlue-800 dark:to-mirakiBlue-700 pt-24 pb-4">
+        <section className="page-section bg-gradient-to-r from-mirakiBlue-50 to-mirakiGray-100 dark:from-mirakiBlue-900 dark:to-mirakiBlue-800 pt-24 pb-4">
           <div className="container-fluid">
             <div className="max-w-4xl mx-auto md:mx-0">
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white animate-pulse">
@@ -233,16 +233,14 @@ const Artists: React.FC = () => {
   return (
     <Layout>
       {/* Updated page header with gradient to match explore page */}
-      <section id="artists" className={`page-section pt-24 pb-4 bg-gradient-to-r from-mirakiBlue-600 via-mirakiBlue-500 to-mirakiBlue-400 dark:from-mirakiBlue-900 dark:via-mirakiBlue-800 dark:to-mirakiBlue-700 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <section id="artists" className="page-section pt-24 pb-4 bg-gradient-to-r from-mirakiBlue-50 to-mirakiGray-100 dark:from-mirakiBlue-900 dark:to-mirakiBlue-800 transition-opacity duration-1000">
         <div className="container-fluid">
-          <div className="max-w-6xl mx-auto">
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white animate-fade-in opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-              {selectedArtist ? `${selectedArtist.name}` : 'Discover Artists'}
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-mirakiBlue-900 dark:text-white">
+              Discover Artists
             </h1>
-            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl animate-fade-in opacity-0" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
-              {selectedArtist 
-                ? `Explore the unique creative vision of ${selectedArtist.name} through their art collection.`
-                : 'Meet the talented artists behind our curated collection of artworks, each with their own unique style and perspective.'}
+            <p className="text-mirakiBlue-600 dark:text-mirakiGray-300 text-lg mb-8">
+              Explore the profiles of talented artists and their unique creations. Connect and support their journey.
             </p>
           </div>
         </div>

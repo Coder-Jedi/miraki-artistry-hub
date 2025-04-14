@@ -17,7 +17,7 @@ const GradientHeader: React.FC = () => {
           </p>
           <div className="flex flex-wrap gap-4">
             <a 
-              href="#explore" 
+              href="/explore" 
               className="inline-flex items-center px-6 py-3 bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900 font-medium rounded-md transition-colors duration-300"
             >
               Explore Artworks
