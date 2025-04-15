@@ -35,9 +35,9 @@ type AreaCoordinate = {
   color: string;
 };
 
-// Mumbai area coordinates and styling
+// Mumbai area coordinates with enhanced colors for better visibility
 const areaCoordinates: Record<string, AreaCoordinate> = {
-  'All Areas': { lat: 19.0760, lng: 72.8777, zoom: 10, color: '#FFFFFF' }, // Add color property
+  'All Areas': { lat: 19.0760, lng: 72.8777, zoom: 10, color: '#FFFFFF' },
   'Bandra': { lat: 19.0596, lng: 72.8295, zoom: 13.5, color: '#FF9A9E' },
   'Colaba': { lat: 18.9067, lng: 72.8147, zoom: 13.5, color: '#43CBFF' },
   'Dadar': { lat: 19.0178, lng: 72.8478, zoom: 13.5, color: '#FCCF31' },
@@ -96,7 +96,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     setArtistsByArea(groupedArtists);
   }, [artists]);
   
-  // Initialize map with dark style
+  // Initialize map with enhanced dark style
   const initializeMap = () => {
     console.log('Initializing map...');
     if (!mapContainer.current) {
@@ -112,7 +112,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       // Initialize map
       if (map.current) map.current.remove();
       
-      // Dark mode map style inspired by Snapchat
+      // Enhanced dark mode map style
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: {
@@ -120,9 +120,16 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           sources: {
             'osm': {
               type: 'raster',
-              tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
+              // Use a lighter dark basemap for better visibility
+              tiles: ['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
               tileSize: 256,
               attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            },
+            // Add a separate layer for map labels with enhanced visibility
+            'labels': {
+              type: 'raster',
+              tiles: ['https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png'],
+              tileSize: 256
             }
           },
           layers: [
@@ -130,6 +137,13 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
               id: 'osm-tiles',
               type: 'raster',
               source: 'osm',
+              minzoom: 0,
+              maxzoom: 19
+            },
+            {
+              id: 'labels-tiles',
+              type: 'raster',
+              source: 'labels',
               minzoom: 0,
               maxzoom: 19
             }
@@ -191,7 +205,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     }
   };
 
-  // Function to add area markers to the map
+  // Function to add area markers to the map with enhanced visibility
   const addAreaMarkers = () => {
     if (!map.current || !mapLoaded) {
       console.log('Map not ready for markers');
@@ -202,7 +216,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
     
-    // For each area, create a circular area marker
+    // For each area, create a circular area marker with enhanced visibility
     Object.entries(areaCoordinates).forEach(([areaName, coords]) => {
       if (areaName === 'All Areas') return;
       
@@ -216,24 +230,32 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       el.className = 'area-marker';
       el.style.cursor = 'pointer';
       
-      // Area bubble with artist count
+      // Area bubble with artist count - enhanced for better visibility
       const bubble = document.createElement('div');
-      bubble.className = `flex items-center justify-center rounded-full transition-all duration-300 shadow-lg`;
-      bubble.style.width = `${Math.max(60, 40 + artistCount * 5)}px`;
-      bubble.style.height = `${Math.max(60, 40 + artistCount * 5)}px`;
-      bubble.style.background = `radial-gradient(circle, ${coords.color}cc 0%, ${coords.color}66 100%)`;
-      bubble.style.border = `2px solid ${coords.color}`;
+      bubble.className = `area-bubble flex items-center justify-center rounded-full transition-all duration-300`;
       
-      // Inner content with area name and artist count
+      // Size based on artist count but ensure minimum visibility
+      bubble.style.width = `${Math.max(65, 45 + artistCount * 5)}px`;
+      bubble.style.height = `${Math.max(65, 45 + artistCount * 5)}px`;
+      
+      // Enhanced gradient background with stronger colors
+      const baseColor = coords.color;
+      bubble.style.background = `radial-gradient(circle, ${baseColor} 0%, ${baseColor}99 70%, ${baseColor}66 100%)`;
+      bubble.style.border = `3px solid ${baseColor}`;
+      bubble.style.boxShadow = `0 0 15px ${baseColor}66, inset 0 0 8px rgba(255,255,255,0.6)`;
+      
+      // Inner content with area name and artist count - improved visibility
       const content = document.createElement('div');
       content.className = 'flex flex-col items-center justify-center text-center p-1';
       
       const nameEl = document.createElement('div');
-      nameEl.className = 'text-xs font-bold text-white';
+      nameEl.className = 'text-sm font-bold text-white';
+      nameEl.style.textShadow = '0 1px 3px rgba(0,0,0,0.8)';
       nameEl.textContent = areaName.length > 10 ? areaName.split(' ')[0] : areaName;
       
       const countEl = document.createElement('div');
       countEl.className = 'text-xs font-semibold text-white';
+      countEl.style.textShadow = '0 1px 2px rgba(0,0,0,0.8)';
       countEl.textContent = `${artistCount} ${artistCount === 1 ? 'artist' : 'artists'}`;
       
       content.appendChild(nameEl);
@@ -245,7 +267,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       if (artistCount > 5) {
         const pulse = document.createElement('div');
         pulse.className = 'absolute -inset-2 rounded-full animate-ping';
-        pulse.style.background = `${coords.color}33`;
+        pulse.style.background = `${baseColor}33`;
         el.appendChild(pulse);
       }
       
@@ -260,11 +282,13 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       // Add hover effects
       el.addEventListener('mouseenter', () => {
         bubble.style.transform = 'scale(1.1)';
+        bubble.style.boxShadow = `0 0 20px ${baseColor}aa, inset 0 0 12px rgba(255,255,255,0.8)`;
         setHoveredArea(areaName);
       });
       
       el.addEventListener('mouseleave', () => {
         bubble.style.transform = 'scale(1)';
+        bubble.style.boxShadow = `0 0 15px ${baseColor}66, inset 0 0 8px rgba(255,255,255,0.6)`;
         setHoveredArea(null);
       });
       
@@ -376,9 +400,9 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     })
     .sort((a, b) => b[1].length - a[1].length);
 
-  // Initialize map on component mount - Fixed to only run when tab is active
+  // Initialize map on component mount with delay for better loading
   useEffect(() => {
-    // Only initialize map when this component is visible (fixes map not loading issue)
+    // Only initialize map when this component is visible and after a short delay
     const initMapWhenVisible = () => {
       if (mapContainer.current && !map.current) {
         console.log('Component mounted, initializing map');
@@ -386,8 +410,8 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       }
     };
     
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(initMapWhenVisible, 300);
+    // Increased delay to ensure DOM is fully ready
+    const timer = setTimeout(initMapWhenVisible, 500);
     
     return () => {
       clearTimeout(timer);
@@ -401,7 +425,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   // Update markers when artists change or map loads
   useEffect(() => {
     console.log('Artists or display options changed, updating markers');
-    if (mapLoaded) {
+    if (mapLoaded && map.current) {
       addAreaMarkers();
     }
   }, [artistsByArea, mapLoaded]);
@@ -459,33 +483,36 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
 
   return (
     <div className="flex flex-col w-full">
-      {/* Map container with dark theme */}
-      <div className="relative h-[600px] bg-[#121212] rounded-lg overflow-hidden border border-mirakiBlue-800">
+      {/* Map container with enhanced styling */}
+      <div className="relative h-[600px] bg-[#121212] rounded-lg overflow-hidden border border-mirakiBlue-800 map-container">
+        {/* Gradient overlay for improved readability */}
+        <div className="map-gradient-overlay"></div>
+        
         {/* Side menu toggle */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-4 top-4 z-10 bg-mirakiBlue-900/80 hover:bg-mirakiBlue-800 text-white"
+          className="absolute left-4 top-4 z-20 bg-mirakiBlue-900/80 hover:bg-mirakiBlue-800 text-white shadow-lg"
           onClick={toggleMenu}
         >
           {showMenu ? <Layers size={20} /> : <Layers size={20} />}
         </Button>
 
-        {/* Side menu for area selection - Snapchat style */}
+        {/* Side menu for area selection - enhanced style */}
         <div 
           className={cn(
-            "absolute left-0 top-0 bottom-0 z-10 w-64 bg-mirakiBlue-900/90 backdrop-blur-md border-r border-mirakiBlue-800 transition-transform duration-300 transform",
+            "absolute left-0 top-0 bottom-0 z-20 w-64 bg-gradient-to-br from-mirakiBlue-900/95 to-mirakiBlue-800/95 backdrop-blur-md border-r border-mirakiBlue-700 transition-transform duration-300 transform shadow-xl",
             showMenu ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <div className="p-4 bg-mirakiBlue-900 border-b border-mirakiBlue-800">
+          <div className="p-4 bg-gradient-to-r from-mirakiBlue-900 to-mirakiBlue-800 border-b border-mirakiBlue-700">
             <h3 className="text-lg font-medium text-white mb-2">Artist Areas</h3>
             <div className="relative">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-mirakiGray-500" size={16} />
               <Input
                 type="text"
                 placeholder="Search areas..."
-                className="pl-8 bg-mirakiBlue-800 border-mirakiBlue-700 text-white"
+                className="pl-8 bg-mirakiBlue-800/80 border-mirakiBlue-700 text-white"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -503,7 +530,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
                       className={cn(
                         "p-2 rounded-lg cursor-pointer transition-all duration-200",
                         filters.location === area 
-                          ? "bg-mirakiBlue-800 border border-mirakiBlue-700" 
+                          ? "bg-gradient-to-r from-mirakiBlue-800/80 to-mirakiBlue-700/80 border border-mirakiBlue-700" 
                           : "hover:bg-mirakiBlue-800/50",
                         hoveredArea === area && "bg-mirakiBlue-800/30"
                       )}
@@ -514,8 +541,11 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
                     >
                       <div className="flex items-center">
                         <div 
-                          className="w-3 h-3 rounded-full mr-2" 
-                          style={{ backgroundColor: areaColor }}
+                          className="w-4 h-4 rounded-full mr-2 shadow-glow"
+                          style={{ 
+                            backgroundColor: areaColor,
+                            boxShadow: `0 0 8px ${areaColor}99` 
+                          }}
                         />
                         <div className="flex-1">
                           <div className="text-white text-sm font-medium">{area}</div>
@@ -553,9 +583,9 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         {/* Main map container */}
         <div ref={mapContainer} className="h-full w-full" />
         
-        {/* Area info when area is selected */}
+        {/* Area info when area is selected - enhanced styling */}
         {filters.location !== 'All Areas' && (
-          <div className="absolute right-4 top-4 z-10 p-4 bg-mirakiBlue-900/90 backdrop-blur-md rounded-lg border border-mirakiBlue-800 max-w-xs">
+          <div className="absolute right-4 top-4 z-20 p-4 bg-gradient-to-br from-mirakiBlue-900/95 to-mirakiBlue-800/95 backdrop-blur-md rounded-lg border border-mirakiBlue-700 shadow-lg max-w-xs">
             <div className="flex items-center justify-between mb-2">
               <h4 className="font-medium text-white">{filters.location}</h4>
               <Button 
@@ -574,19 +604,19 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-1">
                   {artistsByArea[filters.location]?.slice(0, 5).map(artist => (
-                    <Badge key={artist.id} variant="outline" className="bg-mirakiBlue-800 text-white border-mirakiBlue-700">
+                    <Badge key={artist.id} variant="outline" className="bg-mirakiBlue-800/80 text-white border-mirakiBlue-700">
                       {artist.name}
                     </Badge>
                   ))}
                   {(artistsByArea[filters.location]?.length || 0) > 5 && (
-                    <Badge variant="outline" className="bg-mirakiBlue-800 text-mirakiGray-300 border-mirakiBlue-700">
+                    <Badge variant="outline" className="bg-mirakiBlue-800/80 text-mirakiGray-300 border-mirakiBlue-700">
                       +{(artistsByArea[filters.location]?.length || 0) - 5} more
                     </Badge>
                   )}
                 </div>
                 <Button 
                   size="sm" 
-                  className="w-full mt-2 bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900"
+                  className="w-full mt-2 bg-gradient-to-r from-mirakiGold to-mirakiGold-600 hover:from-mirakiGold-600 hover:to-mirakiGold text-mirakiBlue-900"
                   onClick={() => {
                     // Keep current filter but show the list view
                     document.querySelector('[value="list"]')?.dispatchEvent(
@@ -602,19 +632,19 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           </div>
         )}
 
-        {/* Interactive legend */}
-        <div className="absolute right-4 bottom-16 z-10 p-3 bg-mirakiBlue-900/80 backdrop-blur-md rounded-lg border border-mirakiBlue-800">
+        {/* Interactive legend with enhanced styling */}
+        <div className="absolute right-4 bottom-16 z-20 p-3 bg-gradient-to-br from-mirakiBlue-900/95 to-mirakiBlue-800/95 backdrop-blur-md rounded-lg border border-mirakiBlue-700 shadow-lg">
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded-full bg-mirakiGold" />
+              <div className="w-3 h-3 rounded-full bg-mirakiGold shadow-glow" style={{boxShadow: '0 0 6px #FCCF3199'}} />
               <span className="text-white text-xs">1-3 artists</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full bg-mirakiGold" />
+              <div className="w-4 h-4 rounded-full bg-mirakiGold shadow-glow" style={{boxShadow: '0 0 8px #FCCF31bb'}} />
               <span className="text-white text-xs">4-6 artists</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-5 h-5 rounded-full bg-mirakiGold relative">
+              <div className="w-5 h-5 rounded-full bg-mirakiGold shadow-glow relative" style={{boxShadow: '0 0 10px #FCCF31dd'}}>
                 <div className="absolute -inset-1 rounded-full animate-ping bg-mirakiGold/30" />
               </div>
               <span className="text-white text-xs">7+ artists</span>
