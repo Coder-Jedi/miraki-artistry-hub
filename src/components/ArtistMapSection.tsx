@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface ArtistFilters {
   searchQuery: string;
@@ -61,7 +62,8 @@ const DEFAULT_ZOOM = 10;
 const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, updateFilters }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
-  const markers = useRef<maplibregl.Marker[]>([]);
+  const areaMarkers = useRef<maplibregl.Marker[]>([]);
+  const artistMarkers = useRef<maplibregl.Marker[]>([]);
   const activeArea = useRef<maplibregl.Marker | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
@@ -69,7 +71,9 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   const [artistsByArea, setArtistsByArea] = useState<Record<string, Artist[]>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [showMenu, setShowMenu] = useState(true);
+  const [activeArtists, setActiveArtists] = useState<Artist[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Group artists by area and count them
   useEffect(() => {
@@ -95,7 +99,12 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     setArtistsByArea(groupedArtists);
   }, [artists]);
   
-  // Initialize map with enhanced dark style
+  // Navigate to an artist's profile
+  const navigateToArtist = (artist: Artist) => {
+    navigate(`/artists?name=${encodeURIComponent(artist.name)}`);
+  };
+
+  // Initialize map with enhanced colors
   const initializeMap = () => {
     console.log('Initializing map...');
     if (!mapContainer.current) {
@@ -105,13 +114,16 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     
     try {
       // Remove existing markers
-      markers.current.forEach(marker => marker.remove());
-      markers.current = [];
+      areaMarkers.current.forEach(marker => marker.remove());
+      areaMarkers.current = [];
+      
+      artistMarkers.current.forEach(marker => marker.remove());
+      artistMarkers.current = [];
       
       // Initialize map
       if (map.current) map.current.remove();
       
-      // Enhanced dark mode map style
+      // Enhanced dark mode map style with better visibility
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: {
@@ -119,15 +131,15 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           sources: {
             'osm': {
               type: 'raster',
-              // Use a lighter dark basemap for better visibility
-              tiles: ['https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+              // Use a medium-dark basemap for better visibility
+              tiles: ['https://a.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png'],
               tileSize: 256,
               attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             },
             // Add a separate layer for map labels with enhanced visibility
             'labels': {
               type: 'raster',
-              tiles: ['https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png'],
+              tiles: ['https://a.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png'],
               tileSize: 256
             }
           },
@@ -137,7 +149,14 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
               type: 'raster',
               source: 'osm',
               minzoom: 0,
-              maxzoom: 19
+              maxzoom: 19,
+              paint: {
+                'raster-opacity': 0.7, // Dim the base map
+                'raster-brightness-min': 0.3, // Darken the base map
+                'raster-brightness-max': 0.7, // But not too much
+                'raster-contrast': 0.2, // Reduce contrast for better dark mode
+                'raster-saturation': -0.4 // Desaturate slightly
+              }
             },
             {
               id: 'labels-tiles',
@@ -154,7 +173,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         bearing: 15, // Slight rotation for dynamic feel
       });
 
-      // Add minimal navigation controls
+      // Add navigation controls
       map.current.addControl(new maplibregl.NavigationControl({
         showCompass: true,
         showZoom: true,
@@ -182,6 +201,11 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         
         // Add area markers
         addAreaMarkers();
+
+        // Add artist pins for initial view or selected area
+        if (filters.location !== 'All Areas') {
+          addArtistPins(filters.location);
+        }
       });
       
       map.current.on('error', (e) => {
@@ -211,9 +235,9 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       return;
     }
     
-    // Clear existing markers
-    markers.current.forEach(marker => marker.remove());
-    markers.current = [];
+    // Clear existing area markers
+    areaMarkers.current.forEach(marker => marker.remove());
+    areaMarkers.current = [];
     
     // For each area, create a circular area marker with enhanced visibility
     Object.entries(areaCoordinates).forEach(([areaName, coords]) => {
@@ -248,13 +272,13 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       content.className = 'flex flex-col items-center justify-center text-center p-1';
       
       const nameEl = document.createElement('div');
-      nameEl.className = 'text-sm font-bold text-white';
-      nameEl.style.textShadow = '0 1px 3px rgba(0,0,0,0.8)';
+      nameEl.className = 'text-sm font-bold text-mirakiBlue-900';
+      nameEl.style.textShadow = '0 1px 3px rgba(255,255,255,0.8)';
       nameEl.textContent = areaName.length > 10 ? areaName.split(' ')[0] : areaName;
       
       const countEl = document.createElement('div');
-      countEl.className = 'text-xs font-semibold text-white';
-      countEl.style.textShadow = '0 1px 2px rgba(0,0,0,0.8)';
+      countEl.className = 'text-xs font-semibold text-mirakiBlue-900';
+      countEl.style.textShadow = '0 1px 2px rgba(255,255,255,0.8)';
       countEl.textContent = `${artistCount} ${artistCount === 1 ? 'artist' : 'artists'}`;
       
       content.appendChild(nameEl);
@@ -302,11 +326,11 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         });
         el.classList.add('active-area');
         
-        // Show artist list for this area
-        showArtistsForArea(areaName);
+        // Show artist pins for this area
+        addArtistPins(areaName);
       });
       
-      markers.current.push(marker);
+      areaMarkers.current.push(marker);
       
       // If this is the currently filtered area, highlight it
       if (filters.location === areaName) {
@@ -315,25 +339,109 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       }
     });
     
-    // If a location filter is active, fly to that area
+    // If a location filter is active, fly to that area and add artist pins
     if (filters.location && filters.location !== 'All Areas') {
       flyToLocation(filters.location);
+      addArtistPins(filters.location);
     } else {
       // Otherwise fit the map to show all markers
       fitMapToMarkers();
     }
   };
   
+  // Function to add artist pins for a selected area
+  const addArtistPins = (areaName: string) => {
+    if (!map.current || !mapLoaded) return;
+    
+    // Clear existing artist markers
+    artistMarkers.current.forEach(marker => marker.remove());
+    artistMarkers.current = [];
+    
+    const areaArtists = artistsByArea[areaName] || [];
+    setActiveArtists(areaArtists);
+    
+    if (areaArtists.length === 0) {
+      console.log(`No artists in ${areaName}`);
+      return;
+    }
+    
+    console.log(`Adding ${areaArtists.length} artist pins for ${areaName}`);
+    
+    // Get the area coordinates as center point
+    const areaCenterCoords = areaCoordinates[areaName];
+    if (!areaCenterCoords) return;
+    
+    // Create a spiral of pins around the area center
+    areaArtists.forEach((artist, index) => {
+      // Create pin with slight position variation to avoid overlap
+      const angle = (index / areaArtists.length) * Math.PI * 2;
+      const radius = 0.005 + (index % 3) * 0.002; // Vary radius in 3 rings
+      
+      // Calculate offset position in a spiral pattern
+      const lat = areaCenterCoords.lat + Math.sin(angle) * radius;
+      const lng = areaCenterCoords.lng + Math.cos(angle) * radius;
+      
+      // Create artist pin element
+      const pinEl = document.createElement('div');
+      pinEl.className = 'artist-pin';
+      pinEl.innerHTML = artist.name.charAt(0).toUpperCase();
+      
+      // Add artist name label
+      const labelEl = document.createElement('div');
+      labelEl.className = 'artist-pin-label';
+      labelEl.textContent = artist.name;
+      pinEl.appendChild(labelEl);
+      
+      // Create and add the marker
+      const marker = new maplibregl.Marker({
+        element: pinEl,
+        anchor: 'bottom',
+      })
+        .setLngLat([lng, lat])
+        .addTo(map.current);
+      
+      // Create popup with artist details
+      const popupHTML = `
+        <div class="p-3 max-w-[250px]">
+          <h3 class="font-bold text-white mb-2">${artist.name}</h3>
+          <p class="text-sm text-gray-300 mb-2">${artist.location?.address || areaName}</p>
+          <p class="text-sm text-gray-300 mb-2">${artist.artworks?.length || 0} artwork${artist.artworks?.length !== 1 ? 's' : ''}</p>
+          <div class="mt-2 flex justify-center">
+            <a href="/artists?name=${encodeURIComponent(artist.name)}" 
+              class="inline-block px-3 py-1 bg-mirakiGold text-mirakiBlue-900 text-sm font-medium rounded hover:bg-mirakiGold-600 transition-colors">
+              View Profile
+            </a>
+          </div>
+        </div>
+      `;
+      
+      const popup = new maplibregl.Popup({
+        offset: [0, -20],
+        closeButton: true,
+        closeOnClick: true
+      }).setHTML(popupHTML);
+      
+      // Show popup on pin click
+      pinEl.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering area click
+        marker.setPopup(popup).togglePopup();
+      });
+      
+      artistMarkers.current.push(marker);
+    });
+  };
+
   // Show artists for a specific area
   const showArtistsForArea = (areaName: string) => {
     // This function would be called when an area is clicked
     console.log(`Showing artists for ${areaName}:`, artistsByArea[areaName]);
-    // Actual implementation handled via the filters
+    // Add artist pins
+    addArtistPins(areaName);
   };
 
   // Fit map to show all markers
   const fitMapToMarkers = () => {
-    if (!map.current || markers.current.length === 0) {
+    if (!map.current || areaMarkers.current.length === 0) {
       console.log('Cannot fit map to markers: map not initialized or no markers');
       return;
     }
@@ -341,7 +449,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     try {
       const bounds = new maplibregl.LngLatBounds();
       
-      markers.current.forEach(marker => {
+      areaMarkers.current.forEach(marker => {
         bounds.extend(marker.getLngLat());
       });
       
@@ -409,8 +517,8 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
       }
     };
     
-    // Increased delay to ensure DOM is fully ready
-    const timer = setTimeout(initMapWhenVisible, 500);
+    // Short delay to ensure DOM is fully ready
+    const timer = setTimeout(initMapWhenVisible, 300);
     
     return () => {
       clearTimeout(timer);
@@ -435,8 +543,12 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
     if (mapLoaded && map.current) {
       if (filters.location !== 'All Areas') {
         flyToLocation(filters.location);
+        addArtistPins(filters.location);
       } else {
         fitMapToMarkers();
+        // Clear artist pins when showing all areas
+        artistMarkers.current.forEach(marker => marker.remove());
+        artistMarkers.current = [];
       }
     }
   }, [filters.location, mapLoaded]);
@@ -452,6 +564,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
         pitch: 30,
         bearing: 15,
       });
+      
+      // Clear artist pins
+      artistMarkers.current.forEach(marker => marker.remove());
+      artistMarkers.current = [];
     }
   };
 
@@ -483,7 +599,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   return (
     <div className="flex flex-col w-full">
       {/* Map container with enhanced styling */}
-      <div className="relative h-[600px] bg-[#121212] rounded-lg overflow-hidden border border-mirakiBlue-800 map-container">
+      <div className="relative h-[600px] bg-[#262D40] rounded-lg overflow-hidden border border-mirakiBlue-800 map-container">
         {/* Gradient overlay for improved readability */}
         <div className="map-gradient-overlay"></div>
         
@@ -536,6 +652,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
                       onClick={() => {
                         updateFilters({ location: area });
                         flyToLocation(area);
+                        addArtistPins(area);
                       }}
                     >
                       <div className="flex items-center">
@@ -603,7 +720,12 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-1">
                   {artistsByArea[filters.location]?.slice(0, 5).map(artist => (
-                    <Badge key={artist.id} variant="outline" className="bg-mirakiBlue-800/80 text-white border-mirakiBlue-700">
+                    <Badge 
+                      key={artist.id} 
+                      variant="outline" 
+                      className="bg-mirakiBlue-800/80 text-white border-mirakiBlue-700 cursor-pointer hover:bg-mirakiBlue-700"
+                      onClick={() => navigateToArtist(artist)}
+                    >
                       {artist.name}
                     </Badge>
                   ))}
@@ -619,40 +741,4 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
                   onClick={() => {
                     // Keep current filter but show the list view
                     document.querySelector('[value="list"]')?.dispatchEvent(
-                      new MouseEvent('click', { bubbles: true })
-                    );
-                  }}
-                >
-                  <User size={16} className="mr-2" />
-                  View Artist List
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Interactive legend with enhanced styling */}
-        <div className="absolute right-4 bottom-16 z-20 p-3 bg-gradient-to-br from-mirakiBlue-900/95 to-mirakiBlue-800/95 backdrop-blur-md rounded-lg border border-mirakiBlue-700 shadow-lg">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded-full bg-mirakiGold shadow-glow" style={{boxShadow: '0 0 6px #FCCF3199'}} />
-              <span className="text-white text-xs">1-3 artists</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full bg-mirakiGold shadow-glow" style={{boxShadow: '0 0 8px #FCCF31bb'}} />
-              <span className="text-white text-xs">4-6 artists</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-5 h-5 rounded-full bg-mirakiGold shadow-glow relative" style={{boxShadow: '0 0 10px #FCCF31dd'}}>
-                <div className="absolute -inset-1 rounded-full animate-ping bg-mirakiGold/30" />
-              </div>
-              <span className="text-white text-xs">7+ artists</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default ArtistMapSection;
+                      new MouseEvent('click
