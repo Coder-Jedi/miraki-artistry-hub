@@ -40,11 +40,11 @@
 
 /* Enhanced Map Styling for Dark Mode - IMPROVED VISIBILITY */
 .maplibregl-canvas {
-  background-color: #262D40 !important; /* Lighter dark blue background */
+  background-color: #384054 !important; /* Lighter blue background for better visibility */
 }
 
 .maplibregl-map {
-  background: linear-gradient(to bottom, #2C3756, #3D4A6B) !important; /* More vibrant gradient */
+  background: linear-gradient(to bottom, #3D4A6B, #4F5D82) !important; /* More vibrant gradient */
 }
 
 /* Map Navigation Controls Styling */
@@ -78,7 +78,7 @@
 }
 
 .maplibregl-popup-content {
-  background: linear-gradient(135deg, rgba(60, 70, 100, 0.95), rgba(40, 50, 80, 0.95)) !important; /* Lighter gradient */
+  background: linear-gradient(135deg, rgba(70, 80, 115, 0.95), rgba(50, 60, 90, 0.95)) !important; /* Lighter gradient */
   backdrop-filter: blur(12px) !important;
   border: 1px solid rgba(155, 135, 245, 0.2) !important; /* Purple tinted border */
   border-radius: 12px !important;
@@ -101,8 +101,8 @@
 }
 
 .maplibregl-popup-tip {
-  border-top-color: rgba(60, 70, 100, 0.95) !important;
-  border-bottom-color: rgba(60, 70, 100, 0.95) !important;
+  border-top-color: rgba(70, 80, 115, 0.95) !important;
+  border-bottom-color: rgba(70, 80, 115, 0.95) !important;
 }
 
 /* Area Pin Styling - Enhanced visibility */
@@ -132,7 +132,7 @@
   box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
 }
 
-/* Artist Pin Styling - NEW */
+/* Artist Pin Styling - IMPROVED */
 .artist-pin {
   width: 40px;
   height: 40px;
@@ -145,15 +145,16 @@
   font-weight: 700;
   font-size: 16px;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 154, 158, 0.5);
   border: 3px solid white;
   transition: all 0.3s ease;
   cursor: pointer;
+  z-index: 10; /* Ensure pins are visible over the map */
 }
 
 .artist-pin:hover {
   transform: scale(1.15);
-  box-shadow: 0 5px 15px rgba(155, 135, 245, 0.6);
+  box-shadow: 0 5px 15px rgba(255, 154, 158, 0.7);
 }
 
 .artist-pin::after {
@@ -177,7 +178,7 @@
   left: 50%;
   transform: translateX(-50%);
   margin-top: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #333;
   padding: 4px 8px;
   border-radius: 4px;
@@ -188,6 +189,7 @@
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
+  z-index: 11;
 }
 
 .artist-pin:hover .artist-pin-label {
@@ -196,7 +198,7 @@
 
 /* Scale Control Styling */
 .maplibregl-ctrl-scale {
-  background-color: rgba(60, 70, 100, 0.8) !important; /* Match updated map color */
+  background-color: rgba(70, 80, 115, 0.8) !important; /* Match updated map color */
   backdrop-filter: blur(8px);
   border: 1px solid rgba(155, 135, 245, 0.15) !important; /* Purple tinted border */
   color: white !important;
@@ -206,7 +208,7 @@
 
 /* Attribution Control Styling */
 .maplibregl-ctrl-attrib {
-  background-color: rgba(60, 70, 100, 0.8) !important; /* Match updated map color */
+  background-color: rgba(70, 80, 115, 0.8) !important; /* Match updated map color */
   backdrop-filter: blur(8px);
   padding: 2px 5px;
   border-radius: 4px 4px 0 0;
@@ -264,5 +266,5 @@
   pointer-events: none;
   z-index: 1;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(23, 25, 35, 0.3) 0%, rgba(23, 25, 35, 0) 50%, rgba(23, 25, 35, 0.3) 100%);
+  background: linear-gradient(180deg, rgba(40, 45, 60, 0.2) 0%, rgba(40, 45, 60, 0) 50%, rgba(40, 45, 60, 0.2) 100%);
 }

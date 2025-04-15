@@ -741,4 +741,23 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
                   onClick={() => {
                     // Keep current filter but show the list view
                     document.querySelector('[value="list"]')?.dispatchEvent(
-                      new MouseEvent('click
+                      new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                      })
+                    );
+                  }}
+                >
+                  View Artist List
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ArtistMapSection;
