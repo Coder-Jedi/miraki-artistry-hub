@@ -1,4 +1,3 @@
-
 /* Map component styles */
 .area-marker {
   position: relative;
@@ -38,13 +37,22 @@
   }
 }
 
+/* Enhanced Map Styling for Dark Mode */
+.maplibregl-canvas {
+  background-color: #1a1f2c !important;
+}
+
+.maplibregl-map {
+  background: linear-gradient(to bottom, #1a1f2c, #2a3142) !important;
+}
+
 /* Map Navigation Controls Styling */
 .maplibregl-ctrl-group {
-  background-color: rgba(40, 44, 63, 0.8) !important;
+  background-color: rgba(42, 49, 66, 0.9) !important;
   backdrop-filter: blur(8px);
   border-radius: 8px !important;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
@@ -56,11 +64,71 @@
 }
 
 .maplibregl-ctrl-group button:hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .maplibregl-ctrl-group button span {
   filter: invert(1) brightness(1.5);
+}
+
+/* Enhanced Popup Styling */
+.maplibregl-popup {
+  max-width: 300px !important;
+}
+
+.maplibregl-popup-content {
+  background: linear-gradient(135deg, rgba(42, 49, 66, 0.95), rgba(26, 31, 44, 0.95)) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  color: white !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+.maplibregl-popup-close-button {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 20px !important;
+  padding: 8px !important;
+  right: 4px !important;
+  top: 4px !important;
+}
+
+.maplibregl-popup-close-button:hover {
+  color: white !important;
+  background: none !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: rgba(42, 49, 66, 0.95) !important;
+  border-bottom-color: rgba(42, 49, 66, 0.95) !important;
+}
+
+/* Area Pin Styling */
+.area-pin {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #9b87f5, #7E69AB);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.area-pin:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(155, 135, 245, 0.4);
+}
+
+.area-pin.active {
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
 }
 
 /* Scale Control Styling */
