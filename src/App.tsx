@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Index from './pages/Index';
 import Explore from './pages/Explore';
@@ -20,7 +19,7 @@ initializeAppData();
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="miraki-theme">
+    <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
