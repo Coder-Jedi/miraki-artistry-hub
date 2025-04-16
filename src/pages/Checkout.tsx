@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { formatPrice } from '@/utils/priceFormatter';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import QuantityControls from '@/components/QuantityControls';
+import { ArtworkCategory } from '@/types';
 
 type CheckoutStep = 'cart' | 'shipping' | 'payment' | 'confirmation';
 
@@ -211,7 +212,20 @@ const Checkout: React.FC = () => {
                         <span className="font-medium">{formatPrice(item.price)}</span>
                         <div className="flex items-center gap-4">
                           <QuantityControls
-                            artwork={{ ...item, forSale: true }}
+                            artwork={{
+                              ...item,
+                              forSale: true,
+                              year: new Date().getFullYear(),
+                              medium: 'Unknown',
+                              location: {
+                                lat: 0,
+                                lng: 0,
+                                address: ''
+                              },
+                              category: 'All' as ArtworkCategory,
+                              description: '',
+                              likes: 0
+                            }}
                             quantity={item.quantity}
                           />
                           <Button

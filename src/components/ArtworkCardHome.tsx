@@ -4,6 +4,8 @@ import { ImageOff, Heart, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/utils/priceFormatter';
 import { useNavigate } from 'react-router-dom';
 import QuantityControls from './QuantityControls';
