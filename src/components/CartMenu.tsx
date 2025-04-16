@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ShoppingCart, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -11,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { formatPrice } from '@/utils/priceFormatter';
 
 const CartMenu: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -95,7 +95,7 @@ const CartMenu: React.FC = () => {
                     <h4 className="font-medium text-sm truncate">{item.title}</h4>
                     <p className="text-xs text-muted-foreground">{item.artist}</p>
                     <div className="flex justify-between items-center mt-1">
-                      <span className="font-semibold">${item.price}</span>
+                      <span className="font-semibold">{formatPrice(item.price)}</span>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -116,7 +116,7 @@ const CartMenu: React.FC = () => {
           <div className="p-3 border-t">
             <div className="flex justify-between mb-3">
               <span className="font-medium">Total:</span>
-              <span className="font-semibold">${cartTotal.toFixed(2)}</span>
+              <span className="font-semibold">{formatPrice(cartTotal)}</span>
             </div>
             <Button className="w-full" onClick={handleCheckout}>
               Checkout

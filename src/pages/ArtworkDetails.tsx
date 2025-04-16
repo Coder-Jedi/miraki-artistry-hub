@@ -1,12 +1,13 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Map, User, ImageOff } from 'lucide-react';
+import { ArrowLeft, Map, User, ImageOff, ShoppingCart } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { artworksData } from '@/data/artworks';
 import { Artwork } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { formatPrice } from '@/utils/priceFormatter';
+import { useAuth } from '@/hooks/useAuth';
 
 const ArtworkDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ const ArtworkDetails: React.FC = () => {
   const [relatedArtworks, setRelatedArtworks] = useState<Artwork[]>([]);
   const [mainImageError, setMainImageError] = useState(false);
   const [relatedImagesError, setRelatedImagesError] = useState<Record<string, boolean>>({});
+  const { addToCart } = useAuth();
 
   useEffect(() => {
     // Simulate API call
@@ -169,11 +171,34 @@ const ArtworkDetails: React.FC = () => {
                 </div>
               )}
               
-              <div className="mt-8">
-                <Button className="bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900">
-                  Contact About This Artwork
-                </Button>
-              </div>
+              {/* Price and Purchase Section */}
+              {artwork.price && (
+                <div className="mt-6 pt-6 border-t border-mirakiGray-200 dark:border-mirakiBlue-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-mirakiBlue-900 dark:text-white mb-1">Price</h3>
+                      <p className="text-2xl font-bold text-mirakiBlue-800 dark:text-white">
+                        {formatPrice(artwork.price)}
+                      </p>
+                    </div>
+                    {artwork.forSale && (
+                      <div className="space-x-2">
+                        <Button
+                          onClick={() => addToCart(artwork)}
+                          variant="outline"
+                          className="flex items-center gap-2"
+                        >
+                          <ShoppingCart size={18} />
+                          Add to Cart
+                        </Button>
+                        <Button className="bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900">
+                          Buy Now
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           

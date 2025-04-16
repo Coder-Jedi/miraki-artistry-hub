@@ -1,10 +1,11 @@
-
 import { useState } from 'react';
 import { Artwork } from '@/types';
-import { ImageOff, Heart } from 'lucide-react';
+import { ImageOff, Heart, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { formatPrice } from '@/utils/priceFormatter';
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -57,6 +58,25 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   const imageUrl = artwork.image.startsWith('http') 
     ? artwork.image 
     : `${window.location.origin}${artwork.image}`;
+
+  const { addToCart } = useAuth();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    if (!artwork.price || !artwork.forSale) {
+      toast({
+        title: "Not Available",
+        description: "This artwork is not available for purchase.",
+        variant: "destructive"
+      });
+      return;
+    }
+    addToCart(artwork);
+    toast({
+      title: "Added to Cart",
+      description: `${artwork.title} has been added to your cart.`
+    });
+  };
 
   return (
     <div 
@@ -130,12 +150,22 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
           {artwork.price ? (
             <div className="flex items-center justify-between">
               <span className="text-mirakiBlue-900 dark:text-white font-medium">
-                ${artwork.price.toLocaleString()}
+                {formatPrice(artwork.price)}
               </span>
               {artwork.forSale === true && (
-                <Badge className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800">
-                  For Sale
-                </Badge>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    className="h-8 px-2 hover:bg-mirakiBlue-100 dark:hover:bg-mirakiBlue-800"
+                    onClick={handleAddToCart}
+                  >
+                    <ShoppingCart size={16} />
+                  </Button>
+                  <Badge className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800">
+                    For Sale
+                  </Badge>
+                </div>
               )}
             </div>
           ) : (

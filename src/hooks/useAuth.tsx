@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Artwork } from '@/types';
@@ -231,6 +230,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       description: "You have been successfully logged out.",
     });
   };
+
+  // Update artists data with mapped artworks
+  useEffect(() => {
+    try {
+      const storedArtists = localStorage.getItem('artists');
+      if (storedArtists) {
+        const artists = JSON.parse(storedArtists);
+        // Map artworks to artists
+        artists.forEach((artist: Artist) => {
+          artist.artworks = artworksData.filter(artwork => artwork.artist === artist.name);
+        });
+        console.log('Updated artists with mapped artworks:', artists);
+      }
+    } catch (error) {
+      console.error('Error updating artist data:', error);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
