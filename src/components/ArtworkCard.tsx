@@ -6,6 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/utils/priceFormatter';
+import { useNavigate } from 'react-router-dom';
+import QuantityControls from './QuantityControls';
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -23,6 +25,12 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const navigate = useNavigate();
+  const { cart, addToCart } = useAuth();
+  
+  // Find quantity in cart
+  const cartItem = cart.find(item => item.id === artwork.id);
+  const quantity = cartItem?.quantity || 0;
 
   const handleImageError = () => {
     console.error(`Failed to load image: ${artwork.image}`);
@@ -54,15 +62,8 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
     });
   };
 
-  // Make sure we use the full URL for images
-  const imageUrl = artwork.image.startsWith('http') 
-    ? artwork.image 
-    : `${window.location.origin}${artwork.image}`;
-
-  const { addToCart } = useAuth();
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card click
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!artwork.price || !artwork.forSale) {
       toast({
         title: "Not Available",
@@ -72,11 +73,13 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
       return;
     }
     addToCart(artwork);
-    toast({
-      title: "Added to Cart",
-      description: `${artwork.title} has been added to your cart.`
-    });
+    navigate('/checkout');
   };
+
+  // Make sure we use the full URL for images
+  const imageUrl = artwork.image.startsWith('http') 
+    ? artwork.image 
+    : `${window.location.origin}${artwork.image}`;
 
   return (
     <div 
@@ -145,27 +148,41 @@ const ArtworkCard: React.FC<ArtworkCardProps> = ({
           </p>
         )}
         
-        {/* Price Information or Inquire Badge (always at the bottom) */}
+        {/* Price and Controls Section */}
         <div className="mt-auto pt-3 border-t border-mirakiGray-200 dark:border-mirakiBlue-700">
-          {artwork.price ? (
-            <div className="flex items-center justify-between">
-              <span className="text-mirakiBlue-900 dark:text-white font-medium">
-                {formatPrice(artwork.price)}
-              </span>
-              {artwork.forSale === true && (
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    className="h-8 px-2 hover:bg-mirakiBlue-100 dark:hover:bg-mirakiBlue-800"
-                    onClick={handleAddToCart}
-                  >
-                    <ShoppingCart size={16} />
-                  </Button>
-                  <Badge className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800">
-                    For Sale
-                  </Badge>
-                </div>
+          {artwork.price && artwork.forSale ? (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-mirakiBlue-900 dark:text-white font-medium">
+                  {formatPrice(artwork.price)}
+                </span>
+                <Button 
+                  variant="secondary"
+                  className="h-8"
+                  onClick={handleBuyNow}
+                >
+                  Buy Now
+                </Button>
+              </div>
+              
+              {quantity > 0 ? (
+                <QuantityControls 
+                  artwork={artwork}
+                  quantity={quantity}
+                  className="justify-center"
+                />
+              ) : (
+                <Button 
+                  variant="outline" 
+                  className="w-full h-8"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(artwork);
+                  }}
+                >
+                  <ShoppingCart size={16} className="mr-2" />
+                  Add to Cart
+                </Button>
               )}
             </div>
           ) : (

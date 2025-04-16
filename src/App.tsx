@@ -13,6 +13,7 @@ import { AuthProvider } from './hooks/useAuth';
 import { ThemeProvider } from './components/ThemeToggle';
 import { Toaster } from './components/ui/toaster';
 import { initializeAppData } from './utils/initializeData';
+import Context from './pages/Context';
 
 // Initialize application data
 initializeAppData();
@@ -32,6 +33,7 @@ function App() {
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/context" element={<Context />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Artwork } from '@/types';
-import { ImageOff, Heart } from 'lucide-react';
+import { ImageOff, Heart, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { formatPrice } from '@/utils/priceFormatter';
+import { useNavigate } from 'react-router-dom';
+import QuantityControls from './QuantityControls';
 
 interface ArtworkCardHomeProps {
   artwork: Artwork;
@@ -22,6 +24,11 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const navigate = useNavigate();
+  const { cart, addToCart } = useAuth();
+  
+  const cartItem = cart.find(item => item.id === artwork.id);
+  const quantity = cartItem?.quantity || 0;
 
   const handleImageError = () => {
     console.error(`Failed to load image: ${artwork.image}`);
@@ -51,6 +58,20 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
         : `"${artwork.title}" has been added to your favorites.`,
       variant: "default"
     });
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!artwork.price || !artwork.forSale) {
+      toast({
+        title: "Not Available",
+        description: "This artwork is not available for purchase.",
+        variant: "destructive"
+      });
+      return;
+    }
+    addToCart(artwork);
+    navigate('/checkout');
   };
 
   // Make sure we use the full URL for images
@@ -141,32 +162,60 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
               {artwork.description}
             </p>
           )}
-        </CardContent>
-        
-        <CardFooter className="px-4 pb-4 pt-0 bg-transparent">
-          {/* Price Information (if available) */}
-          {artwork.price ? (
-            <div className="flex items-center justify-between w-full">
-              <span className="text-mirakiBlue-900 dark:text-white font-medium">
-                {formatPrice(artwork.price)}
-              </span>
-              {artwork.forSale === true && (
-                <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full">
-                  For Sale
+          {/* Price Information and Controls */}
+          <div className="mt-auto pt-3 border-t border-mirakiGray-200/30 dark:border-mirakiBlue-700/30">
+            {artwork.price ? (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-mirakiBlue-900 dark:text-white font-medium">
+                    {formatPrice(artwork.price)}
+                  </span>
+                  {artwork.forSale && (
+                    <Button 
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleBuyNow}
+                    >
+                      Buy Now
+                    </Button>
+                  )}
+                </div>
+                
+                {artwork.forSale && (
+                  quantity > 0 ? (
+                    <QuantityControls 
+                      artwork={artwork}
+                      quantity={quantity}
+                      className="justify-center"
+                    />
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(artwork);
+                      }}
+                    >
+                      <ShoppingCart size={16} className="mr-2" />
+                      Add to Cart
+                    </Button>
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-mirakiGray-500 dark:text-mirakiGray-400">
+                  Price unavailable
                 </span>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center justify-between w-full">
-              <span className="text-sm text-mirakiGray-500 dark:text-mirakiGray-400">
-                Price unavailable
-              </span>
-              <span className="text-xs px-2 py-0.5 bg-mirakiGray-100 dark:bg-mirakiGray-800 text-mirakiGray-700 dark:text-mirakiGray-300 rounded-full">
-                Inquire
-              </span>
-            </div>
-          )}
-        </CardFooter>
+                <Badge className="bg-mirakiGray-100 dark:bg-mirakiGray-800 text-mirakiGray-700 dark:text-mirakiGray-300">
+                  Inquire
+                </Badge>
+              </div>
+            )}
+          </div>
+        </CardContent>
       </Card>
     </div>
   );

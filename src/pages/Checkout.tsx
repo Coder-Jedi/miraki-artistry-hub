@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, CreditCard, Check, MapPin, Trash2, ArrowLeft, ChevronRight, Clock, Shield } from 'lucide-react';
@@ -12,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { formatPrice } from '@/utils/priceFormatter';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import QuantityControls from '@/components/QuantityControls';
 
 type CheckoutStep = 'cart' | 'shipping' | 'payment' | 'confirmation';
 
@@ -208,20 +208,21 @@ const Checkout: React.FC = () => {
                       <h3 className="font-medium">{item.title}</h3>
                       <p className="text-sm text-mirakiBlue-600 dark:text-mirakiGray-300">by {item.artist}</p>
                       <div className="mt-2 flex items-center justify-between">
-                        <div className="flex items-center">
-                          <span className="font-medium">{formatPrice(item.price)}</span>
-                          <span className="text-sm text-mirakiGray-500 dark:text-mirakiGray-400 ml-2">
-                            × {item.quantity}
-                          </span>
+                        <span className="font-medium">{formatPrice(item.price)}</span>
+                        <div className="flex items-center gap-4">
+                          <QuantityControls
+                            artwork={{ ...item, forSale: true }}
+                            quantity={item.quantity}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFromCart(item.id)}
+                            className="h-8 w-8"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeFromCart(item.id)}
-                          className="h-8 w-8"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -657,7 +658,7 @@ const Checkout: React.FC = () => {
 
   return (
     <Layout>
-      <div className="container-fluid max-w-5xl mx-auto py-12">
+      <div className="container-fluid max-w-5xl mx-auto py-24">
         {renderProgressIndicator()}
         
         <div className="bg-white dark:bg-mirakiBlue-800 rounded-xl shadow-md p-6 md:p-8">
