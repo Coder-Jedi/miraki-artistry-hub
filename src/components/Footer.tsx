@@ -58,8 +58,8 @@ const Footer = () => {
             <a href="#" className="hover:text-mirakiBlue-800 dark:hover:text-white transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="hover:text-mirakiBlue-800 dark:hover:text-white transition-colors">
-              Terms of Service
+            <a href="/context" className="hover:text-mirakiBlue-800 dark:hover:text-white transition-colors">
+              Documentation
             </a>
           </div>
         </div>
