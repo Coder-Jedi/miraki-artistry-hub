@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Artwork } from '@/types';
+import { Artwork, Artist } from '@/types';
+import { artworksData } from '@/data/artworks';
 
 // Define the cart item structure
 interface CartItem {

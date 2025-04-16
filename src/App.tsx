@@ -1,28 +1,27 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import ArtworkDetails from "./pages/ArtworkDetails";
-import Artists from "./pages/Artists";
-import Explore from "./pages/Explore";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Favorites from "./pages/Favorites";
-import Profile from "./pages/Profile";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Index from './pages/Index';
+import Explore from './pages/Explore';
+import ArtworkDetails from './pages/ArtworkDetails';
+import Artists from './pages/Artists';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import NotFound from './pages/NotFound';
+import Favorites from './pages/Favorites';
+import Profile from './pages/Profile';
+import Checkout from './pages/Checkout';
+import { AuthProvider } from './hooks/useAuth';
+import { ThemeProvider } from './components/ThemeToggle';
+import { Toaster } from './components/ui/toaster';
+import { initializeAppData } from './utils/initializeData';
 
-const queryClient = new QueryClient();
+// Initialize application data
+initializeAppData();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="miraki-theme">
       <AuthProvider>
-        <Toaster />
-        <Sonner />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -33,13 +32,14 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/profile" element={<Profile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        <Toaster />
       </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </ThemeProvider>
+  );
+}
 
 export default App;

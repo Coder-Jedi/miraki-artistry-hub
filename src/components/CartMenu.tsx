@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { ShoppingCart, X, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Popover,
   PopoverContent,
@@ -16,6 +17,7 @@ const CartMenu: React.FC = () => {
   const [open, setOpen] = useState(false);
   const { cart, removeFromCart, clearCart, cartTotal } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -28,11 +30,8 @@ const CartMenu: React.FC = () => {
     }
     
     setOpen(false);
-    // In a real app, this would navigate to checkout
-    toast({
-      title: "Checkout initiated",
-      description: "Processing your order...",
-    });
+    // Navigate to checkout page
+    navigate('/checkout');
   };
 
   const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
