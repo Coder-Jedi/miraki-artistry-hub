@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Search, ShoppingCart, User } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
+import { ThemeToggle } from './ThemeToggle';  // Changed from default import to named import
 import UserMenu from './UserMenu';
 import CartMenu from './CartMenu';
 import { useAuth } from '@/hooks/useAuth';
