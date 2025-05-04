@@ -1,39 +1,24 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import ArtworkGrid from '@/components/ArtworkGrid';
 import ArtworkModal from '@/components/ArtworkModal';
 import { useAuth } from '@/hooks/useAuth';
 import { Artwork } from '@/types';
-import { artworksData } from '@/data/artworks';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
 
 const Favorites: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [favorites, setFavorites] = useState<Artwork[]>([]);
+  const { isAuthenticated, favorites, favoritesLoading } = useAuth();
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   
-  // For demonstration, we'll just simulate some favorites
-  useEffect(() => {
+  // Redirect to login if not authenticated
+  React.useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
-      return;
+      navigate('/login', { state: { from: '/favorites' } });
     }
-    
-    // Simulate loading delay
-    const timer = setTimeout(() => {
-      // For demo purposes, we'll just use some random artworks as favorites
-      const mockFavorites = artworksData.slice(0, 3); // First 3 artworks as favorites
-      setFavorites(mockFavorites);
-      setLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
   }, [isAuthenticated, navigate]);
   
   const viewArtworkDetails = (artwork: Artwork) => {
@@ -75,7 +60,7 @@ const Favorites: React.FC = () => {
             </p>
           </div>
           
-          {!loading && favorites.length === 0 ? (
+          {!favoritesLoading && favorites.length === 0 ? (
             <div className="text-center py-20">
               <Heart size={64} className="mx-auto text-mirakiGray-300 dark:text-mirakiBlue-700 mb-6" />
               <h3 className="text-xl font-medium text-mirakiBlue-800 dark:text-mirakiGray-200 mb-3">
@@ -92,7 +77,7 @@ const Favorites: React.FC = () => {
             <div className="animate-fade-in">
               <ArtworkGrid 
                 artworks={favorites} 
-                loading={loading} 
+                loading={favoritesLoading} 
                 onArtworkClick={viewArtworkDetails}
                 currentPage={1}
                 totalPages={1}

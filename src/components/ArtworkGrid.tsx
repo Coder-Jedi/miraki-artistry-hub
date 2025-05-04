@@ -53,7 +53,7 @@ const ArtworkGrid: React.FC<ArtworkGridProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {artworks.map((artwork, index) => (
           <div 
-            key={artwork.id}
+            key={artwork._id}
             className="opacity-0 animate-fade-in"
             style={{
               animationDelay: `${Math.random() * 0.5}s`,

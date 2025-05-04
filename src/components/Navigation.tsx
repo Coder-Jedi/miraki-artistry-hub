@@ -57,10 +57,10 @@ const Navigation: React.FC = () => {
           <Link to="/artists" className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors duration-300">
             Artists
           </Link>
-          <button className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors duration-300 flex items-center">
+          {/* <button className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white transition-colors duration-300 flex items-center">
             <Search size={18} className="mr-1" />
             <span>Search</span>
-          </button>
+          </button> */}
           <div className="flex items-center space-x-3">
             <CartMenu />
             {isAuthenticated ? (
@@ -137,13 +137,13 @@ const Navigation: React.FC = () => {
             >
               Favorites
             </Link>
-            <button 
+            {/* <button 
               className="text-mirakiBlue-900 dark:text-white py-2 text-lg flex items-center"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Search size={18} className="mr-2" />
               <span>Search</span>
-            </button>
+            </button> */}
           </div>
         </div>
       )}

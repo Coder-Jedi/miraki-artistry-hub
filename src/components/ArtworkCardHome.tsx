@@ -22,15 +22,29 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
   showFavoriteButton = false
 }) => {
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { 
+    isAuthenticated, 
+    cart, 
+    addToCart,
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite
+  } = useAuth();
+  
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const navigate = useNavigate();
-  const { cart, addToCart } = useAuth();
   
-  const cartItem = cart.find(item => item.id === artwork.id);
+  // Find cart item using multiple ID fields for better compatibility
+  const cartItem = cart.find(item => 
+    item.artworkId === artwork._id || 
+    item._id === artwork._id ||
+    (item.artwork && item.artwork._id === artwork._id)
+  );
   const quantity = cartItem?.quantity || 0;
+
+  // Check if artwork is in favorites
+  const isArtworkFavorite = isFavorite(artwork._id);
 
   const handleImageError = () => {
     console.error(`Failed to load image: ${artwork.image}`);
@@ -38,7 +52,7 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
     setImageLoaded(true); // We still consider it "loaded" to remove loading indicator
   };
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card onClick
     
     if (!isAuthenticated) {
@@ -50,16 +64,15 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
       return;
     }
     
-    // Toggle favorite state
-    setIsFavorite(!isFavorite);
-    
-    toast({
-      title: isFavorite ? "Removed from Favorites" : "Added to Favorites",
-      description: isFavorite 
-        ? `"${artwork.title}" has been removed from your favorites.` 
-        : `"${artwork.title}" has been added to your favorites.`,
-      variant: "default"
-    });
+    try {
+      if (isArtworkFavorite) {
+        await removeFromFavorites(artwork._id);
+      } else {
+        await addToFavorites(artwork);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite status:', error);
+    }
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -135,17 +148,17 @@ const ArtworkCardHome: React.FC<ArtworkCardHomeProps> = ({
           {showFavoriteButton && (
             <button 
               className={`absolute top-3 right-3 p-2 rounded-full z-20 transition-all duration-300 ${
-                isFavorite 
+                isArtworkFavorite 
                   ? 'bg-red-100 text-red-500 shadow-md transform scale-110' 
                   : 'bg-white/80 text-mirakiBlue-700 dark:bg-mirakiBlue-900/80 dark:text-mirakiGray-300 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:scale-110'
               }`}
               onClick={handleFavoriteClick}
-              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              aria-label={isArtworkFavorite ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart 
                 size={18} 
-                fill={isFavorite ? "currentColor" : "none"} 
-                className={`transform transition-transform ${isFavorite ? 'scale-110' : ''}`}
+                fill={isArtworkFavorite ? "currentColor" : "none"} 
+                className={`transform transition-transform ${isArtworkFavorite ? 'scale-110' : ''}`}
               />
             </button>
           )}

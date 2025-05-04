@@ -1,0 +1,971 @@
+{
+	"info": {
+		"_postman_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+		"name": "Miraki Artistry Hub API",
+		"description": "API collection for the Miraki Artistry Hub platform.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\",\n    \"confirmPassword\": \"Password123!\"\n}"
+						},
+						"description": "Register a new user account"
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (response.success && response.data && response.data.token) {",
+									"    pm.environment.set(\"token\", response.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\"\n}"
+						},
+						"description": "Authenticate a user and get JWT token"
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"change-password"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentPassword\": \"Password123!\",\n    \"newPassword\": \"NewPassword123!\",\n    \"confirmPassword\": \"NewPassword123!\"\n}"
+						},
+						"description": "Change the current user's password"
+					}
+				},
+				{
+					"name": "Reset Password Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\"\n}"
+						},
+						"description": "Request a password reset link"
+					}
+				},
+				{
+					"name": "Reset Password Confirm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password",
+								"confirm"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"reset-token-from-email\",\n    \"newPassword\": \"NewPassword123!\",\n    \"confirmPassword\": \"NewPassword123!\"\n}"
+						},
+						"description": "Complete the password reset process"
+					}
+				}
+			]
+		},
+		{
+			"name": "Artworks",
+			"item": [
+				{
+					"name": "List Artworks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/artworks?page=1&limit=20&category=Painting&minPrice=100&maxPrice=5000&location=Bandra&featured=true&forSale=true&search=nature&sortBy=price&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artworks"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "category",
+									"value": "Painting"
+								},
+								{
+									"key": "minPrice",
+									"value": "100"
+								},
+								{
+									"key": "maxPrice",
+									"value": "5000"
+								},
+								{
+									"key": "location",
+									"value": "Bandra"
+								},
+								{
+									"key": "featured",
+									"value": "true"
+								},
+								{
+									"key": "forSale",
+									"value": "true"
+								},
+								{
+									"key": "search",
+									"value": "nature"
+								},
+								{
+									"key": "sortBy",
+									"value": "price"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get a paginated list of artworks with optional filtering"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Artwork Details",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/artworks/{{artworkId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artworks",
+								"{{artworkId}}"
+							]
+						},
+						"description": "Get detailed information about a specific artwork"
+					}
+				},
+				{
+					"name": "Get Artworks by Artist",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/artworks/artist/{{artistId}}?page=1&limit=20&category=Painting&featured=true&forSale=true&sortBy=createdAt&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artworks",
+								"artist",
+								"{{artistId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "category",
+									"value": "Painting"
+								},
+								{
+									"key": "featured",
+									"value": "true"
+								},
+								{
+									"key": "forSale",
+									"value": "true"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get all artworks created by a specific artist"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Featured Artworks",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/artworks/featured?limit=6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artworks",
+								"featured"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "6"
+								}
+							]
+						},
+						"description": "Get a list of featured artworks"
+					}
+				},
+				{
+					"name": "Get Artwork Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/artworks/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artworks",
+								"categories"
+							]
+						},
+						"description": "Get a list of all artwork categories"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Artwork Areas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/artworks/areas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artworks",
+								"areas"
+							]
+						},
+						"description": "Get a list of all supported artwork areas in Mumbai"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Artists",
+			"item": [
+				{
+					"name": "List Artists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/artists?page=1&limit=20&area=Bandra&search=contemporary&featured=true&sortBy=popularity&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artists"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "area",
+									"value": "Bandra"
+								},
+								{
+									"key": "search",
+									"value": "contemporary"
+								},
+								{
+									"key": "featured",
+									"value": "true"
+								},
+								{
+									"key": "sortBy",
+									"value": "popularity"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get a paginated list of artists with optional filtering"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Artist Details",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/artists/{{artistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artists",
+								"{{artistId}}"
+							]
+						},
+						"description": "Get detailed information about a specific artist and their artworks"
+					}
+				},
+				{
+					"name": "Get Featured Artists",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/artists/featured?limit=6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artists",
+								"featured"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "6"
+								}
+							]
+						},
+						"description": "Get a list of featured artists"
+					}
+				},
+				{
+					"name": "Get Artists By Area",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/artists/by-area",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artists",
+								"by-area"
+							]
+						},
+						"description": "Get a count of artists grouped by area"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Artists Areas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/artists/areas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artists",
+								"areas"
+							]
+						},
+						"description": "Get a list of all supported artist areas in Mumbai"
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Featured (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/artists/{{artistId}}/toggle-featured",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"artists",
+								"{{artistId}}",
+								"toggle-featured"
+							]
+						},
+						"description": "Toggle the featured status of an artist (Admin role required)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"description": "Shopping cart functionality",
+			"item": [
+				{
+					"name": "Get Current Cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart"
+							]
+						},
+						"description": "Get the current user's shopping cart"
+					}
+				},
+				{
+					"name": "Add Item to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"items"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"artworkId\": \"{{artworkId}}\",\n    \"quantity\": 1\n}"
+						},
+						"description": "Add an artwork to the shopping cart"
+					}
+				},
+				{
+					"name": "Update Cart Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/items/{{itemId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"items",
+								"{{itemId}}"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 2\n}"
+						},
+						"description": "Update the quantity of a cart item"
+					}
+				},
+				{
+					"name": "Remove Item from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/items/{{itemId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"items",
+								"{{itemId}}"
+							]
+						},
+						"description": "Remove an item from the cart"
+					}
+				},
+				{
+					"name": "Clear Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart"
+							]
+						},
+						"description": "Remove all items from the cart"
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"description": "Order creation and management",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shippingAddressId\": \"{{addressId}}\",\n    \"paymentMethod\": \"card\",\n    \"paymentDetails\": {\n        \"cardToken\": \"payment-gateway-token\",\n        \"savePaymentMethod\": false\n    },\n    \"notes\": \"Please deliver on weekday mornings\"\n}"
+						},
+						"description": "Create a new order from cart items"
+					}
+				},
+				{
+					"name": "Get User Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders?page=1&limit=10&status=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": ""
+								}
+							]
+						},
+						"description": "Get a list of all orders placed by the user"
+					}
+				},
+				{
+					"name": "Get Order Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						},
+						"description": "Get details of a specific order"
+					}
+				},
+				{
+					"name": "Update Order Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}",
+								"status"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"shipped\",\n    \"trackingInfo\": {\n        \"carrier\": \"DHL Express\",\n        \"trackingNumber\": \"1234567890\",\n        \"trackingUrl\": \"https://www.dhl.com/track/1234567890\"\n    }\n}"
+						},
+						"description": "Update the status of an order (Admin role required)"
+					}
+				},
+				{
+					"name": "Update Payment Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/payment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}",
+								"payment"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"paymentStatus\": \"paid\",\n    \"transactionId\": \"txn_123456789\"\n}"
+						},
+						"description": "Update the payment status of an order (Admin role required)"
+					}
+				}
+			]
+		},
+		{
+			"name": "File Upload",
+			"description": "File upload endpoints for admin use",
+			"item": [
+				{
+					"name": "Upload Artwork Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/upload/artwork?artworkId={{artworkId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"upload",
+								"artwork"
+							],
+							"query": [
+								{
+									"key": "artworkId",
+									"value": "{{artworkId}}",
+									"description": "Optional artwork ID to associate with"
+								}
+							]
+						},
+						"description": "Upload an artwork image (Admin role required)"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Artist Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/upload/artist?artistId={{artistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"upload",
+								"artist"
+							],
+							"query": [
+								{
+									"key": "artistId",
+									"value": "{{artistId}}",
+									"description": "Optional artist ID to associate with"
+								}
+							]
+						},
+						"description": "Upload an artist profile image (Admin role required)"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Banner Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/upload/banner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"upload",
+								"banner"
+							]
+						},
+						"description": "Upload a banner image (Admin role required)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}

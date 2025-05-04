@@ -28,16 +28,16 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
   };
 
   // Track image loading
-  const handleImageLoad = (id: string) => {
-    console.log(`Hero image loaded successfully: ${id}`);
-    setImagesLoaded(prev => ({ ...prev, [id]: true }));
+  const handleImageLoad = (_id: string) => {
+    console.log(`Hero image loaded successfully: ${_id}`);
+    setImagesLoaded(prev => ({ ...prev, [_id]: true }));
   };
 
   // Track image error
-  const handleImageError = (id: string, url: string) => {
-    console.error(`Failed to load Hero image: ${id}, URL: ${url}`);
-    setImagesError(prev => ({ ...prev, [id]: true }));
-    setImagesLoaded(prev => ({ ...prev, [id]: true })); // Mark as loaded to remove loading state
+  const handleImageError = (_id: string, url: string) => {
+    console.error(`Failed to load Hero image: ${_id}, URL: ${url}`);
+    setImagesError(prev => ({ ...prev, [_id]: true }));
+    setImagesLoaded(prev => ({ ...prev, [_id]: true })); // Mark as loaded to remove loading state
   };
 
   return (
@@ -53,7 +53,7 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
             
             return (
               <div
-                key={artwork.id}
+                key={artwork._id}
                 className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
                   currentSlide === index ? 'opacity-100' : 'opacity-0'
                 }`}
@@ -63,11 +63,11 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
                   src={imageUrl}
                   alt=""
                   className="hidden"
-                  onLoad={() => handleImageLoad(artwork.id)}
-                  onError={() => handleImageError(artwork.id, imageUrl)}
+                  onLoad={() => handleImageLoad(artwork._id)}
+                  onError={() => handleImageError(artwork._id, imageUrl)}
                 />
                 
-                {imagesError[artwork.id] ? (
+                {imagesError[artwork._id] ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-mirakiBlue-900">
                     <div className="flex flex-col items-center text-center p-4">
                       <ImageOff size={64} className="text-mirakiGray-400 mb-4" />
@@ -81,11 +81,11 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
                       backgroundImage: `url(${imageUrl})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
-                      opacity: imagesLoaded[artwork.id] ? 1 : 0,
+                      opacity: imagesLoaded[artwork._id] ? 1 : 0,
                       transition: 'opacity 0.5s ease-in-out'
                     }}
                   >
-                    {!imagesLoaded[artwork.id] && (
+                    {!imagesLoaded[artwork._id] && (
                       <div className="absolute inset-0 bg-mirakiBlue-900 animate-pulse"></div>
                     )}
                   </div>
@@ -105,7 +105,7 @@ const Hero: React.FC<HeroProps> = ({ featuredArtworks }) => {
                 by {featuredArtworks[currentSlide]?.artist}
               </p>
               <Link 
-                to={`/artwork/${featuredArtworks[currentSlide]?.id}`}
+                to={`/artwork/${featuredArtworks[currentSlide]?._id}`}
                 className="mt-4 inline-flex items-center text-mirakiGold hover:text-mirakiGold-600 transition-colors"
               >
                 View Details

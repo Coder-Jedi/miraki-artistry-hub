@@ -1,16 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { FilterOptions } from '@/types';
+import { artworkService } from '@/services/artworkService';
 
 const sortOptionsList = [
   { value: 'newest', label: 'Newest First' },
-  { value: 'oldest', label: 'Oldest First' },
-  { value: 'priceAsc', label: 'Price: Low to High' },
-  { value: 'priceDesc', label: 'Price: High to Low' },
+  { value: 'price_low', label: 'Price: Low to High' },
+  { value: 'price_high', label: 'Price: High to Low' },
   { value: 'popular', label: 'Most Popular' },
 ];
 
-export const mumbaiAreas = [
+// Fallback areas if API fails
+const defaultMumbaiAreas = [
   'All Areas',
   'Bandra',
   'Colaba',
@@ -24,10 +24,7 @@ export const mumbaiAreas = [
   'Powai',
   'Worli',
   'Andheri',
-  'Navi Mumbai - Vashi',
-  'Navi Mumbai - Belapur',
-  'Navi Mumbai - Nerul',
-  'Navi Mumbai - Kharghar'
+  'Navi Mumbai'
 ];
 
 const useExploreFilters = () => {
@@ -45,6 +42,49 @@ const useExploreFilters = () => {
   
   // Sorting
   const [activeSortOption, setActiveSortOption] = useState<string>('newest');
+
+  // Dynamic data from API
+  const [categories, setCategories] = useState<string[]>([]);
+  const [mumbaiAreas, setMumbaiAreas] = useState<string[]>(['All Areas']);
+
+  // Fetch categories from the API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await artworkService.getCategories();
+        if (response.success && response.data?.categories) {
+          // 'All' will come directly from the API
+          setCategories([...response.data.categories]);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Set default categories if API fails
+        setCategories(['All', 'Painting', 'Sculpture', 'Photography', 'Digital', 'Mixed Media', 'Ceramics', 'Illustration', 'Other']);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Fetch areas from the API
+  useEffect(() => {
+    const fetchAreas = async () => {
+      try {
+        const response = await artworkService.getAreas();
+        if (response.success && response.data?.areas) {
+          // Add 'All Areas' as the first option
+          setMumbaiAreas(['All Areas', ...response.data.areas]);
+        } else {
+          setMumbaiAreas(defaultMumbaiAreas);
+        }
+      } catch (error) {
+        console.error('Error fetching areas:', error);
+        setMumbaiAreas(defaultMumbaiAreas);
+      }
+    };
+
+    fetchAreas();
+  }, []);
 
   // Create wrapper functions to handle type conversion
   const setPriceRange = (value: number[]) => {
@@ -98,7 +138,8 @@ const useExploreFilters = () => {
     toggleAdvancedFilters,
     showAdvancedFilters,
     resetAllFilters,
-    mumbaiAreas
+    mumbaiAreas,
+    categories
   };
 };
 

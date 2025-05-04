@@ -120,7 +120,7 @@ const Index: React.FC = () => {
                 
                 <CarouselContent ref={artworkCarouselRef} className="py-6 px-4">
                   {featuredArtworks.map((artwork, index) => (
-                    <CarouselItem key={artwork.id} className="pl-4 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
+                    <CarouselItem key={artwork._id} className="pl-4 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
                       <div 
                         className={`h-full transform transition-all duration-500 artwork-card-wrapper ${
                           index === artworkActiveIndex ? 'center' : ''

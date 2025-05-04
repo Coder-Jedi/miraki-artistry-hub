@@ -1,8 +1,9 @@
 
 export interface Artwork {
-  id: string;
+  _id: string;
   title: string;
   artist: string;
+  artistId: string;
   year: number;
   medium: string;
   image: string;
@@ -41,7 +42,7 @@ export interface FilterOptions {
 }
 
 export interface Artist {
-  id: string;
+  _id: string;
   name: string;
   bio?: string;
   location?: {
@@ -59,6 +60,7 @@ export interface Artist {
   };
   popularity?: number;
   artworks?: Artwork[];
+  featured?: boolean;
 }
 
 export interface LoginFormData {

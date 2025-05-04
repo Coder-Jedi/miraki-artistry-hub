@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ShoppingCart, X, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -82,7 +81,7 @@ const CartMenu: React.FC = () => {
           ) : (
             <div>
               {cart.map((item) => (
-                <div key={item.id} className="p-3 border-b flex gap-3">
+                <div key={item._id} className="p-3 border-b flex gap-3">
                   <div className="h-16 w-16 rounded-md bg-muted overflow-hidden flex-shrink-0">
                     <img 
                       src={item.image} 
@@ -95,14 +94,21 @@ const CartMenu: React.FC = () => {
                     <p className="text-xs text-muted-foreground">{item.artist}</p>
                     <div className="flex justify-between items-center mt-1">
                       <span className="font-semibold">{formatPrice(item.price)}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 w-6 p-0" 
-                        onClick={() => removeFromCart(item.id)}
-                      >
-                        <X size={15} />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground">x{item.quantity}</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0" 
+                          onClick={() => {
+                            // Use the artworkId property as a fallback if available
+                            const idToRemove = item.artworkId || item._id;
+                            removeFromCart(idToRemove);
+                          }}
+                        >
+                          <X size={15} />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

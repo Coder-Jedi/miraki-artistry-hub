@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
@@ -87,7 +86,7 @@ const Login: React.FC = () => {
                       errors.email 
                         ? 'border-red-500 focus:ring-red-500' 
                         : 'border-mirakiGray-300 dark:border-mirakiBlue-700 focus:ring-mirakiBlue-500'
-                    } focus:outline-none focus:ring-2`}
+                    } focus:outline-none focus:ring-2 text-gray-900`}
                     placeholder="your@email.com"
                   />
                   {errors.email && (
@@ -111,7 +110,7 @@ const Login: React.FC = () => {
                         errors.password 
                           ? 'border-red-500 focus:ring-red-500' 
                           : 'border-mirakiGray-300 dark:border-mirakiBlue-700 focus:ring-mirakiBlue-500'
-                      } focus:outline-none focus:ring-2 pr-10`}
+                      } focus:outline-none focus:ring-2 pr-10 text-gray-900`}
                       placeholder="••••••••"
                     />
                     <button
