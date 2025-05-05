@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // API configuration
 export const API_HOST = 'http://localhost:3000/api/v1'; // As specified in requirements
-export const API_HOST_PROD = 'http://84.235.162.160:3000/api/v1'; // Production URL
+export const API_HOST_PROD = 'https://apis.algoampify.com/api/v1'; // Production URL
 const API_BASE_URL = `${API_HOST_PROD}/`;
 
 // Create axios instance with default config
