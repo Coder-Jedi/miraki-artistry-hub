@@ -163,13 +163,13 @@ const ArtworkModal: React.FC<ArtworkModalProps> = ({
           
           <div className="mt-6 flex justify-between items-center">
             <Link 
-              to={`/artists?name=${encodeURIComponent(artwork.artist)}`}
+              to={`/artists?id=${encodeURIComponent(artwork.artistId)}`}
               className="text-mirakiBlue-700 dark:text-mirakiGray-300 hover:text-mirakiBlue-900 dark:hover:text-white"
             >
               View Artist Profile
             </Link>
             <Link 
-              to={`/artwork/${artwork.id}`}
+              to={`/artwork/${artwork._id}`}
               className="inline-flex items-center text-mirakiGold hover:text-mirakiGold-600 font-medium"
             >
               Full Details

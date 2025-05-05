@@ -182,7 +182,7 @@ const Index: React.FC = () => {
                 
                 <CarouselContent ref={artistCarouselRef} className="py-6 px-4">
                   {featuredArtists.map((artist, index) => (
-                    <CarouselItem key={artist.id} className="pl-4 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
+                    <CarouselItem key={artist._id} className="pl-4 md:basis-1/2 lg:basis-1/3 sm:basis-3/4">
                       <div 
                         className={`h-full transform transition-all duration-500 artist-card-wrapper border-2 rounded-lg shadow-lg ${
                           index === artistActiveIndex 

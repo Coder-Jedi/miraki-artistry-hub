@@ -25,6 +25,7 @@ interface ArtistMapSectionProps {
   artists: Artist[];
   filters: ArtistFilters;
   updateFilters: (filters: Partial<ArtistFilters>) => void;
+  onViewListClick?: () => void; // Add this prop for direct tab switching
 }
 
 // Define a common type for area coordinates to ensure all have the same structure
@@ -59,7 +60,12 @@ const areaCoordinates: Record<string, AreaCoordinate> = {
 const MUMBAI_CENTER = { lat: 19.0760, lng: 72.8777 };
 const DEFAULT_ZOOM = 10;
 
-const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, updateFilters }) => {
+const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ 
+  artists, 
+  filters, 
+  updateFilters,
+  onViewListClick 
+}) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const areaMarkers = useRef<maplibregl.Marker[]>([]);
@@ -101,7 +107,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
   
   // Navigate to an artist's profile
   const navigateToArtist = (artist: Artist) => {
-    navigate(`/artists?name=${encodeURIComponent(artist.name)}`);
+    navigate(`/artists?id=${encodeURIComponent(artist._id)}`);
   };
 
   // Initialize map with enhanced colors
@@ -407,7 +413,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
           <p class="text-sm text-gray-300 mb-2">${artist.location?.address || areaName}</p>
           <p class="text-sm text-gray-300 mb-2">${artist.artworks?.length || 0} artwork${artist.artworks?.length !== 1 ? 's' : ''}</p>
           <div class="mt-2 flex justify-center">
-            <a href="/artists?name=${encodeURIComponent(artist.name)}" 
+            <a href="/artists?id=${encodeURIComponent(artist._id)}" 
               class="inline-block px-3 py-1 bg-mirakiGold text-mirakiBlue-900 text-sm font-medium rounded hover:bg-mirakiGold-600 transition-colors">
               View Profile
             </a>
@@ -721,7 +727,7 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
                 <div className="flex flex-wrap gap-1">
                   {artistsByArea[filters.location]?.slice(0, 5).map(artist => (
                     <Badge 
-                      key={artist.id} 
+                      key={artist._id} 
                       variant="outline" 
                       className="bg-mirakiBlue-800/80 text-white border-mirakiBlue-700 cursor-pointer hover:bg-mirakiBlue-700"
                       onClick={() => navigateToArtist(artist)}
@@ -739,14 +745,10 @@ const ArtistMapSection: React.FC<ArtistMapSectionProps> = ({ artists, filters, u
                   size="sm" 
                   className="w-full mt-2 bg-gradient-to-r from-mirakiGold to-mirakiGold-600 hover:from-mirakiGold-600 hover:to-mirakiGold text-mirakiBlue-900"
                   onClick={() => {
-                    // Keep current filter but show the list view
-                    document.querySelector('[value="list"]')?.dispatchEvent(
-                      new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                        view: window
-                      })
-                    );
+                    // Use the provided callback function for switching to the list view
+                    if (onViewListClick) {
+                      onViewListClick();
+                    }
                   }}
                 >
                   View Artist List

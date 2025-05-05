@@ -1,24 +1,156 @@
-
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Artist } from '@/types';
-import { ArrowLeft } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Artist, Artwork } from '@/types';
+import { ArrowLeft, ImageOff } from 'lucide-react';
 import ArtworkCard from '@/components/ArtworkCard';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Badge } from '@/components/ui/badge';
+import { artistService } from '@/services/artistService';
+import { artworkService } from '@/services/artworkService';
+import { artistsData } from '@/data/artists'; // Keep for fallback
 
 interface ArtistDetailsSectionProps {
-  artist: Artist;
+  artistId?: string;
+  artistName?: string;
   onBackClick: () => void;
 }
 
-const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ artist, onBackClick }) => {
+const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ 
+  artistId, 
+  artistName, 
+  onBackClick 
+}) => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  
+  // Use either the prop id, param id, or name for fetching
+  const artistIdentifier = artistId || id || artistName;
+  
+  const [artist, setArtist] = useState<Artist | null>(null);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [profileImageError, setProfileImageError] = useState(false);
 
-  const handleArtworkClick = (artwork: any) => {
+  useEffect(() => {
+    const fetchArtistData = async () => {
+      if (!artistIdentifier) {
+        setError("No artist identifier provided");
+        setLoading(false);
+        return;
+      }
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Try to fetch by ID first (if it looks like an ID)
+        let response;
+        if (artistIdentifier && !artistIdentifier.includes(' ')) {
+          response = await artistService.getArtistById(artistIdentifier);
+        }
+        
+        // If not successful by ID or not an ID, try to search by name
+        if (!response?.success && artistName) {
+          // Use the filter option with the search parameter
+          const searchResponse = await artistService.getArtists({
+            search: artistName,
+            limit: 1
+          });
+          
+          if (searchResponse.success && searchResponse.data?.items?.length > 0) {
+            // Get the first matching artist's full details
+            const foundArtist = searchResponse.data.items[0];
+            response = await artistService.getArtistById(foundArtist._id);
+          }
+        }
+        
+        if (response?.success && response.data) {
+          const fetchedArtist = artistService.mapApiArtistToModel(response.data);
+          setArtist(fetchedArtist);
+          
+          // If the artist has artworks in the response, use them
+          if (fetchedArtist.artworks && fetchedArtist.artworks.length > 0) {
+            setArtworks(fetchedArtist.artworks);
+          }
+          // Otherwise fetch the artist's artworks separately
+          else if (fetchedArtist._id) {
+            try {
+              const artworksResponse = await artworkService.getArtworksByArtist(
+                fetchedArtist._id,
+                { limit: 12 }
+              );
+              
+              if (artworksResponse.success && artworksResponse.data?.items) {
+                const mappedArtworks = artworksResponse.data.items.map(
+                  artworkService.mapApiArtworkToModel
+                );
+                setArtworks(mappedArtworks);
+              }
+            } catch (artworksError) {
+              console.error('Error fetching artist artworks:', artworksError);
+            }
+          }
+        } else {
+          // API call unsuccessful or didn't find the artist
+          setError('Artist not found');
+          
+          // Try to find in local data as fallback
+          const fallbackArtist = artistsData.find(a => 
+            a.id === artistIdentifier || 
+            (artistName && a.name.toLowerCase() === artistName.toLowerCase())
+          );
+          
+          if (fallbackArtist) {
+            setArtist(fallbackArtist);
+            // Use any artworks that might already be associated in local data
+            if (fallbackArtist.artworks) {
+              setArtworks(fallbackArtist.artworks);
+            }
+          }
+        }
+      } catch (fetchError) {
+        console.error('Error fetching artist details:', fetchError);
+        setError('Failed to load artist details. Please try again later.');
+        
+        // Try local data fallback
+        if (artistName) {
+          const fallbackArtist = artistsData.find(a => 
+            a.name.toLowerCase() === artistName.toLowerCase() ||
+            a.id === artistIdentifier
+          );
+          
+          if (fallbackArtist) {
+            setArtist(fallbackArtist);
+            // Use any artworks already assigned in the local data
+            if (fallbackArtist.artworks) {
+              setArtworks(fallbackArtist.artworks);
+            }
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtistData();
+  }, [artistIdentifier, artistName, id]);
+
+  const handleArtworkClick = (artwork: Artwork) => {
     // Navigate to artwork details
-    navigate(`/artwork/${artwork.id}`);
+    navigate(`/artwork/${artwork._id}`);
+  };
+
+  const getFullImageUrl = (imagePath: string | undefined) => {
+    if (!imagePath) return '';
+    return imagePath.startsWith('http') 
+      ? imagePath 
+      : `${window.location.origin}${imagePath}`;
+  };
+
+  const handleProfileImageError = () => {
+    setProfileImageError(true);
   };
 
   // Function to render star ratings
@@ -69,8 +201,73 @@ const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ artist, onB
     );
   };
 
+  if (loading) {
+    return (
+      <section className="page-section pt-24 py-8 animate-fade-in">
+        <div className="container-fluid">
+          <div className="max-w-6xl mx-auto">
+            {/* Back button skeleton */}
+            <div className="w-32 h-8 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded animate-pulse mb-8"></div>
+            
+            <div className="mb-12">
+              {/* Artist profile section skeleton */}
+              <div className="relative rounded-xl overflow-hidden">
+                <div className="p-8 bg-mirakiGray-100 dark:bg-mirakiBlue-800/50">
+                  <div className="flex flex-col md:flex-row items-start gap-8">
+                    <div className="w-full md:w-1/3">
+                      <div className="aspect-square bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-lg animate-pulse"></div>
+                      <div className="mt-4 p-4 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded-lg animate-pulse h-24"></div>
+                    </div>
+                    <div className="w-full md:w-2/3">
+                      <div className="bg-mirakiGray-200 dark:bg-mirakiBlue-700 p-6 rounded-lg animate-pulse">
+                        <div className="h-8 w-2/3 bg-mirakiGray-300 dark:bg-mirakiBlue-600 rounded mb-4"></div>
+                        <div className="h-4 bg-mirakiGray-300 dark:bg-mirakiBlue-600 rounded mb-2"></div>
+                        <div className="h-4 bg-mirakiGray-300 dark:bg-mirakiBlue-600 rounded mb-2"></div>
+                        <div className="h-4 bg-mirakiGray-300 dark:bg-mirakiBlue-600 rounded mb-4 w-1/2"></div>
+                        
+                        <div className="flex space-x-3 mt-6">
+                          <div className="h-10 w-24 bg-mirakiGray-300 dark:bg-mirakiBlue-600 rounded"></div>
+                          <div className="h-10 w-24 bg-mirakiGray-300 dark:bg-mirakiBlue-600 rounded"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Artworks section skeleton */}
+            <div className="h-8 w-64 bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded animate-pulse mb-8"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="aspect-[3/4] bg-mirakiGray-200 dark:bg-mirakiBlue-700 rounded animate-pulse"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!artist) {
+    return (
+      <section className="page-section pt-24 py-8 animate-fade-in">
+        <div className="container-fluid text-center py-16">
+          <h2 className="text-2xl font-bold mb-4">Artist Not Found</h2>
+          <p className="mb-8">The artist you're looking for doesn't exist or has been removed.</p>
+          <Button onClick={onBackClick}>
+            <ArrowLeft className="mr-2" size={16} />
+            Return to Artists
+          </Button>
+        </div>
+      </section>
+    );
+  }
+  
+  const profileImageUrl = getFullImageUrl(artist.profileImage);
+
   return (
-    <section className="page-section py-8 animate-fade-in">
+    <section className="page-section pt-24 py-8 animate-fade-in">
       <div className="container-fluid">
         <div className="max-w-6xl mx-auto">
           {/* Back button */}
@@ -93,11 +290,19 @@ const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ artist, onB
                 <div className="flex flex-col md:flex-row items-start gap-8">
                   <div className="w-full md:w-1/3">
                     <div className="aspect-square overflow-hidden rounded-lg bg-mirakiGray-100 dark:bg-mirakiBlue-800 shadow-xl border border-white/30 dark:border-mirakiBlue-700/30">
-                      <img 
-                        src={artist.profileImage} 
-                        alt={artist.name} 
-                        className="w-full h-full object-cover"
-                      />
+                      {profileImageError ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-mirakiGray-100 dark:bg-mirakiBlue-900">
+                          <ImageOff size={64} className="text-mirakiGray-400 mb-3" />
+                          <p className="text-mirakiBlue-500 dark:text-mirakiGray-400">Image not available</p>
+                        </div>
+                      ) : (
+                        <img 
+                          src={profileImageUrl} 
+                          alt={artist.name} 
+                          className="w-full h-full object-cover"
+                          onError={handleProfileImageError}
+                        />
+                      )}
                     </div>
                     
                     {/* Artist ratings and stats */}
@@ -110,7 +315,7 @@ const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ artist, onB
                         <div className="text-right">
                           <h4 className="text-sm font-medium text-mirakiBlue-700 dark:text-mirakiGray-200">Artworks</h4>
                           <p className="text-lg font-semibold text-mirakiBlue-900 dark:text-white">
-                            {artist.artworks?.length || 0}
+                            {artworks.length}
                           </p>
                         </div>
                       </div>
@@ -137,9 +342,9 @@ const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ artist, onB
                       </p>
                       
                       <div className="flex flex-wrap gap-3 md:gap-4">
-                        <Button variant="default" className="bg-mirakiGold hover:bg-mirakiGold/90 text-mirakiBlue-900">
+                        {/* <Button variant="default" className="bg-mirakiGold hover:bg-mirakiGold/90 text-mirakiBlue-900">
                           Contact Artist
-                        </Button>
+                        </Button> */}
                         
                         {artist.socialLinks?.website && (
                           <HoverCard>
@@ -174,11 +379,11 @@ const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ artist, onB
             Artworks by {artist.name}
           </h3>
         
-          {artist.artworks && artist.artworks.length > 0 ? (
+          {artworks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-              {artist.artworks.map(artwork => (
+              {artworks.map(artwork => (
                 <ArtworkCard 
-                  key={artwork.id}
+                  key={artwork._id}
                   artwork={artwork}
                   onClick={handleArtworkClick}
                   showFavoriteButton={true}
@@ -190,6 +395,12 @@ const ArtistDetailsSection: React.FC<ArtistDetailsSectionProps> = ({ artist, onB
               <p className="text-mirakiBlue-600 dark:text-mirakiGray-300">
                 No artworks available for this artist.
               </p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
+              <p>{error}</p>
             </div>
           )}
         </div>

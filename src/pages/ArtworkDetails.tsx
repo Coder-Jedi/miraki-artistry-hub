@@ -1,47 +1,153 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Map, User, ImageOff, ShoppingCart } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { artworksData } from '@/data/artworks';
 import { Artwork } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/utils/priceFormatter';
 import { useAuth } from '@/hooks/useAuth';
+import { artworkService } from '@/services/artworkService';
+import { artworksData } from '@/data/artworks'; // Keep for fallback
+import QuantityControls from '@/components/QuantityControls';
 
 const ArtworkDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [relatedArtworks, setRelatedArtworks] = useState<Artwork[]>([]);
   const [mainImageError, setMainImageError] = useState(false);
   const [relatedImagesError, setRelatedImagesError] = useState<Record<string, boolean>>({});
-  const { addToCart } = useAuth();
+  const { addToCart, cart } = useAuth();
+
+  // Check if the artwork is already in the cart
+  const cartItem = cart.find(item => 
+    item.artworkId === id || 
+    item._id === id ||
+    (item.artwork && item.artwork._id === id)
+  );
+  const quantity = cartItem?.quantity || 0;
 
   useEffect(() => {
-    // Simulate API call
-    const fetchArtwork = () => {
+    // Fetch artwork from API
+    const fetchArtwork = async () => {
+      if (!id) return;
+      
       setLoading(true);
       setMainImageError(false); // Reset on new artwork load
       setRelatedImagesError({});
+      setError(null);
       
-      setTimeout(() => {
-        const foundArtwork = artworksData.find(art => art.id === id);
-        setArtwork(foundArtwork || null);
+      try {
+        // Get artwork details from API
+        const response = await artworkService.getArtworkById(id);
         
-        // Find related artworks (same category or artist)
-        if (foundArtwork) {
-          const related = artworksData
+        if (response.success && response.data) {
+          const fetchedArtwork = artworkService.mapApiArtworkToModel(response.data);
+          setArtwork(fetchedArtwork);
+          
+          // Fetch related artworks (same category or artist)
+          if (fetchedArtwork) {
+            try {
+              // Query for related artworks with the same category or artist
+              const relatedResponse = await artworkService.getArtworks({
+                limit: 4,
+                category: fetchedArtwork.category
+              });
+              
+              if (relatedResponse.success && relatedResponse.data?.items) {
+                // Map and filter out the current artwork
+                const mappedRelated = relatedResponse.data.items
+                  .map(artworkService.mapApiArtworkToModel)
+                  .filter(art => art._id !== id);
+                
+                // If we don't have enough artworks from the same category, we could fetch by artist
+                if (mappedRelated.length < 2) {
+                  // Try to get more related by artist
+                  const artistRelatedResponse = await artworkService.getArtworksByArtist(
+                    fetchedArtwork.artistId || '',
+                    { limit: 4 }
+                  );
+                  
+                  if (artistRelatedResponse.success && artistRelatedResponse.data?.items) {
+                    const artistMappedRelated = artistRelatedResponse.data.items
+                      .map(artworkService.mapApiArtworkToModel)
+                      .filter(art => art._id !== id);
+                    
+                    // Combine unique items from both queries
+                    const combinedRelated = [...mappedRelated];
+                    
+                    artistMappedRelated.forEach(artworkItem => {
+                      if (!combinedRelated.some(item => item._id === artworkItem._id)) {
+                        combinedRelated.push(artworkItem);
+                      }
+                    });
+                    
+                    // Limit to 4
+                    setRelatedArtworks(combinedRelated.slice(0, 4));
+                  } else {
+                    setRelatedArtworks(mappedRelated);
+                  }
+                } else {
+                  setRelatedArtworks(mappedRelated.slice(0, 4));
+                }
+              }
+            } catch (relatedError) {
+              console.error('Error fetching related artworks:', relatedError);
+              // Fallback to local data for related artworks
+              if (fetchedArtwork) {
+                const fallbackRelated = artworksData
+                  .filter(art => 
+                    art._id !== id && 
+                    (art.category === fetchedArtwork.category || art.artist === fetchedArtwork.artist)
+                  )
+                  .slice(0, 4);
+                setRelatedArtworks(fallbackRelated);
+              }
+            }
+          }
+        } else {
+          // API call was successful but no artwork found
+          setError('Artwork not found');
+          
+          // Try to find in local data as fallback
+          const fallbackArtwork = artworksData.find(art => art._id === id);
+          if (fallbackArtwork) {
+            setArtwork(fallbackArtwork);
+            
+            // Find related artworks from local data
+            const fallbackRelated = artworksData
+              .filter(art => 
+                art._id !== id && 
+                (art.category === fallbackArtwork.category || art.artist === fallbackArtwork.artist)
+              )
+              .slice(0, 4);
+            setRelatedArtworks(fallbackRelated);
+          }
+        }
+      } catch (fetchError) {
+        console.error('Error fetching artwork:', fetchError);
+        setError('Failed to load artwork details. Please try again later.');
+        
+        // Try to find in local data as fallback
+        const fallbackArtwork = artworksData.find(art => art._id === id);
+        if (fallbackArtwork) {
+          setArtwork(fallbackArtwork);
+          
+          // Find related artworks from local data
+          const fallbackRelated = artworksData
             .filter(art => 
-              art.id !== foundArtwork.id && 
-              (art.category === foundArtwork.category || art.artist === foundArtwork.artist)
+              art._id !== id && 
+              (art.category === fallbackArtwork.category || art.artist === fallbackArtwork.artist)
             )
             .slice(0, 4);
-          setRelatedArtworks(related);
+          setRelatedArtworks(fallbackRelated);
         }
-        
+      } finally {
         setLoading(false);
-      }, 300);
+      }
     };
 
     fetchArtwork();
@@ -62,12 +168,19 @@ const ArtworkDetails: React.FC = () => {
   };
 
   const handleRelatedImageError = (artworkId: string) => {
-    const relatedArtwork = relatedArtworks.find(art => art.id === artworkId);
+    const relatedArtwork = relatedArtworks.find(art => art._id === artworkId);
     if (!relatedArtwork) return;
     
     const imageUrl = getFullImageUrl(relatedArtwork.image);
     console.error(`Failed to load related artwork image: ${imageUrl}`);
     setRelatedImagesError(prev => ({ ...prev, [artworkId]: true }));
+  };
+
+  const handleBuyNow = () => {
+    if (!artwork) return;
+    
+    addToCart(artwork);
+    navigate('/checkout');
   };
 
   if (loading) {
@@ -150,7 +263,7 @@ const ArtworkDetails: React.FC = () => {
               </h1>
               <p className="text-xl text-mirakiBlue-700 dark:text-mirakiGray-300 mb-6 flex items-center">
                 <User size={18} className="mr-2" />
-                by <Link to={`/artists?name=${encodeURIComponent(artwork.artist)}`} className="ml-1 font-medium hover:text-mirakiGold transition-colors">{artwork.artist}</Link>
+                by <Link to={`/artists?id=${encodeURIComponent(artwork.artistId)}`} className="ml-1 font-medium hover:text-mirakiGold transition-colors">{artwork.artist}</Link>
               </p>
               
               <div className="prose prose-mirakiBlue dark:prose-invert max-w-none mb-8">
@@ -183,17 +296,30 @@ const ArtworkDetails: React.FC = () => {
                     </div>
                     {artwork.forSale && (
                       <div className="space-x-2">
-                        <Button
-                          onClick={() => addToCart(artwork)}
-                          variant="outline"
-                          className="flex items-center gap-2"
-                        >
-                          <ShoppingCart size={18} />
-                          Add to Cart
-                        </Button>
-                        <Button className="bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900">
-                          Buy Now
-                        </Button>
+                        {quantity > 0 ? (
+                          <QuantityControls
+                            artwork={artwork}
+                            quantity={quantity}
+                            className="justify-end"
+                          />
+                        ) : (
+                          <>
+                            <Button
+                              onClick={() => addToCart(artwork)}
+                              variant="outline"
+                              className="flex items-center gap-2"
+                            >
+                              <ShoppingCart size={18} />
+                              Add to Cart
+                            </Button>
+                            <Button 
+                              className="bg-mirakiGold hover:bg-mirakiGold-600 text-mirakiBlue-900"
+                              onClick={handleBuyNow}
+                            >
+                              Buy Now
+                            </Button>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
@@ -211,10 +337,10 @@ const ArtworkDetails: React.FC = () => {
                   const relatedImageUrl = getFullImageUrl(related.image);
                   
                   return (
-                    <Link to={`/artwork/${related.id}`} key={related.id}>
+                    <Link to={`/artwork/${related._id}`} key={related._id}>
                       <Card className="overflow-hidden hover-lift">
                         <div className="aspect-[4/3] overflow-hidden">
-                          {relatedImagesError[related.id] ? (
+                          {relatedImagesError[related._id] ? (
                             <div className="w-full h-full flex flex-col items-center justify-center bg-mirakiGray-100 dark:bg-mirakiBlue-900">
                               <ImageOff size={32} className="text-mirakiGray-400 mb-2" />
                               <p className="text-mirakiBlue-500 dark:text-mirakiGray-400 text-sm">Image not available</p>
@@ -224,7 +350,7 @@ const ArtworkDetails: React.FC = () => {
                               src={relatedImageUrl} 
                               alt={related.title}
                               className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
-                              onError={() => handleRelatedImageError(related.id)}
+                              onError={() => handleRelatedImageError(related._id)}
                             />
                           )}
                         </div>

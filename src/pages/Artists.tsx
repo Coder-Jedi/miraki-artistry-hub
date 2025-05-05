@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MapIcon, Palette, Grid, Search, Filter, SlidersHorizontal } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { Artwork, Artist } from '@/types';
+import { Artist } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
@@ -12,7 +12,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ArtistCardHome from '@/components/ArtistCardHome';
 import ArtistMapSection from '@/components/ArtistMapSection';
 import ArtistDetailsSection from '@/components/ArtistDetailsSection';
-import useArtists from '@/hooks/useArtists';
 import useArtistsList, { ArtistsFilter } from '@/hooks/useArtistsList';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -44,8 +43,9 @@ const SearchInput = ({ initialValue = '', onSearch }: { initialValue: string, on
 const Artists: React.FC = () => {
   const [searchParams] = useSearchParams();
   const nameFromParam = searchParams.get('name');
+  const idFromParam = searchParams.get('id');
   
-  // Use the new useArtistsList hook instead of the old useArtists hook
+  // Use the useArtistsList hook for listing artists
   const {
     artists,
     loading,
@@ -56,45 +56,15 @@ const Artists: React.FC = () => {
     pagination
   } = useArtistsList();
   
-  // Keep the useArtists hook temporarily for the artist detail view
-  const { getArtistById } = useArtists();
-  
-  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('list');
-  
-  // Set up advanced filters toggle
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [isArtistDetailsView, setIsArtistDetailsView] = useState(false);
 
-  // If name param exists, select that artist
+  // Determine if we should show artist details based on URL parameters
   useEffect(() => {
-    const fetchArtistByName = async () => {
-      if (!nameFromParam) return;
-      
-      // Find the artist in the current list first
-      const foundArtist = artists.find(artist => 
-        artist.name.toLowerCase() === nameFromParam.toLowerCase()
-      );
-      
-      if (foundArtist) {
-        setSelectedArtist(foundArtist);
-      } else {
-        // If not found in current list, try to fetch by ID or name through API
-        // This is a simplified approach - in a real app you'd have a more robust way to look up artists by name
-        try {
-          // This is an example, you would need a proper getArtistByName endpoint or search functionality
-          const searchResults = await getArtistById(nameFromParam);
-          if (searchResults) {
-            setSelectedArtist(searchResults);
-          }
-        } catch (error) {
-          console.error('Error finding artist by name:', error);
-        }
-      }
-    };
-    
-    fetchArtistByName();
-  }, [nameFromParam, artists, getArtistById]);
+    setIsArtistDetailsView(!!(nameFromParam || idFromParam));
+  }, [nameFromParam, idFromParam]);
 
   // Trigger animations after page load
   useEffect(() => {
@@ -108,7 +78,17 @@ const Artists: React.FC = () => {
   };
 
   const handleBackToArtists = () => {
-    setSelectedArtist(null);
+    setIsArtistDetailsView(false);
+    // Update the URL without page reload
+    const url = new URL(window.location.href);
+    url.searchParams.delete('name');
+    url.searchParams.delete('id');
+    window.history.pushState({}, '', url);
+  };
+
+  // Switch to list view from map
+  const handleSwitchToListView = () => {
+    setActiveTab('list');
   };
 
   // Handle search from the isolated component
@@ -184,7 +164,7 @@ const Artists: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
           {artists.map(artist => (
             <ArtistCardHome 
-              key={artist.id} 
+              key={artist._id || artist.id} 
               artist={artist} 
             />
           ))}
@@ -239,13 +219,13 @@ const Artists: React.FC = () => {
 
   // Render map content based on loading state
   const renderMapContent = () => {
-    if (loading) {
-      return (
-        <div className="mt-6">
-          <Skeleton className="w-full h-[500px] rounded-lg" />
-        </div>
-      );
-    }
+    // if (loading) {
+    //   return (
+    //     <div className="mt-6">
+    //       <Skeleton className="w-full h-[500px] rounded-lg" />
+    //     </div>
+    //   );
+    // }
 
     return (
       <ArtistMapSection 
@@ -258,14 +238,19 @@ const Artists: React.FC = () => {
           showAdvancedFilters
         }}
         updateFilters={(newFilters) => updateFilters(newFilters as Partial<ArtistsFilter>)}
+        onViewListClick={handleSwitchToListView}
       />
     );
   };
 
   return (
     <Layout>
-      {selectedArtist ? (
-        <ArtistDetailsSection artist={selectedArtist} onBackClick={handleBackToArtists} />
+      {isArtistDetailsView ? (
+        <ArtistDetailsSection 
+          artistId={idFromParam || undefined} 
+          artistName={nameFromParam || undefined} 
+          onBackClick={handleBackToArtists} 
+        />
       ) : (
         <>
           {/* Page header */}

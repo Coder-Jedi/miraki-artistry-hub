@@ -21,7 +21,7 @@ const ArtistCardHome: React.FC<ArtistCardHomeProps> = ({ artist }) => {
   };
 
   const handleClick = () => {
-    navigate(`/artists?name=${encodeURIComponent(artist.name)}`);
+    navigate(`/artists?id=${encodeURIComponent(artist._id)}`);
   };
 
   // Function to render star ratings

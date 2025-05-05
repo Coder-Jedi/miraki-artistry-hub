@@ -25,7 +25,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
     if (onClick) {
       onClick();
     } else {
-      navigate(`/artists?name=${encodeURIComponent(artist.name)}`);
+      navigate(`/artists?id=${encodeURIComponent(artist._id)}`);
     }
   };
 
